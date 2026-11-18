@@ -25,6 +25,7 @@ export function proxy(request: NextRequest) {
   }
 }
 
+// Statik fayllar va metadata ikonkalari (apple-icon — kengaytmasiz) proxy'dan o'tmaydi
 export const config = {
-  matcher: ["/((?!_next|api|.*\\..*).*)"],
+  matcher: ["/((?!_next|api|.*/apple-icon|.*\\..*).*)"],
 };
