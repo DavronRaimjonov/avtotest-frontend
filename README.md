@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AvtoTest — frontend
 
-## Getting Started
-
-First, run the development server:
+Haydovchilik imtihoniga onlayn tayyorgarlik platformasi. Next.js 16 (App Router, Cache Components), Tailwind v4, TanStack Query, Zustand, Axios.
 
 ```bash
+cp .env.example .env.local
+npm i
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `NEXT_PUBLIC_API_URL` — backend manzili `/api` bilan (lokal: `http://localhost:4002/api`). Backend `CORS_ORIGINS` da frontend porti bo'lishi kerak (3000 yoki 3001).
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — backend `.env` dagi `GOOGLE_CLIENT_ID` bilan bir xil. Bo'sh bo'lsa Google tugmasi ko'rsatilmaydi (email + parol bilan kirish ishlaydi).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+API shartnomasi — `FRONTEND-API.md` (backenddan). Faqat landing qismi ulangan (`/api/landing/*`).
 
-## Learn More
+## Struktura
 
-To learn more about Next.js, take a look at the following resources:
+```
+@types/            — API tiplari (FRONTEND-API.md bo'yicha)
+app/
+  [lang]/          — root layout (til URL'dan), barcha sahifalar shu ichida
+    (main)/        — header + footer bilan: /, /variants, /result/[attemptId]
+    test/[attemptId] — test ishlash (o'z paneli bilan)
+components/
+  auth/            — Google tugmasi, login oynasi
+  layout/          — header (til tanlash, akkaunt), footer, logo
+  sections/home/   — bosh sahifa bo'limlari
+  variants/        — variant tanlash (panel + grid)
+  test/            — test ishlash (header, savol, javob varianti, xato haqida xabar, footer)
+  result/          — natija (summary, stats, review)
+  ui/              — icons, section-heading, link (til prefiksini o'zi qo'shadi)
+generics/          — notification (sonner)
+hooks/             — useQuery (barcha query hook'lar), useCountdown, useLang, useRouter (til prefiksi bilan)
+i18n/              — i18next: uzb (lotin), uzc (kirill), ru
+lib/               — constants, routes, query-keys, query-client, helpers
+provider/          — I18n + QueryClient + Toaster + login oynasi
+request/           — axios (refresh bilan), landing, attempt, guest, user, mutation/
+schema/            — zod sxemalar
+store/             — zustand: auth (login oynasi), exam (tanlov), guest (mehmon testi, sessionStorage)
+proxy.ts           — til (prefikssiz → /uzb rewrite) va /test/<uuid>, /result/<uuid> uchun token tekshiruvi
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Til
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ilova tili = test tili: `uzb` | `uzc` | `ru` (backend kodlari bilan bir xil). Til URL'da:
 
-## Deploy on Vercel
+| Til | Manzil |
+|---|---|
+| O'zbekcha (lotin) — standart | `/`, `/variants`, `/test/...` (prefikssiz) |
+| Ўзбекча (кирилл) | `/uzc`, `/uzc/variants`, ... |
+| Русский | `/ru`, `/ru/variants`, ... |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`proxy.ts` prefikssiz yo'lni ichkarida `/uzb/...` ga rewrite qiladi, `/uzb/...` ni esa prefikssiz manzilga redirect qiladi.
+Ichki havolalar tilsiz yoziladi (`ROUTES.variants`) — `@/components/ui/link` va `@/hooks/useRouter` prefiksni o'zi qo'shadi
+(`next/link` va `next/navigation` ning `useRouter` ini to'g'ridan-to'g'ri ishlatmang). Til API'ga `?lang=` / body `lang` sifatida ketadi;
+kirgan foydalanuvchida `PATCH /me { lang }` bilan profilga ham yoziladi. Tarjimalar: `i18n/locales/*.json`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Kirish
+
+Alohida sahifa yo'q — kirish oynasi (`components/auth/login-modal`): email + parol, ro'yxatdan o'tish (emailga 6 xonali kod → `verify-email`),
+parolni tiklash (`forgot-password` → `reset-password`), kirganda parolni o'zgartirish, qo'shimcha ravishda Google.
+
+## Test oqimi
+
+| | Mehmon | Kirgan (Google) |
+|---|---|---|
+| Boshlash | `POST /guest/tests` → `/test/guest` | `POST /attempts` → `/test/<id>` |
+| Javob (natija darhol, javob qotadi) | `POST /guest/check` | `POST /attempts/:id/answers` |
+| Imtihonda 3-xato | frontend aniqlaydi → `POST /guest/result` | server `finished: true` qaytaradi |
+| Yakunlash | `POST /guest/result` → `/result/guest` | `POST /attempts/:id/finish` → `/result/<id>` |
+| Holat | `sessionStorage` (vkladka yopilsa yo'qoladi) | serverda (sahifa yangilansa `GET /attempts/:id`) |
+
+"Xatolar ustida ishlash", "Saqlash", "Xato haqida xabar" — faqat kirganlarga: mehmonga kirish oynasi ochiladi, kirgach amal o'zi bajariladi.
+
+Javobdan keyin ~1 s natija ko'rsatilib, keyingi javobsiz savolga avtomatik o'tiladi. Klaviatura: F1–F9 yoki 1–9 — javob, ← → — savollar.
+
+## Yo'l belgilari
+
+`/signs` (kategoriyalar + qidiruv), `/signs/[group]`, `/signs/[group]/[sign]` — `GET /landing/signs/*`.
