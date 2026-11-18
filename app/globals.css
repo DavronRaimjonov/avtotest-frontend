@@ -1,26 +1,175 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Dizayn tokenlari (Avtotest platforma dizayni) */
+@theme {
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-navy: #0e1a3a;
+  --color-navy-2: #2f4a8a;
+  --color-accent: #ffc21a;
+  --color-ink: #0f172a;
+  --color-slate: #334155;
+  --color-muted: #5b6478;
+  --color-subtle: #8792a8;
+  --color-pale: #c9d2ea;
+  --color-line: #e3e8f2;
+  --color-soft: #eef1f7;
+  --color-bg: #f5f7fb;
+  --color-img: #e7ecf5;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-ok: #22a55a;
+  --color-ok-text: #15803d;
+  --color-ok-bg: #e8f7ee;
+  --color-ok-line: #9ed7b4;
+  --color-bad: #dc2626;
+  --color-bad-text: #b91c1c;
+  --color-bad-bg: #fdecec;
+  --color-bad-line: #f3b1b1;
+  --color-warn: #ea7a1a;
+  --color-warn-text: #b4530a;
+  --color-warn-bg: #fff1e6;
+
+  --color-tint-yellow: #fff4d1;
+  --color-tint-yellow-fg: #8a5a00;
+  --color-tint-blue: #e5ecff;
+  --color-tint-green: #ddf5e6;
+  --color-tint-red: #fde4e4;
+
+  --shadow-card: 0 10px 30px -18px rgba(14, 26, 58, 0.35);
+  --shadow-lift: 0 22px 40px -20px rgba(14, 26, 58, 0.45);
+  --shadow-float: 0 30px 60px -20px rgba(0, 0, 0, 0.45);
+
+  /* kirish animatsiyalari */
+  --animate-up: up 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-card-in: card-in 1s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade-in: fade-in 0.4s ease both;
+  --animate-pop: pop 0.45s ease;
+  --animate-shake: shake 0.45s ease;
+  /* doimiy animatsiyalar */
+  --animate-pulse-ring: pulse-ring 2s infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-zebra: zebra 1.6s ease-in-out infinite;
+  --animate-sign-pop: sign-pop 2.4s ease-in-out infinite;
+  --animate-plane: plane 2.2s ease-in-out infinite;
+  --animate-ring: ring 0.9s ease;
+  --animate-sheet-up: sheet-up 0.32s cubic-bezier(0.32, 0.72, 0, 1) both;
+
+  @keyframes up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(2px); }
+  }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(255, 194, 26, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 194, 26, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 194, 26, 0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes zebra {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  @keyframes sign-pop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  @keyframes plane {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    50% { transform: translate(3px, -3px) rotate(-6deg); }
+  }
+  @keyframes ring {
+    0%, 100% { transform: rotate(0); }
+    10% { transform: rotate(-12deg); }
+    20% { transform: rotate(10deg); }
+    30% { transform: rotate(-6deg); }
+    40% { transform: rotate(0); }
+  }
+  @keyframes shine {
+    0% { transform: translateX(-120%) skewX(-20deg); }
+    60%, 100% { transform: translateX(260%) skewX(-20deg); }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    @apply bg-bg font-sans text-ink antialiased;
+  }
+  button {
+    cursor: pointer;
+  }
+}
+
+/* Asosiy tugmadagi yaltiroq chiziq */
+@utility shine {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 40%;
+    background: rgba(255, 255, 255, 0.45);
+    animation: shine 3.2s ease-in-out infinite;
+  }
+}
+
+/* Kartochka ustiga kelganda ko'tariladi, ichidagi .ico silkinadi */
+@utility lift {
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.3s;
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lift);
+  }
+  &:hover .ico {
+    animation: var(--animate-ring);
+  }
+}
+
+@utility btn-hover {
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

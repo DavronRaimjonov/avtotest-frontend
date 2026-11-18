@@ -1,0 +1,497 @@
+{
+  "meta": {
+    "title": "AvtoTest — haydovchilik imtihoniga onlayn tayyorgarlik",
+    "description": "Rasmiy imtihon formatidagi testlar, 1300 dan ortiq savol, mavzular bo‘yicha mashq va har bir savolga izoh.",
+    "variants": "Variantni tanlash",
+    "test": "Test ishlash",
+    "result": "Test natijasi",
+    "signs": "Yo‘l belgilari"
+  },
+  "common": {
+    "start": "Testni boshlash",
+    "starting": "Boshlanmoqda…",
+    "variants": "Variantlar",
+    "retry": "Qayta urinish",
+    "back": "Orqaga",
+    "cancel": "Bekor qilish",
+    "send": "Yuborish",
+    "sending": "Yuborilmoqda…",
+    "close": "Yopish",
+    "login": "Kirish",
+    "logout": "Chiqish",
+    "user": "Foydalanuvchi",
+    "account": "Akkaunt",
+    "chooseLang": "Tilni tanlash"
+  },
+  "nav": {
+    "home": "Bosh sahifa",
+    "variants": "Variantlar",
+    "topics": "Mavzular",
+    "signs": "Yo‘l belgilari",
+    "manual": "Darslik",
+    "profile": "Profil",
+    "menu": "Asosiy menyu"
+  },
+  "auth": {
+    "loggingIn": "Kirilmoqda…",
+    "welcome": "Xush kelibsiz, {{name}}!",
+    "loggedIn": "Tizimga kirdingiz",
+    "titles": {
+      "login": "Tizimga kirish",
+      "register": "Ro‘yxatdan o‘tish",
+      "verify": "Emailni tasdiqlang",
+      "forgot": "Parolni tiklash",
+      "reset": "Yangi parol",
+      "change": "Parolni o‘zgartirish"
+    },
+    "tabs": {
+      "login": "Kirish",
+      "register": "Ro‘yxatdan o‘tish"
+    },
+    "email": "Email",
+    "password": "Parol",
+    "newPassword": "Yangi parol",
+    "currentPassword": "Joriy parol",
+    "firstName": "Ism",
+    "lastName": "Familiya (ixtiyoriy)",
+    "passwordHint": "Kamida 8 belgi, harf va raqam bo‘lsin",
+    "forgotLink": "Parolni unutdingizmi?",
+    "submitLogin": "Kirish",
+    "submitRegister": "Ro‘yxatdan o‘tish",
+    "or": "yoki",
+    "showPassword": "Parolni ko‘rsatish",
+    "hidePassword": "Parolni yashirish",
+    "verifyText": "{{email}} manziliga 6 xonali kod yubordik. Kod 10 daqiqa amal qiladi.",
+    "code": "Tasdiqlash kodi",
+    "submitVerify": "Tasdiqlash",
+    "resend": "Kodni qayta yuborish",
+    "resendIn": "Qayta yuborish: {{sec}} s",
+    "codeSent": "Kod qayta yuborildi",
+    "notVerified": "Email tasdiqlanmagan — emailingizga kod yubordik",
+    "forgotText": "Emailingizni kiriting — parolni tiklash uchun kod yuboramiz.",
+    "submitForgot": "Kod yuborish",
+    "forgotSent": "Agar bu email ro‘yxatdan o‘tgan bo‘lsa, unga kod yubordik",
+    "resetText": "{{email}} manziliga yuborilgan kodni va yangi parolni kiriting.",
+    "submitReset": "Parolni saqlash",
+    "submitChange": "Saqlash",
+    "passwordChanged": "Parol o‘zgartirildi",
+    "setPassword": "Parol o‘rnatish",
+    "googleSignin": "Google bilan kirish",
+    "googleSignup": "Google bilan ro‘yxatdan o‘tish",
+    "googleSoon": "Google orqali kirish tez orada ishga tushadi. Hozircha email bilan kiring"
+  },
+  "hero": {
+    "badge": "2026-yil YHQ asosida yangilangan",
+    "title": "Haydovchilik imtihonini birinchi urinishda topshiring",
+    "text": "Rasmiy imtihon formatidagi testlar, 1300 dan ortiq savol, mavzular bo‘yicha mashq va har bir savolga tushunarli izoh — barchasi bepul va bitta platformada.",
+    "facts": [
+      "20 ta savol",
+      "25 daqiqa",
+      "O‘tish bali 90%",
+      "To‘liq bepul"
+    ]
+  },
+  "try": {
+    "label": "SINAB KO‘RING",
+    "another": "Boshqa savol",
+    "loadError": "Savolni yuklab bo‘lmadi",
+    "pick": "Javob variantini tanlang",
+    "correct": "To‘g‘ri!",
+    "wrong": "Noto‘g‘ri.",
+    "noExplanation": "Barcha savollar va izohlar variantlar bo‘limida.",
+    "continue": "Testni davom ettirish"
+  },
+  "modes": {
+    "exam": {
+      "title": "Real imtihon",
+      "text": "Imtihon markazidagi kabi: 20 savol, 25 daqiqa, javob darhol ko‘rsatilmaydi."
+    },
+    "variants": {
+      "title": "Variantlar",
+      "text": "Har bir variantda 20 ta savol. Natijangiz har bir variant ustida saqlanadi."
+    },
+    "topics": {
+      "title": "Mavzular bo‘yicha",
+      "text": "Yo‘l belgilari, chorrahalar, quvib o‘tish — mavzuni tanlab chuqur o‘rganing."
+    },
+    "mistakes": {
+      "title": "Xatolar ustida ishlash",
+      "text": "Xato qilgan savollaringiz alohida to‘planadi — ularni qayta yeching."
+    },
+    "simulator": {
+      "title": "Avtodrom simulyatori",
+      "text": "Amaliy imtihon mashqlari"
+    },
+    "hard": {
+      "title": "Qiyin savollar",
+      "text": "Ko‘pchilik xato qiladigan savollar"
+    },
+    "signs": {
+      "title": "Yo‘l belgilari",
+      "text": "Barcha belgilar izohlari bilan"
+    },
+    "big": {
+      "title": "Katta test",
+      "text": "50, 100 yoki 200 ta aralash savol — imtihon sharoitida, vaqt va xatolar limiti bilan",
+      "count": "{{count}} savol"
+    }
+  },
+  "how": {
+    "eyebrow": "QANDAY ISHLAYDI",
+    "title": "Uch qadamda imtihonga tayyor bo‘ling",
+    "steps": [
+      {
+        "title": "Mavzularni o‘rganing",
+        "text": "Video darslik va izohlar orqali qoidalarni mavzuma-mavzu takrorlang."
+      },
+      {
+        "title": "Variantlarni yeching",
+        "text": "Har bir variantni 90% dan yuqori natija bilan yakunlashga harakat qiling."
+      },
+      {
+        "title": "Real imtihonni sinang",
+        "text": "Vaqt cheklovi bilan haqiqiy sharoitda o‘zingizni tekshirib ko‘ring."
+      }
+    ]
+  },
+  "examRules": {
+    "eyebrow": "NAZARIY IMTIHON",
+    "title": "Imtihon qanday o‘tadi?",
+    "text": "Nazariy imtihon kompyuterda topshiriladi. Har bir savolda bir nechta javob varianti beriladi, ko‘pchilik savollar rasm yoki yo‘l vaziyati bilan birga keladi. Platformadagi “Real imtihon” rejimi aynan shu shartlarni takrorlaydi.",
+    "tipsTitle": "Imtihondagi maslahatlar",
+    "tips": [
+      "Savolni oxirigacha diqqat bilan o‘qing — “mumkin” va “mumkin emas” ni adashtirmang.",
+      "Rasmdagi belgilar, chiziqlar va transport vositalarining joylashuviga e’tibor bering.",
+      "Vaqtni taqsimlang: bitta savolga o‘rtacha bir daqiqadan ko‘proq vaqt bor."
+    ],
+    "facts": {
+      "questions": "ta savol",
+      "minutes": "daqiqa vaqt",
+      "correct": "ta to‘g‘ri javob — o‘tish uchun ({{pass}}%)",
+      "mistakes": "tagacha xatoga ruxsat"
+    }
+  },
+  "topics": {
+    "eyebrow": "MAVZULAR",
+    "title": "Yo‘l harakati qoidalarining barcha bo‘limlari",
+    "all": "Barcha variantlar",
+    "soon": "Tez orada",
+    "count": "{{count}} ta savol"
+  },
+  "categories": {
+    "eyebrow": "PRAVA TOIFALARI",
+    "title": "Qaysi toifa sizga kerak?",
+    "items": [
+      {
+        "title": "Mototsikllar",
+        "text": "Mototsikl va motorollerlarni boshqarish huquqi."
+      },
+      {
+        "title": "Yengil avtomobillar",
+        "text": "Maksimal massasi 3500 kg gacha va haydovchidan tashqari 8 tagacha o‘rindiqli avtomobillar."
+      },
+      {
+        "title": "Yuk avtomobillari",
+        "text": "Maksimal massasi 3500 kg dan ortiq bo‘lgan yuk avtomobillari."
+      },
+      {
+        "title": "Avtobuslar",
+        "text": "Haydovchidan tashqari 8 tadan ortiq o‘rindiqqa ega yo‘lovchi tashish vositalari."
+      },
+      {
+        "title": "Tirkamali tarkiblar",
+        "text": "B, C yoki D toifadagi tortuvchi transport vositasi va tirkamadan iborat tarkiblar."
+      }
+    ]
+  },
+  "license": {
+    "eyebrow": "PRAVA OLISH TARTIBI",
+    "title": "Haydovchilik guvohnomasigacha bo‘lgan yo‘l",
+    "steps": [
+      {
+        "title": "Tibbiy ko‘rik",
+        "text": "Haydovchilik uchun yaroqlilik haqida tibbiy ma’lumotnoma oling."
+      },
+      {
+        "title": "Avtomaktab",
+        "text": "Tanlangan toifa bo‘yicha nazariy va amaliy mashg‘ulotlarni o‘ting."
+      },
+      {
+        "title": "Nazariy imtihon",
+        "text": "Kompyuterda 20 ta savolga javob bering — shu yerda tayyorlaning."
+      },
+      {
+        "title": "Amaliy imtihon",
+        "text": "Avtodromda mashqlarni va yo‘lda haydash ko‘nikmasini topshiring."
+      },
+      {
+        "title": "Guvohnoma",
+        "text": "Imtihonlardan muvaffaqiyatli o‘tgach haydovchilik guvohnomasini oling."
+      }
+    ],
+    "note": "Aniq talablar, muddatlar va to‘lovlar o‘zgarishi mumkin — rasmiy manbalardan tekshirib oling."
+  },
+  "advantages": {
+    "title": "Nega aynan bizning platforma?",
+    "items": [
+      {
+        "title": "Istalgan qurilmada",
+        "text": "Telefon, planshet yoki kompyuterda — istalgan vaqtda test ishlang."
+      },
+      {
+        "title": "3 tilda",
+        "text": "O‘zbek (lotin, kirill) va rus tillarida savollar."
+      },
+      {
+        "title": "Natijalar tahlili",
+        "text": "Har bir testdan keyin xatolaringiz saqlanadi va qaysi mavzu sust ekani ko‘rinadi."
+      },
+      {
+        "title": "Dolzarb savollar",
+        "text": "Savollar bazasi amaldagi YHQ o‘zgarishlariga muvofiq yangilanadi."
+      }
+    ]
+  },
+  "faq": {
+    "title": "Ko‘p beriladigan savollar",
+    "items": [
+      {
+        "q": "Platformadan foydalanish pullikmi?",
+        "a": "Yo‘q. Barcha variantlar, mavzular, izohlar va real imtihon rejimi to‘liq bepul."
+      },
+      {
+        "q": "Test ishlash uchun ro‘yxatdan o‘tish kerakmi?",
+        "a": "Yo‘q, testni darhol boshlashingiz mumkin. Natijalar va xatolar saqlanishi uchun email yoki Google orqali kiring."
+      },
+      {
+        "q": "Imtihonda nechta xato qilish mumkin?",
+        "a": "Imtihondan o‘tish uchun 20 ta savoldan kamida 18 tasiga to‘g‘ri javob berish kerak, ya’ni ko‘pi bilan 2 ta xato."
+      },
+      {
+        "q": "Platformadan telefonda foydalanish mumkinmi?",
+        "a": "Ha, sayt telefon, planshet va kompyuterda bir xil qulay ishlaydi."
+      },
+      {
+        "q": "Qaysi tillarda testlar bor?",
+        "a": "O‘zbek (lotin va kirill) hamda rus tillarida test ishlash mumkin."
+      }
+    ]
+  },
+  "telegram": {
+    "title": "Savolingiz bormi? Telegram guruhimizga qo‘shiling",
+    "text": "Tushunmagan savollaringizni so‘rang, yangiliklar va foydali maslahatlarni birinchilardan bo‘lib oling.",
+    "join": "Guruhga qo‘shilish"
+  },
+  "footer": {
+    "about": "Haydovchilik guvohnomasi imtihoniga onlayn tayyorgarlik platformasi.",
+    "columns": [
+      {
+        "title": "BO‘LIMLAR",
+        "links": [
+          "Variantlar",
+          "Mavzular",
+          "Real imtihon",
+          "Yo‘l belgilari"
+        ]
+      },
+      {
+        "title": "FOYDALI",
+        "links": [
+          "Prava olish tartibi",
+          "Imtihon qoidalari",
+          "YHQ matni",
+          "Yangiliklar"
+        ]
+      },
+      {
+        "title": "ALOQA",
+        "links": [
+          "Telegram: [@username]",
+          "Bot: [@bot]",
+          "[+998 XX XXX XX XX]"
+        ]
+      }
+    ],
+    "rights": "© 2026 AvtoTest. Barcha huquqlar himoyalangan."
+  },
+  "mode": {
+    "practice": {
+      "title": "Mashq rejimi",
+      "desc": "Javob va izoh darhol ko‘rsatiladi"
+    },
+    "exam": {
+      "title": "Imtihon rejimi",
+      "desc": "Natija faqat oxirida, vaqt cheklangan"
+    }
+  },
+  "source": {
+    "variant": "Variant {{number}}",
+    "topic": "Mavzu bo‘yicha",
+    "mistakes": "Xatolar ustida ishlash",
+    "bookmarks": "Saqlangan savollar",
+    "random": "Aralash savollar",
+    "hard": "Qiyin savollar"
+  },
+  "variants": {
+    "title": "Variantni tanlang",
+    "subtitle": "{{total}} ta variant, har birida {{size}} ta savol",
+    "loading": "Variantlar yuklanmoqda…",
+    "progress": "Umumiy progress",
+    "guestProgress": "Natijalarni saqlash uchun kiring",
+    "loadError": "Variantlarni yuklab bo‘lmadi",
+    "size": "{{size}} savollik",
+    "legendPass": "{{pass}}% va yuqori",
+    "legendFail": "{{pass}}% dan past",
+    "legendNew": "Yechilmagan",
+    "new": "yangi",
+    "variant": "Variant {{number}}",
+    "testLang": "Test tili",
+    "selected": "TANLANGAN VARIANT",
+    "notSolved": "Hali yechilmagan",
+    "lastResult": "Oxirgi natija: {{percent}}%",
+    "questions": "savol",
+    "minutes": "daqiqa",
+    "passMark": "o‘tish bali",
+    "mode": "Rejim"
+  },
+  "test": {
+    "openError": "Testni ochib bo‘lmadi",
+    "notFound": "Test topilmadi",
+    "notFoundText": "Mehmon testi faqat shu brauzer oynasida saqlanadi. Yangi test boshlang.",
+    "question": "Savol {{n}} / {{total}}",
+    "questionNav": "Savol {{n}}",
+    "questions": "Savollar",
+    "timeLeft": "Qolgan vaqt",
+    "finish": "Yakunlash",
+    "finishing": "Yakunlanmoqda…",
+    "confirmFinish": "{{count}} ta javobsiz. Yakunlansinmi?",
+    "explanation": "Izoh",
+    "noImage": "Bu savolda rasm yo‘q",
+    "topic": "Mavzu: {{name}}",
+    "save": "Saqlash",
+    "saved": "Saqlangan",
+    "report": "Xato haqida xabar",
+    "reportTitle": "Savolda nima xato?",
+    "reportPlaceholder": "Masalan: rasmdagi belgi noaniq",
+    "prev": "Oldingi",
+    "next": "Keyingi",
+    "correctCount": "To‘g‘ri: {{count}}",
+    "wrongCount": "Xato: {{count}}",
+    "correctAnswer": "To‘g‘ri javob",
+    "wrongAnswer": "Noto‘g‘ri javob",
+    "guest": "Mehmon rejimi — natija saqlanmaydi",
+    "mistakesLeft": "Yana {{count}} ta xato mumkin",
+    "failedLimit": "Imtihondan o‘ta olmadingiz — {{count}} ta xato"
+  },
+  "result": {
+    "label": "{{title}} · {{mode}}",
+    "modeExam": "Imtihon natijasi",
+    "modePractice": "Mashq natijasi",
+    "ring": "Natija: {{total}} tadan {{correct}} ta to‘g‘ri",
+    "passed": "IMTIHONDAN O‘TDINGIZ",
+    "failed": "O‘TA OLMADINGIZ",
+    "passedTitle": "Ajoyib natija!",
+    "failedTitle": "Yana bir oz mashq qiling",
+    "passedText": "Siz o‘tish balini to‘pladingiz. Keyingi variantga o‘ting.",
+    "passedTextMistakes": "Siz o‘tish balini to‘pladingiz. Xato qilgan {{count}} ta savolni qayta ko‘rib chiqing va keyingi variantga o‘ting.",
+    "failedText": "O‘tish uchun kamida {{pass}}% kerak. Xato qilgan {{count}} ta savolni ko‘rib chiqing va qayta yeching.",
+    "next": "Keyingi variant",
+    "retry": "Qayta yechish",
+    "mistakes": "Xatolar ustida ishlash",
+    "stats": {
+      "correct": "To‘g‘ri javoblar",
+      "wrong": "Xatolar",
+      "time": "Sarflangan vaqt",
+      "avg": "O‘rtacha vaqt / savol",
+      "sec": "{{sec}} s",
+      "unanswered": "Javobsiz"
+    },
+    "review": {
+      "title": "Javoblar tahlili",
+      "all": "Barchasi",
+      "onlyWrong": "Faqat xatolar",
+      "noMistakes": "Xato yo‘q — barcha savollarga to‘g‘ri javob berdingiz.",
+      "number": "{{n}}-savol",
+      "yourAnswer": "Sizning javobingiz: {{text}}",
+      "noAnswer": "Javob berilmagan",
+      "correct": "To‘g‘ri javob: {{text}}"
+    },
+    "notFound": "Natija topilmadi",
+    "notFoundText": "Havola noto‘g‘ri yoki test boshqa akkauntga tegishli.",
+    "guestNotFoundText": "Mehmon natijasi faqat shu brauzer oynasida turadi. Yangi test boshlang.",
+    "unfinished": "Test hali yakunlanmagan",
+    "unfinishedText": "Testni oxirigacha yeching va “Yakunlash” tugmasini bosing.",
+    "continue": "Testni davom ettirish",
+    "backToVariants": "Variantlarga qaytish",
+    "guestTitle": "Natijangiz saqlanmadi",
+    "guestText": "Tizimga kiring — keyingi testlar natijasi, xatolaringiz va progress saqlanib boradi.",
+    "guestLogin": "Kirish / Ro‘yxatdan o‘tish",
+    "reason": {
+      "time_up": "Vaqt tugadi",
+      "mistakes_limit": "Ruxsat etilgan {{count}} ta xatodan oshdingiz"
+    }
+  },
+  "notify": {
+    "bookmarkAdded": "Savol saqlandi",
+    "bookmarkRemoved": "Saqlanganlardan olib tashlandi",
+    "reportSent": "Rahmat! Xabaringiz yuborildi"
+  },
+  "errors": {
+    "VALIDATION_ERROR": "Ma’lumotlar noto‘g‘ri to‘ldirilgan",
+    "UNAUTHORIZED": "Avval tizimga kiring",
+    "LOGIN_REQUIRED": "Bu bo‘lim uchun tizimga kiring",
+    "ACCOUNT_BLOCKED": "Akkauntingiz bloklangan",
+    "INVALID_GOOGLE_TOKEN": "Google orqali kirib bo‘lmadi, qayta urinib ko‘ring",
+    "GOOGLE_AUTH_DISABLED": "Google orqali kirish vaqtincha ishlamayapti",
+    "INVALID_REFRESH_TOKEN": "Sessiya tugadi, qaytadan kiring",
+    "NOT_FOUND": "Ma’lumot topilmadi",
+    "NO_QUESTIONS": "Bu bo‘limda hozircha savol yo‘q",
+    "ATTEMPT_FINISHED": "Test yakunlangan yoki vaqt tugagan",
+    "ATTEMPT_NOT_FINISHED": "Test hali yakunlanmagan",
+    "ALREADY_ANSWERED": "Bu savolga allaqachon javob berilgan",
+    "QUESTION_NOT_IN_ATTEMPT": "Savol bu testga tegishli emas",
+    "ANSWER_NOT_IN_QUESTION": "Javob bu savolga tegishli emas",
+    "UNKNOWN_QUESTIONS": "Ba’zi savollar topilmadi, testni qaytadan boshlang",
+    "TOO_MANY_REQUESTS": "Juda ko‘p urinish. Birozdan keyin qayta urinib ko‘ring",
+    "network": "Server bilan aloqa yo‘q. Internetni tekshiring",
+    "unexpected": "Kutilmagan xatolik yuz berdi",
+    "EMAIL_TAKEN": "Bu email bilan ro‘yxatdan o‘tilgan. Kiring yoki parolni tiklang",
+    "EMAIL_NOT_VERIFIED": "Email tasdiqlanmagan",
+    "INVALID_OTP": "Kod noto‘g‘ri yoki muddati o‘tgan",
+    "OTP_ATTEMPTS_EXHAUSTED": "Juda ko‘p xato urinish. Yangi kod so‘rang",
+    "OTP_TOO_SOON": "Yangi kodni {{seconds}} soniyadan keyin so‘rash mumkin",
+    "MAIL_SEND_FAILED": "Xat yuborilmadi. Birozdan keyin qayta urinib ko‘ring",
+    "INVALID_CREDENTIALS": "Email yoki parol noto‘g‘ri",
+    "INVALID_CURRENT_PASSWORD": "Joriy parol noto‘g‘ri"
+  },
+  "validation": {
+    "email": "Email manzilini to‘g‘ri kiriting",
+    "required": "Maydonni to‘ldiring",
+    "passwordMin": "Parol kamida 8 belgidan iborat bo‘lsin",
+    "passwordMax": "Parol 72 belgidan oshmasin",
+    "passwordRule": "Parolda kamida bitta harf va bitta raqam bo‘lsin",
+    "nameMax": "50 belgidan oshmasin",
+    "code": "{{length}} xonali kodni kiriting"
+  },
+  "signs": {
+    "eyebrow": "YO‘L BELGILARI",
+    "title": "Yo‘l belgilari",
+    "text": "Barcha belgilar kategoriyalar bo‘yicha, har biri izohi bilan.",
+    "ruNote": "Ruscha matnlar tez orada qo‘shiladi — hozircha o‘zbekcha ko‘rsatiladi.",
+    "search": "Belgi raqami yoki nomi (masalan, 5.2)",
+    "noResults": "Hech narsa topilmadi",
+    "count": "{{count}} ta belgi",
+    "allGroups": "Barcha kategoriyalar",
+    "notFound": "Belgi topilmadi",
+    "loadError": "Belgilarni yuklab bo‘lmadi"
+  },
+  "more": {
+    "tab": "Ko‘proq",
+    "title": "Boshqa bo‘limlar",
+    "lang": "Til",
+    "sections": "Bo‘limlar",
+    "account": "Akkaunt",
+    "loginTitle": "Kirish yoki ro‘yxatdan o‘tish",
+    "loginText": "Natijalar va xatolaringiz saqlanadi"
+  }
+}
