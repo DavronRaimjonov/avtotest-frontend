@@ -1,0 +1,55 @@
+import type { Metadata, Viewport } from "next";
+import { Manrope } from "next/font/google";
+import { notFound } from "next/navigation";
+import type { TestLang } from "@/@types";
+import { createServerI18n, LANGUAGES, LOCALE_CODES } from "@/i18n";
+import { localePath } from "@/lib/routes";
+import ProviderApi from "@/provider";
+import "../globals.css";
+
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+// viewportFit: cover — iPhone'da pastki tab bar safe area (env(safe-area-inset-bottom)) bilan ishlashi uchun
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: "#0E1A3A",
+};
+
+// Til URL'dan: / (uzb), /uzc, /ru. Prefikssiz yo'llarni proxy.ts ichkarida /uzb ga rewrite qiladi
+export const generateStaticParams = () => LANGUAGES.map((lang) => ({ lang }));
+
+const isLang = (value: string): value is TestLang => LANGUAGES.includes(value as TestLang);
+
+export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLang(lang)) return {};
+  const { t } = createServerI18n(lang);
+  return {
+    title: { default: t("meta.title"), template: "%s · AvtoTest" },
+    description: t("meta.description"),
+    // Qidiruv tizimlari uchun boshqa tildagi nusxalar
+    alternates: {
+      languages: Object.fromEntries(LANGUAGES.map((l) => [LOCALE_CODES[l], localePath(l, "/")])),
+    },
+  };
+}
+
+export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
+  const { lang } = await params;
+  if (!isLang(lang)) notFound();
+
+  return (
+    <html lang={LOCALE_CODES[lang]} className={manrope.variable}>
+      <body className="min-h-dvh">
+        {/* key — til almashganda i18n instance yangi tilda qayta yaratiladi */}
+        <ProviderApi key={lang} lang={lang}>
+          {children}
+        </ProviderApi>
+      </body>
+    </html>
+  );
+}
