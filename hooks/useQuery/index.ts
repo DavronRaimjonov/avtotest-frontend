@@ -1,14 +1,15 @@
 "use client";
 
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import type { PageParams, VariantSize } from "@/@types";
+import type { PageParams, Paginated, VariantSize } from "@/@types";
 import { currentLang, toLanguage } from "@/i18n";
+import { SAVED_PAGE_SIZE } from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import { getAttempt, getAttemptResult, getAttempts } from "@/request/attempt";
 import { getDemoQuestion, getMeta, getTopics, getVariants } from "@/request/landing";
 import { getSign, getSignGroup, getSignGroups, searchSigns } from "@/request/signs";
-import { getBookmarkIds, getMe, getStats } from "@/request/user";
+import { getBookmarkIds, getBookmarks, getMe, getMistakes, getStats } from "@/request/user";
 import { useAuthStore } from "@/store/auth.store";
 
 const useHasSession = () => useAuthStore((s) => s.hasSession);
@@ -123,3 +124,31 @@ export const useBookmarkIdsQuery = () =>
     staleTime: Infinity,
     select: (ids) => new Set(ids),
   });
+
+// "Yana yuklash": keyingi sahifa — yuklanganlari total'dan kam bo'lsa
+const nextPage = <T,>(last: Paginated<T>, all: Paginated<T>[]) =>
+  all.reduce((n, p) => n + p.items.length, 0) < last.total ? last.page + 1 : undefined;
+
+// Saqlangan savollar (to'g'ri javobi va izohi bilan). Kalitda til: matnlar joriy tilda
+export const useBookmarksQuery = () => {
+  const lang = useCurrentLang();
+  return useInfiniteQuery({
+    queryKey: QUERY_KEYS.bookmarkList(lang),
+    queryFn: ({ pageParam }) => getBookmarks({ page: pageParam, limit: SAVED_PAGE_SIZE, lang }),
+    initialPageParam: 1,
+    getNextPageParam: nextPage,
+    enabled: useHasSession(),
+  });
+};
+
+// Xatolarim: savol istalgan testda to'g'ri yechilsa ro'yxatdan o'zi chiqadi (backend)
+export const useMistakesQuery = () => {
+  const lang = useCurrentLang();
+  return useInfiniteQuery({
+    queryKey: QUERY_KEYS.mistakeList(lang),
+    queryFn: ({ pageParam }) => getMistakes({ page: pageParam, limit: SAVED_PAGE_SIZE, lang }),
+    initialPageParam: 1,
+    getNextPageParam: nextPage,
+    enabled: useHasSession(),
+  });
+};

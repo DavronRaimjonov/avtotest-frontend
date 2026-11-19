@@ -3,8 +3,10 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { KeyIcon, LogoutIcon } from "@/components/ui/icons";
+import { BookmarkIcon, KeyIcon, LogoutIcon, RetryIcon } from "@/components/ui/icons";
+import { Link } from "@/components/ui/link";
 import { useMeQuery } from "@/hooks/useQuery";
+import { ROUTES } from "@/lib/routes";
 import { useLogoutMutation } from "@/request/mutation";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -81,6 +83,22 @@ const AccountMenu = ({ name, email, avatar, hasPassword }: MenuProps) => {
             <b className="truncate text-sm">{name || t("common.user")}</b>
             {email && <span className="truncate text-[13px] text-muted">{email}</span>}
           </div>
+          <Link
+            href={ROUTES.saved}
+            onClick={() => setOpen(false)}
+            className="flex h-10 items-center gap-2.5 rounded-[10px] px-3 text-sm font-bold text-slate no-underline hover:bg-bg"
+          >
+            <BookmarkIcon size={18} />
+            {t("more.saved")}
+          </Link>
+          <Link
+            href={ROUTES.mistakes}
+            onClick={() => setOpen(false)}
+            className="flex h-10 items-center gap-2.5 rounded-[10px] px-3 text-sm font-bold text-slate no-underline hover:bg-bg"
+          >
+            <RetryIcon size={18} />
+            {t("more.mistakes")}
+          </Link>
           {/* Faqat Google bilan kirgan — parol "Parolni tiklash" oqimi orqali o'rnatiladi */}
           <button
             type="button"

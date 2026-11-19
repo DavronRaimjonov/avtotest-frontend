@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import type { StartAttemptBody } from "@/@types";
 import {
   BookIcon,
+  BookmarkIcon,
   CheckIcon,
   ChevronRightIcon,
   ClockIcon,
@@ -21,6 +22,7 @@ import { useMeQuery } from "@/hooks/useQuery";
 import { useRouter } from "@/hooks/useRouter";
 import { TEST_LANGS } from "@/lib/constants";
 import { cn } from "@/lib/helpers";
+import { ROUTES } from "@/lib/routes";
 import { useLogoutMutation, useStartAttempt } from "@/request/mutation";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -63,6 +65,8 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
     action();
   };
   const startTest = (body: StartAttemptBody) => then(() => start(body));
+  // Faqat kirganlarga ochiq sahifa: mehmonga login oynasi, kirgach o'sha sahifaga
+  const goAuth = (href: string) => then(() => (hasSession ? router.push(href) : openLogin(() => router.push(href))));
 
   return (
     <div className="fixed inset-0 z-50 flex animate-fade-in flex-col justify-end bg-black/40" onClick={onClose}>
@@ -171,14 +175,27 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
               tone="bg-[#AF52DE]"
               title={t("modes.mistakes.title")}
               text={t("modes.mistakes.text")}
-              onClick={startTest({ source: "mistakes", mode: "practice" })}
-              disabled={isPending}
+              onClick={goAuth(ROUTES.mistakes)}
             />
           </Section>
 
           {/* Akkaunt */}
           {hasSession && (
             <Section title={t("more.account")}>
+              <Row
+                icon={<BookmarkIcon size={18} />}
+                tone="bg-[#FF9500]"
+                title={t("more.saved")}
+                text={t("more.savedText")}
+                onClick={goAuth(ROUTES.saved)}
+              />
+              <Row
+                icon={<RetryIcon size={18} />}
+                tone="bg-[#FF3B30]"
+                title={t("more.mistakes")}
+                text={t("more.mistakesText")}
+                onClick={goAuth(ROUTES.mistakes)}
+              />
               <Row
                 icon={<KeyIcon size={18} />}
                 tone="bg-[#007AFF]"

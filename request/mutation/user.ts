@@ -1,11 +1,11 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ReportBody } from "@/@types";
+import { type InfiniteData, type QueryClient, type QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Paginated, ReportBody } from "@/@types";
 import { notify, notifyApiError } from "@/generics/notification";
 import i18next from "@/i18n";
 import { QUERY_KEYS } from "@/lib/query-keys";
-import { addBookmark, reportQuestion, removeBookmark } from "../user";
+import { addBookmark, deleteMistake, reportQuestion, removeBookmark } from "../user";
 
 // "Saqlash" — belgi darhol almashadi, xato bo'lsa qaytariladi
 export const useToggleBookmarkMutation = () => {
@@ -28,6 +28,75 @@ export const useToggleBookmarkMutation = () => {
       queryClient.setQueryData(key, ctx?.prev);
       notifyApiError(error);
     },
+    // /saved ro'yxati keyingi ochilishda yangisini oladi
+    onSettled: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bookmarkLists }),
+  });
+};
+
+type Pages = InfiniteData<Paginated<{ id: number }>>;
+type Snapshot = [QueryKey, unknown][];
+
+// Ro'yxatdan (barcha tillardagi keshdan) savolni olib tashlaydi va total'ni kamaytiradi
+const dropFromLists = async (queryClient: QueryClient, prefix: QueryKey, questionId: number): Promise<Snapshot> => {
+  await queryClient.cancelQueries({ queryKey: prefix });
+  const snapshot = queryClient.getQueriesData({ queryKey: prefix });
+  queryClient.setQueriesData<Pages>({ queryKey: prefix }, (data) => {
+    if (!data?.pages) return data;
+    const had = data.pages.some((p) => p.items.some((i) => i.id === questionId));
+    if (!had) return data;
+    return {
+      ...data,
+      pages: data.pages.map((p) => ({
+        ...p,
+        items: p.items.filter((i) => i.id !== questionId),
+        total: Math.max(0, p.total - 1),
+      })),
+    };
+  });
+  return snapshot;
+};
+
+const restore = (queryClient: QueryClient, snapshot?: Snapshot) =>
+  snapshot?.forEach(([key, data]) => queryClient.setQueryData(key, data));
+
+// /saved: karta darhol yo'qoladi; test ekranidagi "Saqlash" belgisi ham o'chadi. Xato bo'lsa qaytariladi
+export const useRemoveBookmarkMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["me", "bookmarks", "remove"],
+    mutationFn: (questionId: number) => removeBookmark(questionId),
+    onMutate: async (questionId) => {
+      const lists = await dropFromLists(queryClient, QUERY_KEYS.bookmarkLists, questionId);
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.bookmarkIds });
+      const ids = queryClient.getQueryData<number[]>(QUERY_KEYS.bookmarkIds);
+      if (ids) queryClient.setQueryData<number[]>(QUERY_KEYS.bookmarkIds, ids.filter((id) => id !== questionId));
+      return { lists, ids };
+    },
+    onSuccess: () => notify(i18next.t("notify.bookmarkRemoved"), "info"),
+    onError: (error, _id, ctx) => {
+      restore(queryClient, ctx?.lists);
+      if (ctx?.ids) queryClient.setQueryData(QUERY_KEYS.bookmarkIds, ctx.ids);
+      notifyApiError(error);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stats }),
+  });
+};
+
+// /mistakes: karta darhol yo'qoladi, xato bo'lsa qaytariladi
+export const useRemoveMistakeMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["me", "mistakes", "remove"],
+    mutationFn: (questionId: number) => deleteMistake(questionId),
+    onMutate: async (questionId) => ({
+      lists: await dropFromLists(queryClient, QUERY_KEYS.mistakeLists, questionId),
+    }),
+    onSuccess: () => notify(i18next.t("notify.mistakeRemoved"), "info"),
+    onError: (error, _id, ctx) => {
+      restore(queryClient, ctx?.lists);
+      notifyApiError(error);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stats }),
   });
 };
 

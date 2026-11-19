@@ -15,13 +15,16 @@ import {
 import { BIG_TEST_COUNTS } from "@/lib/constants";
 import { cn } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
+import { useRouter } from "@/hooks/useRouter";
 import { useStartAttempt } from "@/request/mutation";
+import { useAuthStore } from "@/store/auth.store";
 
-// href — sahifaga o'tish, start — darhol test (mehmon /guest, kirgan /attempts; "Xatolar" — faqat kirganlarga).
-// Matn — modes.<key>.title / .text
+// href — sahifaga o'tish, start — darhol test (mehmon /guest, kirgan /attempts).
+// auth — sahifa faqat kirganlarga: mehmonga login oynasi, kirgach sahifaga o'tadi. Matn — modes.<key>.title / .text
 type Item = {
   key: string;
   href?: string;
+  auth?: boolean;
   start?: StartAttemptBody;
   Icon: typeof ClockIcon;
   tone: string;
@@ -31,7 +34,7 @@ const MODES: Item[] = [
   { key: "exam", start: { source: "random", mode: "exam", count: 20 }, Icon: ClockIcon, tone: "bg-tint-yellow text-tint-yellow-fg" },
   { key: "variants", href: ROUTES.variants, Icon: GridIcon, tone: "bg-tint-blue text-navy-2" },
   { key: "topics", href: "#topics", Icon: BookIcon, tone: "bg-tint-green text-ok-text" },
-  { key: "mistakes", start: { source: "mistakes", mode: "practice" }, Icon: RetryIcon, tone: "bg-tint-red text-bad-text" },
+  { key: "mistakes", href: ROUTES.mistakes, auth: true, Icon: RetryIcon, tone: "bg-tint-red text-bad-text" },
 ];
 
 const TOOLS: Item[] = [
@@ -47,8 +50,11 @@ const toolClass =
 export const Modes = () => {
   const { t } = useTranslation();
   const { start, isPending } = useStartAttempt();
+  const router = useRouter();
+  const hasSession = useAuthStore((s) => s.hasSession);
+  const openLogin = useAuthStore((s) => s.openLogin);
 
-  // Bir xil ko'rinish: start bo'lsa tugma, aks holda havola
+  // Bir xil ko'rinish: start yoki mehmonga yopiq sahifa bo'lsa tugma, aks holda havola
   const action = (item: Item, className: string, content: React.ReactNode, style?: React.CSSProperties) =>
     item.start ? (
       <button
@@ -56,6 +62,16 @@ export const Modes = () => {
         type="button"
         disabled={isPending}
         onClick={() => start(item.start!)}
+        className={className}
+        style={style}
+      >
+        {content}
+      </button>
+    ) : item.auth && !hasSession ? (
+      <button
+        key={item.key}
+        type="button"
+        onClick={() => openLogin(() => router.push(item.href!))}
         className={className}
         style={style}
       >
@@ -113,14 +129,6 @@ export const Modes = () => {
 
       <section className="mx-auto max-w-[1200px] px-6 pt-4">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
-          <a href="#" className="lift flex items-center gap-4 rounded-[20px] bg-navy px-6 py-[22px] text-white no-underline">
-            <span className="animate-pulse-ring rounded-md bg-accent px-2 py-1 text-xs font-extrabold text-navy">3D</span>
-            <span className="flex flex-1 flex-col gap-0.5">
-              <b>{t("modes.simulator.title")}</b>
-              <span className="text-[13px] text-pale">{t("modes.simulator.text")}</span>
-            </span>
-            <ChevronRightIcon strokeWidth={2} />
-          </a>
           {TOOLS.map((item) =>
             action(
               item,

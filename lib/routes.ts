@@ -10,6 +10,8 @@ export const ROUTES = {
   signs: "/signs",
   signGroup: (group: string) => `/signs/${group}`,
   sign: (group: string, sign: string) => `/signs/${group}/${sign}`,
+  saved: "/saved",
+  mistakes: "/mistakes",
 } as const;
 
 // "/variants" → "/variants" (uzb), "/ru/variants" (ru). "/#topics" → "/ru#topics". "#", "https://..." — o'zgarmaydi
@@ -27,8 +29,9 @@ export const splitLocale = (pathname: string): { lang: TestLang; path: string } 
 };
 
 // Token talab qiladigan sahifalar (yo'lning birinchi segmenti): tokensiz kirilsa variantlarga qaytariladi.
-// Mehmon testi (/test/guest, /result/guest) bundan mustasno — holati brauzerda
-export const PROTECTED_SEGMENTS = ["test", "result"];
+// Mehmon testi (/test/guest, /result/guest) bundan mustasno — holati brauzerda.
+// saved, mistakes — saqlangan savollar va xatolarim (faqat kirganlarga)
+export const PROTECTED_SEGMENTS = ["test", "result", "saved", "mistakes"];
 
 // pathname til prefiksi bilan ham bo'lishi mumkin
 export const isProtectedPath = (pathname: string) => {

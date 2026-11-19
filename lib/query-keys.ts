@@ -20,4 +20,9 @@ export const QUERY_KEYS = {
   me: ["me"] as const,
   stats: ["me", "stats"] as const,
   bookmarkIds: ["me", "bookmarks", "ids"] as const,
+  // Ro'yxatlar til bo'yicha alohida keshlanadi; olib tashlash/yangilashda prefiks bilan hammasi
+  bookmarkLists: ["me", "bookmarks", "list"] as const,
+  bookmarkList: (lang: TestLang) => ["me", "bookmarks", "list", lang] as const,
+  mistakeLists: ["me", "mistakes"] as const,
+  mistakeList: (lang: TestLang) => ["me", "mistakes", lang] as const,
 };

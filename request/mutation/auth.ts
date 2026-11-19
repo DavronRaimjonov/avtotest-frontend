@@ -35,7 +35,13 @@ const useAuthSuccess = () => {
   return ({ access_token, refresh_token, user, isNew }: AuthResponse) => {
     saveAuthTokens({ access_token, refresh_token });
     queryClient.setQueryData(QUERY_KEYS.me, user);
-    notify(isNew ? i18next.t("auth.welcome", { name: user.firstName ?? "" }) : i18next.t("auth.loggedIn"));
+    // Yangi akkaunt — "Ro'yxatdan o'tdingiz", qaytgan — "Xush kelibsiz" (ism bo'lmasa umumiy matn)
+    const name = user.firstName?.trim();
+    notify(
+      name
+        ? i18next.t(isNew ? "auth.registered" : "auth.welcomeBack", { name })
+        : i18next.t(isNew ? "auth.registeredNoName" : "auth.loggedIn"),
+    );
     // Saytda tanlangan til profilga yoziladi — keyingi testlar shu tilda
     const lang = currentLang();
     if (user.lang !== lang) {
@@ -71,8 +77,11 @@ export const useRegisterMutation = () =>
   useMutation({
     mutationKey: ["auth", "register"],
     mutationFn: (body: RegisterBody) => register({ ...body, lang: currentLang() }),
-    onSuccess: (res, { email }) =>
-      useAuthStore.getState().setView("verify", { email: res.email ?? email, resendInSec: res.resendInSec ?? RESEND_SEC }),
+    onSuccess: (res, { email }) => {
+      const to = res.email ?? email;
+      useAuthStore.getState().setView("verify", { email: to, resendInSec: res.resendInSec ?? RESEND_SEC });
+      notify(i18next.t("auth.codeSentTo", { email: to }), "info");
+    },
     // EMAIL_TAKEN, MAIL_SEND_FAILED, VALIDATION_ERROR
     onError: notifyApiError,
   });
@@ -159,6 +168,7 @@ export const useLogoutMutation = () => {
     },
     onSettled: () => {
       clearAuthTokens();
+      notify(i18next.t("auth.loggedOut"), "info");
       queryClient.removeQueries({ queryKey: QUERY_KEYS.me });
       queryClient.removeQueries({ queryKey: ["attempts"] });
       if (isProtectedPath(window.location.pathname)) router.replace(ROUTES.home);

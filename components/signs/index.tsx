@@ -5,7 +5,6 @@ import { useDeferredValue, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SearchIcon } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
-import { useLang } from "@/hooks/useLang";
 import { useSignGroupsQuery, useSignSearchQuery } from "@/hooks/useQuery";
 import { ROUTES } from "@/lib/routes";
 import { SignCard, SignCardSkeleton } from "./sign-card";
@@ -13,7 +12,6 @@ import { SignCard, SignCardSkeleton } from "./sign-card";
 // Yo'l belgilari: kategoriyalar + qidiruv (raqam yoki nom bo'yicha)
 export const SignGroups = () => {
   const { t } = useTranslation();
-  const { lang } = useLang();
   const [search, setSearch] = useState("");
   const deferred = useDeferredValue(search);
   const groups = useSignGroupsQuery();
@@ -29,7 +27,6 @@ export const SignGroups = () => {
           <span className="text-[13px] font-extrabold tracking-[0.08em] text-navy-2">{t("signs.eyebrow")}</span>
           <h1 className="m-0 text-[32px] font-extrabold tracking-tight sm:text-[40px]">{t("signs.title")}</h1>
           <p className="m-0 text-[15px] leading-relaxed text-muted">{t("signs.text")}</p>
-          {lang === "ru" && <p className="m-0 text-[13px] font-semibold text-warn-text">{t("signs.ruNote")}</p>}
         </div>
         <label className="relative w-full max-w-[380px]">
           <span className="sr-only">{t("signs.search")}</span>

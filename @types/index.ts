@@ -2,7 +2,7 @@
 
 // ---------- Umumiy ----------
 // Test tili: o'zbek (lotin), o'zbek (kirill), rus
-export type TestLang = "uzb" | "uzc" | "ru";
+export type TestLang = "uzb" | "uzc" | "ru" | "kk";
 
 // practice — javob va izoh darhol; exam — natija faqat oxirida, vaqt serverda tekshiriladi
 export type ExamMode = "practice" | "exam";
@@ -413,6 +413,8 @@ export interface SavedQuestion extends Omit<DemoQuestion, "correctAnswerId"> {
 export interface MistakeItem extends SavedQuestion {
   wrongCount: number;
   lastWrongAt: string;
+  // Oxirgi xatoda tanlangan javob; noma'lum yoki javob o'chirilgan bo'lsa null
+  myAnswerId: number | null;
 }
 
 export interface BookmarkItem extends SavedQuestion {

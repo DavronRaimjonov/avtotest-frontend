@@ -1,6 +1,7 @@
 import i18next, { createInstance, type InitOptions } from "i18next";
 import { initReactI18next } from "react-i18next";
 import type { TestLang } from "@/@types";
+import kk from "./locales/kk.json";
 import ru from "./locales/ru.json";
 import uzb from "./locales/uzb.json";
 import uzc from "./locales/uzc.json";
@@ -15,6 +16,7 @@ export const LOCALE_CODES: Record<TestLang, string> = {
   uzb: "uz-Latn",
   uzc: "uz-Cyrl",
   ru: "ru",
+  kk: "kk",
 };
 
 export const toLanguage = (value: string | undefined | null): TestLang => {
@@ -27,12 +29,14 @@ const resources = {
   [LOCALE_CODES.uzb]: { translation: uzb },
   [LOCALE_CODES.uzc]: { translation: uzc },
   [LOCALE_CODES.ru]: { translation: ru },
+  [LOCALE_CODES.kk]: { translation: kk },
 };
 
 const options = (lang: TestLang): InitOptions => ({
   resources,
   lng: LOCALE_CODES[lang],
-  fallbackLng: LOCALE_CODES[DEFAULT_LANGUAGE],
+  // Qozoqcha matn topilmasa ruschasi (qozoq foydalanuvchiga tushunarliroq), qolganlarga o'zbekchasi
+  fallbackLng: { [LOCALE_CODES.kk]: [LOCALE_CODES.ru], default: [LOCALE_CODES[DEFAULT_LANGUAGE]] },
   supportedLngs: Object.values(LOCALE_CODES),
   load: "currentOnly",
   interpolation: { escapeValue: false },

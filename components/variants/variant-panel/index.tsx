@@ -30,7 +30,7 @@ export const VariantPanel = ({ variant, passPercent = PASS_PERCENT }: { variant?
       <div className="flex flex-col gap-5 rounded-3xl border border-line bg-white p-6">
         <div className="flex flex-col gap-2.5">
           <span className="text-[13px] font-bold text-muted">{t("variants.testLang")}</span>
-          <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-bg p-1">
+          <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-bg p-1 sm:grid-cols-4">
             {TEST_LANGS.map((l) => (
               <button
                 key={l.value}

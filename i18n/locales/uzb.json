@@ -5,7 +5,9 @@
     "variants": "Variantni tanlash",
     "test": "Test ishlash",
     "result": "Test natijasi",
-    "signs": "Yo‘l belgilari"
+    "signs": "Yo‘l belgilari",
+    "saved": "Saqlangan savollar",
+    "mistakes": "Xatolarim"
   },
   "common": {
     "start": "Testni boshlash",
@@ -34,7 +36,6 @@
   },
   "auth": {
     "loggingIn": "Kirilmoqda…",
-    "welcome": "Xush kelibsiz, {{name}}!",
     "loggedIn": "Tizimga kirdingiz",
     "titles": {
       "login": "Tizimga kirish",
@@ -78,7 +79,12 @@
     "setPassword": "Parol o‘rnatish",
     "googleSignin": "Google bilan kirish",
     "googleSignup": "Google bilan ro‘yxatdan o‘tish",
-    "googleSoon": "Google orqali kirish tez orada ishga tushadi. Hozircha email bilan kiring"
+    "googleSoon": "Google orqali kirish tez orada ishga tushadi. Hozircha email bilan kiring",
+    "registered": "Ro‘yxatdan o‘tdingiz, {{name}}! Xush kelibsiz",
+    "registeredNoName": "Ro‘yxatdan o‘tdingiz! Xush kelibsiz",
+    "welcomeBack": "Xush kelibsiz, {{name}}!",
+    "codeSentTo": "Tasdiqlash kodi {{email}} manziliga yuborildi",
+    "loggedOut": "Tizimdan chiqdingiz"
   },
   "hero": {
     "badge": "2026-yil YHQ asosida yangilangan",
@@ -98,13 +104,13 @@
     "pick": "Javob variantini tanlang",
     "correct": "To‘g‘ri!",
     "wrong": "Noto‘g‘ri.",
-    "noExplanation": "Barcha savollar va izohlar variantlar bo‘limida.",
+    "noExplanation": "Har bir savol izohi ro‘yxatdan o‘tganlarga test yakunida ko‘rsatiladi.",
     "continue": "Testni davom ettirish"
   },
   "modes": {
     "exam": {
       "title": "Real imtihon",
-      "text": "Imtihon markazidagi kabi: 20 savol, 25 daqiqa, javob darhol ko‘rsatilmaydi."
+      "text": "Imtihon markazidagi kabi: 20 savol, 25 daqiqa, 2 tagacha xato mumkin — 3-xatoda imtihon tugaydi."
     },
     "variants": {
       "title": "Variantlar",
@@ -117,10 +123,6 @@
     "mistakes": {
       "title": "Xatolar ustida ishlash",
       "text": "Xato qilgan savollaringiz alohida to‘planadi — ularni qayta yeching."
-    },
-    "simulator": {
-      "title": "Avtodrom simulyatori",
-      "text": "Amaliy imtihon mashqlari"
     },
     "hard": {
       "title": "Qiyin savollar",
@@ -239,8 +241,8 @@
         "text": "Telefon, planshet yoki kompyuterda — istalgan vaqtda test ishlang."
       },
       {
-        "title": "3 tilda",
-        "text": "O‘zbek (lotin, kirill) va rus tillarida savollar."
+        "title": "4 tilda",
+        "text": "O‘zbek (lotin, kirill), rus va qozoq tillarida savollar."
       },
       {
         "title": "Natijalar tahlili",
@@ -273,7 +275,7 @@
       },
       {
         "q": "Qaysi tillarda testlar bor?",
-        "a": "O‘zbek (lotin va kirill) hamda rus tillarida test ishlash mumkin."
+        "a": "O‘zbek (lotin va kirill), rus hamda qozoq tillarida test ishlash mumkin."
       }
     ]
   },
@@ -321,7 +323,7 @@
     },
     "exam": {
       "title": "Imtihon rejimi",
-      "desc": "Natija faqat oxirida, vaqt cheklangan"
+      "desc": "Vaqt cheklangan, xatolar limitidan oshsa imtihon tugaydi"
     }
   },
   "source": {
@@ -434,7 +436,8 @@
   "notify": {
     "bookmarkAdded": "Savol saqlandi",
     "bookmarkRemoved": "Saqlanganlardan olib tashlandi",
-    "reportSent": "Rahmat! Xabaringiz yuborildi"
+    "reportSent": "Rahmat! Xabaringiz yuborildi",
+    "mistakeRemoved": "Xatolarimdan olib tashlandi"
   },
   "errors": {
     "VALIDATION_ERROR": "Ma’lumotlar noto‘g‘ri to‘ldirilgan",
@@ -477,7 +480,6 @@
     "eyebrow": "YO‘L BELGILARI",
     "title": "Yo‘l belgilari",
     "text": "Barcha belgilar kategoriyalar bo‘yicha, har biri izohi bilan.",
-    "ruNote": "Ruscha matnlar tez orada qo‘shiladi — hozircha o‘zbekcha ko‘rsatiladi.",
     "search": "Belgi raqami yoki nomi (masalan, 5.2)",
     "noResults": "Hech narsa topilmadi",
     "count": "{{count}} ta belgi",
@@ -492,6 +494,40 @@
     "sections": "Bo‘limlar",
     "account": "Akkaunt",
     "loginTitle": "Kirish yoki ro‘yxatdan o‘tish",
-    "loginText": "Natijalar va xatolaringiz saqlanadi"
+    "loginText": "Natijalar va xatolaringiz saqlanadi",
+    "saved": "Saqlangan savollar",
+    "savedText": "Test paytida saqlaganlaringiz",
+    "mistakes": "Xatolarim",
+    "mistakesText": "Xato qilgan savollaringiz"
+  },
+  "questions": {
+    "number": "#{{id}}",
+    "remove": "Olib tashlash",
+    "loadMore": "Yana yuklash",
+    "loading": "Yuklanmoqda…",
+    "startTest": "Shu savollardan test",
+    "count": "{{count}} ta savol",
+    "correctAnswer": "To‘g‘ri javob",
+    "explanation": "Izoh",
+    "error": "Ro‘yxatni yuklab bo‘lmadi",
+    "loginTitle": "Bu bo‘lim faqat kirgan foydalanuvchilar uchun",
+    "loginText": "Saqlangan savollar va xatolaringizni ko‘rish uchun tizimga kiring.",
+    "yourAnswer": "Sizning javobingiz",
+    "all": "Hammasi · {{count}}"
+  },
+  "saved": {
+    "title": "Saqlangan savollar",
+    "subtitle": "test paytida “Saqlash” bosilganlar",
+    "savedAt": "Saqlangan: {{date}}",
+    "emptyTitle": "Hali saqlangan savol yo‘q",
+    "emptyText": "Test ishlayotganda savol yonidagi “Saqlash” tugmasini bosing — savol shu yerda paydo bo‘ladi."
+  },
+  "mistakes": {
+    "title": "Xatolarim",
+    "subtitle": "to‘g‘ri yechilgan savol ro‘yxatdan o‘zi chiqadi",
+    "wrongCount": "{{count}} marta xato",
+    "lastWrongAt": "oxirgisi {{date}}",
+    "emptyTitle": "Xatolar yo‘q",
+    "emptyText": "Test ishlang — xato qilgan savollaringiz shu yerga to‘planadi va ularni qayta yechishingiz mumkin."
   }
 }

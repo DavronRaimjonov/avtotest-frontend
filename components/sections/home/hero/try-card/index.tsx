@@ -79,7 +79,7 @@ export const TryCard = () => {
                 <InfoIcon className="mt-px flex-none text-navy-2" />
                 <span>
                   <b>{picked === q.correctAnswerId ? t("try.correct") : t("try.wrong")}</b>{" "}
-                  {q.explanation ?? t("try.noExplanation")}
+                  {t("try.noExplanation")}
                 </span>
               </div>
             )}

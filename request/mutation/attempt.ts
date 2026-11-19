@@ -97,6 +97,8 @@ export const useAnswerMutation = (attemptId: string) => {
       return { prev };
     },
     onSuccess: (res, { questionId }) => {
+      // Xato -> "Xatolarim" ga qo'shiladi, to'g'ri javob -> chiqadi (backend): ro'yxat eskirdi
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.mistakeLists, refetchType: "none" });
       queryClient.setQueryData<Attempt>(key, (a) =>
         a && {
           ...patchAttempt(a, questionId, {
@@ -142,6 +144,7 @@ export const useFinishAttemptMutation = (attemptId: string) => {
       // Variantlar setkasidagi natija va xatolar ro'yxati yangilanadi
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.variants });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stats });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.mistakeLists });
       storage.clear();
       router.replace(ROUTES.result(attemptId));
     },

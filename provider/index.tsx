@@ -35,7 +35,8 @@ export default function ProviderApi({ lang, children }: { lang: TestLang; childr
       <QueryClientProvider client={queryClient}>
         {children}
         <LoginModal />
-        <Toaster position="top-center" richColors closeButton />
+        {/* Header (sticky) ustida emas, ostida chiqadi */}
+        <Toaster position="top-center" richColors closeButton offset={84} mobileOffset={{ top: 72 }} duration={4000} />
       </QueryClientProvider>
     </I18nextProvider>
   );

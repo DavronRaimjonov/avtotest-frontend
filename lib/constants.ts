@@ -15,7 +15,7 @@ export const REFRESH_TOKEN_DAYS = 30;
 
 // Ilova tillari = backend test tillari. Standart til URL'da prefikssiz (/variants),
 // qolganlari prefiks bilan (/uzc/variants, /ru/variants)
-export const LANGUAGES: TestLang[] = ["uzb", "uzc", "ru"];
+export const LANGUAGES: TestLang[] = ["uzb", "uzc", "ru", "kk"];
 export const DEFAULT_LANGUAGE: TestLang = "uzb";
 
 // Tugallanmagan testni davom ettirish uchun (localStorage)
@@ -33,6 +33,15 @@ export const FINISH_DELAY_MS = 1800;
 // Katta testlar (aralash savollar, imtihon rejimi)
 export const BIG_TEST_COUNTS = [50, 100, 200] as const;
 
+// Backend bitta testga ko'pi bilan shuncha savol beradi
+export const MAX_TEST_COUNT = 200;
+
+// "Saqlangan savollar" / "Xatolarim" panelidagi test hajmlari (oxirida "Hammasi")
+export const MY_TEST_SIZES = [20, 50] as const;
+
+// "Saqlangan savollar" va "Xatolarim" — bir so'rovda shuncha karta ("Yana yuklash")
+export const SAVED_PAGE_SIZE = 20;
+
 // Taymer shundan kam qolganda qizarib ketadi (soniya)
 export const TIMER_WARN_SEC = 5 * 60;
 
@@ -41,6 +50,7 @@ export const TEST_LANGS: { value: TestLang; label: string; short: string }[] = [
   { value: "uzb", label: "O‘zbekcha", short: "UZ" },
   { value: "uzc", label: "Ўзбекча", short: "ЎЗ" },
   { value: "ru", label: "Русский", short: "RU" },
+  { value: "kk", label: "Қазақша", short: "KZ" },
 ];
 
 export const EXAM_MODES: ExamMode[] = ["practice", "exam"];

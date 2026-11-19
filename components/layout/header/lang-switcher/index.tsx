@@ -7,7 +7,7 @@ import { useLang } from "@/hooks/useLang";
 import { TEST_LANGS } from "@/lib/constants";
 import { cn } from "@/lib/helpers";
 
-// Interfeys va test tili: O'zbekcha (lotin), Ўзбекча (кирилл), Русский
+// Interfeys va test tili: O'zbekcha (lotin), Ўзбекча (кирилл), Русский, Қазақша
 export const LangSwitcher = () => {
   const { t } = useTranslation();
   const { lang, setLang } = useLang();
