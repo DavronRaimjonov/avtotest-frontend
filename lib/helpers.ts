@@ -13,6 +13,13 @@ export const formatTime = (totalSec: number) => {
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 };
 
+// 18.11.2026 — barcha tillarda bir xil (brauzerning o'zbekcha Intl formati "2026 M11 18" beradi)
+export const formatDate = (iso: string) => {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
+};
+
 export const percent = (part: number, total: number) =>
   total ? Math.round((part / total) * 100) : 0;
 

@@ -361,7 +361,7 @@ Bosh sahifadagi tugmalar (body ikkala API uchun bir xil):
 | Tugma | Body | Mehmon | Kirgan |
 |---|---|---|---|
 | Variantlar → "Testni boshlash" | `{ source: "variant", variantId, mode }` | `POST /guest/tests` | `POST /attempts` |
-| "Real imtihon" | `{ source: "random", mode: "exam", count: 20 }` (yoki tanlangan variant bilan `mode: "exam"`) | `POST /guest/tests` | `POST /attempts` |
+| **"Real imtihon topshirish"** (bosh sahifadagi katta tugma, "Real imtihon" kartasi) | `{ source: "exam", mode: "exam" }` — har safar 20 ta yangi tasodifiy savol | `POST /guest/tests` | `POST /attempts` |
 | 50 / 100 / 200 savollik test | `{ source: "random", mode: "exam" \| "practice", count: 50 \| 100 \| 200 }` | `POST /guest/tests` | `POST /attempts` |
 | "Mavzular bo'yicha" | `{ source: "topic", topicId, mode: "practice" }` | `POST /guest/tests` | `POST /attempts` |
 | "Qiyin savollar" | `{ source: "hard", mode: "practice" }` | `POST /guest/tests` | `POST /attempts` |
@@ -389,7 +389,7 @@ POST /guest/tests   ─►  savollar (to'g'ri javobsiz)
 ```
 
 #### `POST /api/landing/guest/tests`
-Body (`/attempts` bilan bir xil, lekin `source` faqat `variant`, `topic`, `random` yoki `hard`):
+Body (`/attempts` bilan bir xil, lekin `source` faqat `variant`, `topic`, `random`, `hard` yoki `exam`):
 ```json
 { "source": "variant", "variantId": 4, "mode": "exam", "lang": "ru", "count": 20 }
 ```
@@ -536,9 +536,11 @@ POST /attempts  ─►  savollar (to'g'ri javobsiz)
 | 200 | 240 daqiqa |
 | Boshqa son (masalan, 10 savollik variant) | savollar × 75 soniya |
 
-**Tasodifiy savollar** (`random`, `topic`, `hard`):
+**Tasodifiy savollar** (`random`, `topic`, `hard`, `exam`):
 - Bitta testda savol takrorlanmaydi. Bazada matni, rasmi va javoblari bir xil bo'lgan dublikat savollar ham bitta deb olinadi.
-- Kirgan foydalanuvchiga avval hali ko'rmagan (kam ko'rgan) savollari tushadi, shuning uchun testdan testga ham kam takrorlanadi. Mehmonga to'liq tasodifiy tushadi.
+- **Qayta topshirishda takrorlanmaydi** (random 20/50/100/200, real imtihon, mavzu, hard): avval hali ko'rilmagan savollar tushadi. "Ko'rilgan" — oldingi testlarga tushgan har qanday savol (javob berilmagan yoki testdan chiqib ketilgan bo'lsa ham). Butun baza tugagach aylana qaytadan boshlanadi.
+  - Kirgan foydalanuvchi: tarix serverda (`attempts`), frontend hech narsa yubormaydi.
+  - Mehmon: frontend ko'rgan savollar ID larini `localStorage` (`guest_seen_questions`, oxirgi 1500 ta) da saqlaydi va `POST /guest/tests` ga `seenIds: number[]` (max 3000) qilib yuboradi.
 - Savollar tartibi har safar aralash.
 
 #### `POST /api/landing/attempts` — testni boshlash
@@ -549,7 +551,7 @@ Body:
 
 | Maydon | Majburiy | Tavsif |
 |---|---|---|
-| `source` | ha | `variant` · `topic` · `mistakes` (xatolarim) · `bookmarks` (saqlanganlar) · `random` (aralash) · `hard` (qiyin savollar) |
+| `source` | ha | `variant` · `topic` · `mistakes` (xatolarim) · `bookmarks` (saqlanganlar) · `random` (aralash) · `hard` (qiyin savollar) · `exam` (real imtihon: backend har doim 20 ta tasodifiy savol va `mode: "exam"` qo'yadi — 25 daqiqa, 2 xatogacha; `count`/`mode` e'tiborga olinmaydi) |
 | `mode` | ha | `practice` yoki `exam` |
 | `variantId` | `source=variant` bo'lsa | Variant **id** si |
 | `topicId` | `source=topic` bo'lsa | Mavzu id si |
@@ -776,6 +778,7 @@ Hamma maydon ixtiyoriy. `lang` — keyingi testlar uchun default til.
 `topics` eng zaifidan boshlab tartiblangan ("qaysi mavzu sust"). Hozircha bo'sh, chunki savollar mavzularga biriktirilmagan.
 
 #### Xatolarim
+- `POST /api/landing/me/explanations` — `{ "questionIds": [12, 45], "lang": "uzb" }` (1–200 ta) → `[{ "id": 12, "explanation": "..." }]`. Mehmon sifatida ishlangan test natijasida izohlar yopiq ("Izohni ko'rish uchun kiring yoki ro'yxatdan o'ting"); foydalanuvchi kirgach frontend shu endpoint bilan natijadagi savollar izohlarini oladi. Davom etayotgan testidagi savollar (oxirgi 6 soat) qaytmaydi.
 - `GET /api/landing/me/mistakes?page=1&limit=20&lang=uzb` — sahifalangan ro'yxat. Har bir element: savol + `correctAnswerId` + `explanation` + `wrongCount` + `lastWrongAt` + `myAnswerId`.
   - `myAnswerId` — foydalanuvchi oxirgi xatoda tanlagan javob. Kartada qizil rangda "Sizning javobingiz" deb ko'rsating, to'g'ri javob esa yashil. Javob keyinroq o'chirilgan bo'lsa `null` keladi — belgi ko'rsatilmaydi.
   - Admin nofaol qilgan savollar ro'yxatga ham, `total` ga ham kirmaydi (saqlanganlarda ham shunday).

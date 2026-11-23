@@ -14,6 +14,7 @@ import {
   KeyIcon,
   LogoutIcon,
   RetryIcon,
+  UsersIcon,
   WarningIcon,
   XIcon,
 } from "@/components/ui/icons";
@@ -147,6 +148,14 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
 
           {/* Bo'limlar */}
           <Section title={t("more.sections")}>
+            {/* Jamoaviy test: mehmonga sahifaning o'zi kirish taklifini ko'rsatadi */}
+            <Row
+              icon={<UsersIcon size={18} />}
+              tone="bg-navy-2"
+              title={t("groupTest.join.cta")}
+              text={t("more.groupTestText")}
+              onClick={then(() => router.push(ROUTES.groupTests))}
+            />
             <Row
               icon={<BookIcon size={18} />}
               tone="bg-[#34C759]"
@@ -159,7 +168,7 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
               tone="bg-[#FF9500]"
               title={t("modes.exam.title")}
               text={t("modes.exam.text")}
-              onClick={startTest({ source: "random", mode: "exam", count: 20 })}
+              onClick={startTest({ source: "exam", mode: "exam" })}
               disabled={isPending}
             />
             <Row

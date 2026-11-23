@@ -40,7 +40,7 @@ export const TryCard = () => {
         {isPending || (isFetching && !picked) ? (
           <TrySkeleton />
         ) : isError || !q ? (
-          <div className="flex h-[260px] flex-col items-center justify-center gap-3 rounded-2xl bg-bg text-center text-sm text-muted">
+          <div className="flex h-65 flex-col items-center justify-center gap-3 rounded-2xl bg-bg text-center text-sm text-muted">
             {t("try.loadError")}
             <button type="button" onClick={next} className="h-10 rounded-[10px] bg-navy px-4 font-bold text-white">
               {t("common.retry")}
@@ -48,7 +48,7 @@ export const TryCard = () => {
           </div>
         ) : (
           <>
-            <div className="relative h-[168px] overflow-hidden rounded-2xl bg-img">
+            <div className="relative h-42 overflow-hidden rounded-2xl bg-img">
               {q.imageUrl && <Image src={q.imageUrl} alt="" fill unoptimized className="object-contain" />}
             </div>
 
@@ -100,10 +100,10 @@ export const TryCard = () => {
 
 const TrySkeleton = () => (
   <>
-    <span className="h-[168px] animate-pulse rounded-2xl bg-soft" />
+    <span className="h-42 animate-pulse rounded-2xl bg-soft" />
     <span className="h-12 animate-pulse rounded-lg bg-soft" />
     {[0, 1, 2].map((i) => (
-      <span key={i} className="h-[52px] animate-pulse rounded-xl bg-soft" />
+      <span key={i} className="h-13 animate-pulse rounded-xl bg-soft" />
     ))}
   </>
 );

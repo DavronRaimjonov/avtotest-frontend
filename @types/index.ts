@@ -7,7 +7,9 @@ export type TestLang = "uzb" | "uzc" | "ru" | "kk";
 // practice — javob va izoh darhol; exam — natija faqat oxirida, vaqt serverda tekshiriladi
 export type ExamMode = "practice" | "exam";
 
-export type AttemptSource = "variant" | "topic" | "mistakes" | "bookmarks" | "random" | "hard";
+// exam — real imtihon: har doim 20 ta tasodifiy savol, imtihon rejimida (backend majburlaydi).
+// group — jamoaviy test (faqat tarixda keladi; /landing/group-tests orqali ishlanadi)
+export type AttemptSource = "variant" | "topic" | "mistakes" | "bookmarks" | "random" | "hard" | "exam" | "group";
 
 export type AttemptStatus = "in_progress" | "finished";
 
@@ -223,6 +225,8 @@ export interface AttemptBase {
   status: AttemptStatus;
   variant: VariantRef | null;
   topicId: number | null;
+  // Faqat source=group: jamoaviy test id'si (havola /group-test/<id>)
+  groupTestId?: string | null;
   questionCount: number;
   // Mashqda null
   timeLimitSec: number | null;
@@ -303,7 +307,7 @@ export type ResultData = Omit<
 
 // ---------- Mehmon (tokensiz, hech narsa saqlanmaydi) ----------
 // /guest/tests da mistakes va bookmarks yo'q
-export type GuestSource = Exclude<AttemptSource, "mistakes" | "bookmarks">;
+export type GuestSource = Exclude<AttemptSource, "mistakes" | "bookmarks" | "group">;
 
 export type GuestQuestion = Pick<AttemptQuestion, "number" | "id" | "text" | "imageUrl" | "topic" | "answers">;
 
@@ -430,6 +434,113 @@ export interface ReportResponse {
   status: "open" | "resolved" | "rejected";
 }
 
+// ---------- Jamoaviy test ----------
+// draft — admin hali e'lon qilmagan; waiting — lobby (kod bilan qo'shilish ochiq); running — hamma bir vaqtda ishlayapti
+export type GroupTestStatus = "draft" | "waiting" | "running" | "finished" | "cancelled";
+
+// time_up — vaqt tugadi, all_finished — hamma tugatdi, stopped — admin to'xtatdi
+export type GroupTestFinishReason = "time_up" | "all_finished" | "stopped";
+
+export interface JoinGroupTestResponse {
+  id: string;
+  status: GroupTestStatus;
+}
+
+// GET /group-tests — mening jamoaviy testlarim (avval faollari, 30 tagacha)
+export interface GroupTestListItem {
+  id: string;
+  title: string;
+  status: GroupTestStatus;
+  questionCount: number;
+  timeLimitSec: number;
+  startedAt: string | null;
+  endsAt: string | null;
+  finishedAt: string | null;
+  joinedAt: string;
+  attemptId: string | null;
+  attemptStatus: AttemptStatus | null;
+  percent: number | null;
+  passed: boolean | null;
+}
+
+// Javoblar har bir o'quvchiga alohida aralashtirilgan, position — F1..Fn tartibi.
+// To'g'ri javob test davomida kelmaydi; faqat instantFeedback=true bo'lsa javob berilgan savolda keladi
+export interface GroupQuestion {
+  number: number;
+  id: number;
+  text: string;
+  imageUrl: string | null;
+  topic: TopicRef | null;
+  answers: Answer[];
+  myAnswerId: number | null;
+  isCorrect?: boolean;
+  correctAnswerId?: number;
+}
+
+export interface GroupReviewItem extends GroupQuestion {
+  correctAnswerId: number;
+  explanation: string | null;
+  isCorrect: boolean;
+}
+
+// wrongCount ga javobsizlar ham kiradi (total - correct)
+export interface GroupResult {
+  correctCount: number;
+  wrongCount: number;
+  unansweredCount: number;
+  percent: number;
+  passed: boolean;
+  durationSec: number;
+  finishedAt: string;
+}
+
+// GET /group-tests/:id — holatga qarab maydonlar qo'shiladi:
+// lobby — faqat asosiylari; ishlayapman — questions; tugatdim — result; test yakunlandi — result + review
+export interface GroupTestState {
+  id: string;
+  title: string;
+  status: GroupTestStatus;
+  questionCount: number;
+  timeLimitSec: number;
+  passPercent: number;
+  // true — javob bosilishi bilan to'g'ri/xatoligi va to'g'ri javob ko'rsatiladi (admin test yaratishda tanlaydi)
+  instantFeedback: boolean;
+  startedAt: string | null;
+  endsAt: string | null;
+  // Faqat running'da, boshqa holatda null
+  remainingSec: number | null;
+  finishReason: GroupTestFinishReason | null;
+  participantCount: number;
+  lang: TestLang;
+  attemptId: string | null;
+  attemptStatus: AttemptStatus | null;
+  answeredCount?: number;
+  questions?: GroupQuestion[];
+  result?: GroupResult;
+  review?: GroupReviewItem[];
+  // Frontend maydoni: remainingSec kelgan paytdan hisoblangan tugash vaqti (Date.now() ms)
+  deadline?: number | null;
+}
+
+export interface GroupAnswerResponse {
+  saved: true;
+  answeredCount: number;
+  total: number;
+  // Faqat instantFeedback=true testda
+  isCorrect?: boolean;
+  correctAnswerId?: number;
+}
+
+// Socket "status" hodisasi: admin boshladi / test yakunlandi / bekor qilindi
+export interface GroupStatusEvent {
+  id: string;
+  status: GroupTestStatus;
+  startedAt: string | null;
+  endsAt: string | null;
+  remainingSec: number | null;
+  finishReason: GroupTestFinishReason | null;
+}
+
 // ---------- Xatolar ----------
 export type ApiErrorCode =
   | "VALIDATION_ERROR"
@@ -455,7 +566,14 @@ export type ApiErrorCode =
   | "ALREADY_ANSWERED"
   | "QUESTION_NOT_IN_ATTEMPT"
   | "ANSWER_NOT_IN_QUESTION"
-  | "TOO_MANY_REQUESTS";
+  | "TOO_MANY_REQUESTS"
+  | "FORBIDDEN"
+  | "CONFLICT"
+  | "INVALID_GROUP_CODE"
+  | "GROUP_TEST_NOT_INVITED"
+  | "GROUP_TEST_KICKED"
+  | "GROUP_TEST_INVALID_STATE"
+  | "GROUP_ATTEMPT";
 
 export interface ApiError {
   statusCode: number;

@@ -15,7 +15,7 @@ export const SignView = () => {
   const { data, isPending, isError } = useSignQuery(sign);
 
   return (
-    <div className="mx-auto flex max-w-[1040px] flex-col gap-6 px-6 pt-10 pb-20">
+    <div className="mx-auto flex max-w-260 flex-col gap-6 px-6 pt-10 pb-20">
       <Link
         href={ROUTES.signGroup(group)}
         className="flex items-center gap-1.5 self-start text-sm font-bold text-navy-2 no-underline"
@@ -27,11 +27,11 @@ export const SignView = () => {
       {isError ? (
         <p className="m-0 font-semibold text-bad-text">{t("signs.notFound")}</p>
       ) : isPending ? (
-        <span className="h-[360px] animate-pulse rounded-[28px] bg-soft" />
+        <span className="h-90 animate-pulse rounded-[28px] bg-soft" />
       ) : (
         <>
           <section className="flex flex-wrap items-center gap-8 rounded-[28px] border border-line bg-white p-6 sm:p-9">
-            <span className="relative aspect-square w-full max-w-[280px] flex-none rounded-3xl bg-bg">
+            <span className="relative aspect-square w-full max-w-70 flex-none rounded-3xl bg-bg">
               <Image src={data.imageUrl} alt={data.name} fill unoptimized priority className="object-contain p-8" />
             </span>
             <div className="flex flex-[1_1_320px] flex-col gap-3">

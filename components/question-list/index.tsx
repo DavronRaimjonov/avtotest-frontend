@@ -7,7 +7,7 @@ import type { Paginated, SavedQuestion } from "@/@types";
 import { BookmarkIcon, PlayIcon, RetryIcon } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
 import { MAX_TEST_COUNT, MY_TEST_SIZES } from "@/lib/constants";
-import { cn } from "@/lib/helpers";
+import { cn, formatDate } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
 import { useStartAttempt } from "@/request/mutation";
 import { useAuthStore } from "@/store/auth.store";
@@ -25,13 +25,6 @@ type Props<T extends SavedQuestion> = {
 };
 
 const SOURCE = { saved: "bookmarks", mistakes: "mistakes" } as const;
-
-// 18.11.2026 — uchala tilda bir xil (brauzerning o'zbekcha Intl formati "2026 M11 18" beradi)
-const formatDate = (iso: string) => {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
-};
 
 // "Saqlangan savollar" (/saved) va "Xatolarim" (/mistakes): sarlavha, tepada qotib turadigan test paneli
 // (20 / 50 / hammasi), ixcham accordion kartalar, oxiriga yetganda keyingi 20 tasi o'zi yuklanadi.

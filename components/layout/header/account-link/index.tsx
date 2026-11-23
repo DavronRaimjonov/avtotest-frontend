@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BookmarkIcon, KeyIcon, LogoutIcon, RetryIcon } from "@/components/ui/icons";
+import { BookmarkIcon, KeyIcon, LogoutIcon, RetryIcon, UsersIcon } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
 import { useMeQuery } from "@/hooks/useQuery";
 import { ROUTES } from "@/lib/routes";
@@ -83,6 +83,14 @@ const AccountMenu = ({ name, email, avatar, hasPassword }: MenuProps) => {
             <b className="truncate text-sm">{name || t("common.user")}</b>
             {email && <span className="truncate text-[13px] text-muted">{email}</span>}
           </div>
+          <Link
+            href={ROUTES.groupTests}
+            onClick={() => setOpen(false)}
+            className="flex h-10 items-center gap-2.5 rounded-[10px] px-3 text-sm font-bold text-slate no-underline hover:bg-bg"
+          >
+            <UsersIcon size={18} />
+            {t("groupTest.join.cta")}
+          </Link>
           <Link
             href={ROUTES.saved}
             onClick={() => setOpen(false)}

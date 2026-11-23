@@ -44,7 +44,9 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
 
   return (
     <html lang={LOCALE_CODES[lang]} className={manrope.variable}>
-      <body className="min-h-dvh">
+      {/* Brauzer kengaytmalari (ColorZilla, Grammarly va h.k.) <body>ga atribut qo'shadi — shu sabab hydration ogohlantirishi
+          chiqmasin. Faqat body'ning o'z atributlariga ta'sir qiladi, ichidagi komponentlar odatdagidek tekshiriladi */}
+      <body className="min-h-dvh" suppressHydrationWarning>
         {/* key — til almashganda i18n instance yangi tilda qayta yaratiladi */}
         <ProviderApi key={lang} lang={lang}>
           {children}

@@ -8,13 +8,15 @@ type Props = {
   badCount: number;
   // Imtihonda yana nechta xato mumkin, mashqda null
   mistakesLeft: number | null;
+  // Hisoblar o'rniga (jamoaviy testda to'g'ri/xato ko'rsatilmaydi — "Javob berildi: 5 / 20")
+  status?: React.ReactNode;
   isFirst: boolean;
   isLast: boolean;
   onPrev: () => void;
   onNext: () => void;
 };
 
-export const TestFooter = ({ okCount, badCount, mistakesLeft, isFirst, isLast, onPrev, onNext }: Props) => {
+export const TestFooter = ({ okCount, badCount, mistakesLeft, status, isFirst, isLast, onPrev, onNext }: Props) => {
   const { t } = useTranslation();
   return (
   <footer className="sticky bottom-0 border-t border-line bg-white">
@@ -29,12 +31,16 @@ export const TestFooter = ({ okCount, badCount, mistakesLeft, isFirst, isLast, o
         <span className="max-sm:sr-only">{t("test.prev")}</span>
       </button>
       <span className="mx-auto flex flex-wrap justify-center gap-x-3.5 gap-y-0.5 text-sm font-semibold text-muted">
-        <span className="text-ok-text">{t("test.correctCount", { count: okCount })}</span>
-        <span className="text-bad-text">{t("test.wrongCount", { count: badCount })}</span>
-        {mistakesLeft !== null && (
-          <span className={mistakesLeft === 0 ? "font-bold text-bad-text" : undefined}>
-            {t("test.mistakesLeft", { count: mistakesLeft })}
-          </span>
+        {status ?? (
+          <>
+            <span className="text-ok-text">{t("test.correctCount", { count: okCount })}</span>
+            <span className="text-bad-text">{t("test.wrongCount", { count: badCount })}</span>
+            {mistakesLeft !== null && (
+              <span className={mistakesLeft === 0 ? "font-bold text-bad-text" : undefined}>
+                {t("test.mistakesLeft", { count: mistakesLeft })}
+              </span>
+            )}
+          </>
         )}
       </span>
       <button

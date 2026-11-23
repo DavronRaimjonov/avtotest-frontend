@@ -3,6 +3,16 @@ import type { AttemptSource, ExamMode, TestLang, VariantSize } from "@/@types";
 // Backend manzili /api prefiksi bilan, masalan: http://localhost:4002/api
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4002/api";
 
+// Jamoaviy test socket.io manzili — API manzilining origin qismi (http://localhost:4002), namespace /group-tests
+export const SOCKET_URL = (() => {
+  try {
+    return new URL(API_URL).origin;
+  } catch {
+    // Nisbiy API manzili (/api) — sayt bilan bir domenda
+    return "";
+  }
+})();
+
 // Google Identity Services — backend .env dagi GOOGLE_CLIENT_ID bilan bir xil bo'lishi shart
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
@@ -63,9 +73,24 @@ export const LOGIN_ONLY_SOURCES: AttemptSource[] = ["mistakes", "bookmarks"];
 // Mehmon testi va natijasi uchun yo'l: /test/guest, /result/guest (holat sessionStorage'da)
 export const GUEST_ID = "guest";
 export const GUEST_STORAGE_KEY = "guest_test";
+// Mehmon oldingi testlarda ko'rgan savollar: qayta topshirishda takrorlanmasligi uchun backendga yuboriladi
+export const GUEST_SEEN_KEY = "guest_seen_questions";
+export const GUEST_SEEN_LIMIT = 1500;
 
 // Emailga keladigan tasdiqlash kodi uzunligi
 export const OTP_LENGTH = 6;
+
+// Jamoaviy testga qo'shilish kodi uzunligi
+export const GROUP_CODE_LENGTH = 6;
+
+// Lobbyda qatnashchilar soni shu oraliqda yangilanadi (socket faqat holat o'zgarishini yuboradi), ms
+export const GROUP_LOBBY_POLL_MS = 15_000;
+
+// Vaqt tugagach server testni shuncha kechikish bilan yakunlaydi (GRACE + tekshiruv oralig'i), ms
+export const GROUP_TIME_UP_REFETCH_MS = 6_000;
+
+// Jamoaviy testda javobdan keyin keyingi savolga o'tish (natija ko'rsatilmaydi — kutish qisqa), ms
+export const GROUP_AUTO_NEXT_MS = 400;
 
 export const REPORT_MIN = 3;
 export const REPORT_MAX = 1000;

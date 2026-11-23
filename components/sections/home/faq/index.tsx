@@ -11,7 +11,7 @@ export const Faq = () => {
   const items = t("faq.items", { returnObjects: true }) as { q: string; a: string }[];
 
   return (
-    <section className="mx-auto max-w-[880px] px-6 pt-24">
+    <section className="mx-auto max-w-220 px-6 pt-24">
       <h2 className="m-0 mb-8 text-center text-[32px] font-extrabold tracking-tight sm:text-[40px]">
         {t("faq.title")}
       </h2>
@@ -43,7 +43,7 @@ export const Faq = () => {
                 </span>
               </button>
               {isOpen && (
-                <p className="m-0 animate-fade-in px-6 pb-[22px] text-[15px] leading-relaxed text-muted">{f.a}</p>
+                <p className="m-0 animate-fade-in px-6 pb-5.5 text-[15px] leading-relaxed text-muted">{f.a}</p>
               )}
             </div>
           );

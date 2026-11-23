@@ -17,7 +17,7 @@ export const Topics = () => {
   const start = useStartAttempt();
 
   return (
-    <section id="topics" className="mx-auto max-w-[1200px] scroll-mt-24 px-6 pt-24">
+    <section id="topics" className="mx-auto max-w-300 scroll-mt-24 px-6 pt-24">
       <SectionHeading eyebrow={t("topics.eyebrow")} title={t("topics.title")}>
         <Link
           href={ROUTES.variants}
@@ -30,7 +30,7 @@ export const Topics = () => {
       <div className="flex flex-wrap gap-2.5">
         {isPending
           ? Array.from({ length: 12 }, (_, i) => (
-              <span key={i} className="h-[46px] w-44 animate-pulse rounded-full bg-soft" />
+              <span key={i} className="h-11.5 w-44 animate-pulse rounded-full bg-soft" />
             ))
           : topics?.map((topic, i) => {
               // Savol biriktirilmagan mavzu nofaol
@@ -43,8 +43,8 @@ export const Topics = () => {
                   title={empty ? t("topics.soon") : t("topics.count", { count: topic.questionCount })}
                   onClick={() => start.start({ source: "topic", topicId: topic.id, mode: "practice" })}
                   className={cn(
-                    "inline-flex h-[46px] animate-up items-center gap-2.5 rounded-full border-[1.5px] border-soft bg-soft px-[18px] text-sm font-bold text-ink transition-[transform,border-color,background]",
-                    empty ? "cursor-default opacity-55" : "hover:-translate-y-[3px] hover:border-navy hover:bg-white",
+                    "inline-flex h-11.5 animate-up items-center gap-2.5 rounded-full border-[1.5px] border-soft bg-soft px-4.5 text-sm font-bold text-ink transition-[transform,border-color,background]",
+                    empty ? "cursor-default opacity-55" : "hover:-translate-y-0.75 hover:border-navy hover:bg-white",
                   )}
                   style={{ animationDelay: `${i * 0.04}s` }}
                 >

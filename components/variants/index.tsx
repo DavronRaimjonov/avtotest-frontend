@@ -23,7 +23,7 @@ export const Variants = () => {
 
   // Keng ekranda panel chapda (380px, aylantirganda qotib turadi), torroqda grid ustida to'liq kenglikda
   return (
-    <div className="mx-auto flex max-w-[1200px] flex-col gap-8 px-4 pt-8 pb-16 sm:px-6 lg:flex-row lg:items-start lg:pt-10">
+    <div className="mx-auto flex max-w-300 flex-col gap-8 px-4 pt-8 pb-16 sm:px-6 lg:flex-row lg:items-start lg:pt-10">
       <VariantPanel variant={selected} passPercent={data?.passPercent} />
 
       <section className="flex min-w-0 flex-1 flex-col gap-6">

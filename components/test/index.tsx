@@ -9,7 +9,7 @@ import type { AnswerBody, Attempt } from "@/@types";
 import { useCountdown } from "@/hooks/useCountdown";
 import { useAttemptQuery, useBookmarkIdsQuery } from "@/hooks/useQuery";
 import { AUTO_NEXT_MS, GUEST_ID } from "@/lib/constants";
-import { getErrorMessage } from "@/lib/helpers";
+import { getErrorCode, getErrorMessage } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
 import {
   useAnswerMutation,
@@ -50,6 +50,20 @@ const ServerTestRunner = ({ id }: { id: string }) => {
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [refetch]);
+
+  // Jamoaviy test urinishi bu yerda ochilmaydi — jamoaviy test sahifasiga
+  if (isError && getErrorCode(error) === "GROUP_ATTEMPT") {
+    return (
+      <TestMessage title={t("test.openError")} text={getErrorMessage(error)}>
+        <Link
+          href={ROUTES.groupTests}
+          className="flex h-12 items-center rounded-xl bg-navy px-6 font-bold text-white no-underline"
+        >
+          {t("groupTest.title")}
+        </Link>
+      </TestMessage>
+    );
+  }
 
   if (isError) {
     return (
@@ -113,9 +127,28 @@ type ActiveProps = {
   // timeUp — taymer tugadi (mehmonda natijaga yuboriladi; kirganda server o'zi aniqlaydi)
   onFinish: (timeUp?: boolean) => void;
   finishing: boolean;
+  // Jamoaviy test: sarlavha (test nomi), orqaga havola, to'g'ri/xato ko'rsatilmaydi (blind),
+  // javobdan keyin o'tish kechikishi va ochilgan savol haqida xabar (admin jonli ko'radi)
+  title?: string;
+  backHref?: string;
+  blind?: boolean;
+  autoNextMs?: number;
+  onView?: (questionId: number) => void;
 };
 
-const ActiveTest = ({ attempt, guest, onAnswer, onFinish, finishing }: ActiveProps) => {
+export const ActiveTest = ({
+  attempt,
+  guest,
+  onAnswer,
+  onFinish,
+  finishing,
+  title,
+  backHref,
+  blind,
+  autoNextMs = AUTO_NEXT_MS,
+  onView,
+}: ActiveProps) => {
+  const { t } = useTranslation();
   const current = useExamStore((s) => s.current);
   const setCurrent = useExamStore((s) => s.goTo);
   const bookmark = useToggleBookmarkMutation();
@@ -161,7 +194,7 @@ const ActiveTest = ({ attempt, guest, onAnswer, onFinish, finishing }: ActivePro
       const order = [...qs.slice(from + 1), ...qs.slice(0, from)];
       const next = order.find((q) => q.myAnswerId === null);
       if (next) goTo(qs.indexOf(next));
-    }, AUTO_NEXT_MS);
+    }, autoNextMs);
   };
 
   const pick = (answerId: number) => {
@@ -170,6 +203,13 @@ const ActiveTest = ({ attempt, guest, onAnswer, onFinish, finishing }: ActivePro
     onAnswer({ questionId: question.id, answerId });
     scheduleNext(question.id);
   };
+
+  // Ochilgan savol tashqariga xabar qilinadi (jamoaviy testda socket orqali adminga)
+  const notifyView = useEffectEvent((questionId: number) => onView?.(questionId));
+  const questionId = question?.id;
+  useEffect(() => {
+    if (questionId !== undefined) notifyView(questionId);
+  }, [questionId]);
 
   // Vaqt tugasa test frontend tomonidan yakunlanadi (kirgan foydalanuvchida server ham o'zi tekshiradi)
   const onTimeOver = useEffectEvent(() => onFinish(true));
@@ -210,6 +250,8 @@ const ActiveTest = ({ attempt, guest, onAnswer, onFinish, finishing }: ActivePro
       <TestHeader
         attempt={attempt}
         guest={guest}
+        title={title}
+        backHref={backHref}
         current={current}
         secondsLeft={secondsLeft}
         finishing={finishing}
@@ -230,6 +272,9 @@ const ActiveTest = ({ attempt, guest, onAnswer, onFinish, finishing }: ActivePro
         okCount={attempt.correctCount ?? 0}
         badCount={attempt.wrongCount ?? 0}
         mistakesLeft={attempt.mistakesLeft}
+        status={
+          blind ? t("groupTest.answered", { count: attempt.answeredCount, total: attempt.questionCount }) : undefined
+        }
         isFirst={current === 0}
         isLast={current === total - 1}
         onPrev={() => goToManual(current - 1)}

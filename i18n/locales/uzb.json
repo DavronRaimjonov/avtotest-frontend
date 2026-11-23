@@ -7,7 +7,8 @@
     "result": "Test natijasi",
     "signs": "Yo‘l belgilari",
     "saved": "Saqlangan savollar",
-    "mistakes": "Xatolarim"
+    "mistakes": "Xatolarim",
+    "groupTest": "Jamoaviy test"
   },
   "common": {
     "start": "Testni boshlash",
@@ -95,7 +96,9 @@
       "25 daqiqa",
       "O‘tish bali 90%",
       "To‘liq bepul"
-    ]
+    ],
+    "examCta": "Real imtihon topshirish",
+    "examHint": "20 ta tasodifiy savol · 25 daqiqa"
   },
   "try": {
     "label": "SINAB KO‘RING",
@@ -332,7 +335,9 @@
     "mistakes": "Xatolar ustida ishlash",
     "bookmarks": "Saqlangan savollar",
     "random": "Aralash savollar",
-    "hard": "Qiyin savollar"
+    "hard": "Qiyin savollar",
+    "exam": "Real imtihon",
+    "group": "Jamoaviy test"
   },
   "variants": {
     "title": "Variantni tanlang",
@@ -416,7 +421,8 @@
       "number": "{{n}}-savol",
       "yourAnswer": "Sizning javobingiz: {{text}}",
       "noAnswer": "Javob berilmagan",
-      "correct": "To‘g‘ri javob: {{text}}"
+      "correct": "To‘g‘ri javob: {{text}}",
+      "explanationLocked": "Izohni ko‘rish uchun kiring yoki ro‘yxatdan o‘ting"
     },
     "notFound": "Natija topilmadi",
     "notFoundText": "Havola noto‘g‘ri yoki test boshqa akkauntga tegishli.",
@@ -425,13 +431,14 @@
     "unfinishedText": "Testni oxirigacha yeching va “Yakunlash” tugmasini bosing.",
     "continue": "Testni davom ettirish",
     "backToVariants": "Variantlarga qaytish",
-    "guestTitle": "Natijangiz saqlanmadi",
-    "guestText": "Tizimga kiring — keyingi testlar natijasi, xatolaringiz va progress saqlanib boradi.",
-    "guestLogin": "Kirish / Ro‘yxatdan o‘tish",
+    "guestTitle": "Izohlar va natijalar — ro‘yxatdan o‘tganlar uchun",
+    "guestText": "Har bir savolning izohini ko‘rish uchun tizimga kiring yoki ro‘yxatdan o‘ting. Kirgach izohlar shu sahifada ochiladi, keyingi natijalar, xatolar va progress saqlanib boradi.",
+    "guestLogin": "Kirish",
     "reason": {
       "time_up": "Vaqt tugadi",
       "mistakes_limit": "Ruxsat etilgan {{count}} ta xatodan oshdingiz"
-    }
+    },
+    "guestRegister": "Ro‘yxatdan o‘tish"
   },
   "notify": {
     "bookmarkAdded": "Savol saqlandi",
@@ -465,7 +472,14 @@
     "OTP_TOO_SOON": "Yangi kodni {{seconds}} soniyadan keyin so‘rash mumkin",
     "MAIL_SEND_FAILED": "Xat yuborilmadi. Birozdan keyin qayta urinib ko‘ring",
     "INVALID_CREDENTIALS": "Email yoki parol noto‘g‘ri",
-    "INVALID_CURRENT_PASSWORD": "Joriy parol noto‘g‘ri"
+    "INVALID_CURRENT_PASSWORD": "Joriy parol noto‘g‘ri",
+    "FORBIDDEN": "Bu amal uchun ruxsat yo‘q",
+    "CONFLICT": "Amalni bajarib bo‘lmadi, qayta urinib ko‘ring",
+    "INVALID_GROUP_CODE": "Kod noto‘g‘ri yoki test allaqachon boshlangan",
+    "GROUP_TEST_NOT_INVITED": "Siz bu testga taklif qilinmagansiz",
+    "GROUP_TEST_KICKED": "Siz bu testdan chiqarilgansiz",
+    "GROUP_TEST_INVALID_STATE": "Test holati o‘zgardi — sahifa yangilandi",
+    "GROUP_ATTEMPT": "Bu jamoaviy test — uni “Jamoaviy test” sahifasida oching"
   },
   "validation": {
     "email": "Email manzilini to‘g‘ri kiriting",
@@ -498,7 +512,8 @@
     "saved": "Saqlangan savollar",
     "savedText": "Test paytida saqlaganlaringiz",
     "mistakes": "Xatolarim",
-    "mistakesText": "Xato qilgan savollaringiz"
+    "mistakesText": "Xato qilgan savollaringiz",
+    "groupTestText": "O‘qituvchi bergan kod bilan qo‘shilish"
   },
   "questions": {
     "number": "#{{id}}",
@@ -529,5 +544,71 @@
     "lastWrongAt": "oxirgisi {{date}}",
     "emptyTitle": "Xatolar yo‘q",
     "emptyText": "Test ishlang — xato qilgan savollaringiz shu yerga to‘planadi va ularni qayta yechishingiz mumkin."
+  },
+  "groupTest": {
+    "title": "Jamoaviy test",
+    "online": "Onlayn",
+    "connecting": "Ulanmoqda…",
+    "minutes": "{{count}} daqiqa",
+    "answered": "Javob berildi: {{count}} / {{total}}",
+    "left": "Testdan chiqdingiz",
+    "kicked": "Siz testdan chiqarildingiz",
+    "kickedText": "O‘qituvchi sizni bu testdan chiqardi. Savollar bo‘lsa, unga murojaat qiling.",
+    "replaced": "Test boshqa qurilmada ochildi",
+    "replacedText": "Bitta akkaunt bilan testni faqat bitta qurilmada ishlash mumkin. Shu qurilmada davom etsangiz, boshqasida test yopiladi.",
+    "continueHere": "Shu yerda davom etish",
+    "notFound": "Test topilmadi",
+    "notFoundText": "Test bekor qilingan yoki siz unda qatnashmaysiz.",
+    "openError": "Testni ochib bo‘lmadi",
+    "notParticipant": "Siz bu testda qatnashmaysiz",
+    "notParticipantText": "Test boshlanganda siz kutish xonasida bo‘lmagansiz.",
+    "loginTitle": "Jamoaviy testga qo‘shilish uchun kiring",
+    "loginText": "O‘qituvchi bergan kod bilan qo‘shilish va natijangizni ko‘rish uchun akkauntingizga kiring.",
+    "join": {
+      "cta": "Jamoaviy testga qo‘shilish",
+      "title": "Kod bilan qo‘shilish",
+      "subtitle": "O‘qituvchi bergan 6 xonali kodni kiriting — test hammada bir vaqtda boshlanadi",
+      "code": "Test kodi",
+      "hint": "Kod test boshlanguncha amal qiladi",
+      "submit": "Qo‘shilish",
+      "joining": "Qo‘shilmoqda…"
+    },
+    "mine": {
+      "title": "Mening jamoaviy testlarim",
+      "empty": "Hali jamoaviy testda qatnashmagansiz.",
+      "error": "Ro‘yxatni yuklab bo‘lmadi",
+      "meta": "{{count}} ta savol · {{min}} daqiqa"
+    },
+    "status": {
+      "waiting": "Kutilmoqda",
+      "running": "Davom etmoqda",
+      "submitted": "Yakunladingiz",
+      "finished": "Yakunlangan",
+      "passed": "{{percent}}% · O‘tdingiz",
+      "failed": "{{percent}}% · O‘tmadingiz"
+    },
+    "lobby": {
+      "subtitle": "Kutish xonasi",
+      "title": "Test boshlanishini kuting",
+      "text": "O‘qituvchi testni boshlashi bilan savollar shu sahifada avtomatik ochiladi. Sahifani yopmang.",
+      "questions": "Savollar",
+      "time": "Vaqt",
+      "participants": "Qatnashchilar",
+      "rules": "Har bir savolga bir marta javob beriladi. To‘g‘ri javoblar test yakunlangandan keyin ko‘rsatiladi.",
+      "leave": "Chiqish",
+      "leaving": "Chiqilmoqda…"
+    },
+    "result": {
+      "subtitle": "Sizning natijangiz",
+      "subtitleFinished": "Test yakunlandi",
+      "passPercent": "O‘tish bali: {{pass}}%",
+      "reviewLater": "To‘g‘ri javoblar test yakunlangandan keyin ochiladi",
+      "reviewLaterText": "Barcha qatnashchilar tugatgach yoki vaqt tugagach tahlil shu sahifada o‘zi paydo bo‘ladi."
+    },
+    "reason": {
+      "time_up": "Vaqt tugadi",
+      "all_finished": "Barcha qatnashchilar yakunladi",
+      "stopped": "O‘qituvchi testni to‘xtatdi"
+    }
   }
 }

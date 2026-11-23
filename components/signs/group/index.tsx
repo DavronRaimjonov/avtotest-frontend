@@ -15,7 +15,7 @@ export const SignGroupView = () => {
   const { data, isPending, isError } = useSignGroupQuery(group);
 
   return (
-    <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-6 pt-10 pb-20">
+    <div className="mx-auto flex max-w-300 flex-col gap-6 px-6 pt-10 pb-20">
       <Link
         href={ROUTES.signs}
         className="flex items-center gap-1.5 self-start text-sm font-bold text-navy-2 no-underline"
@@ -27,7 +27,7 @@ export const SignGroupView = () => {
         <p className="m-0 font-semibold text-bad-text">{t("signs.notFound")}</p>
       ) : (
         <>
-          <div className="flex max-w-[720px] flex-col gap-2">
+          <div className="flex max-w-180 flex-col gap-2">
             {isPending ? (
               <span className="h-10 w-72 animate-pulse rounded-lg bg-soft" />
             ) : (

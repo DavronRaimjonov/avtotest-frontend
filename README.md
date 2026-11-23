@@ -76,6 +76,14 @@ parolni tiklash (`forgot-password` → `reset-password`), kirganda parolni o'zga
 
 Javobdan keyin ~1 s natija ko'rsatilib, keyingi javobsiz savolga avtomatik o'tiladi. Klaviatura: F1–F9 yoki 1–9 — javob, ← → — savollar.
 
+## Jamoaviy test
+
+`/group-test` — 6 xonali kod bilan qo'shilish (`POST /group-tests/join`) va "Mening jamoaviy testlarim" (`GET /group-tests`).
+`/group-test/[id]` — bitta sahifada holatga qarab: lobby → test → natija → (test yakunlangach) tahlil (`GET /group-tests/:id`).
+Test ekrani oddiy test komponentlari (`ActiveTest`) bilan, lekin to'g'ri/xato ko'rsatilmaydi (`blind`).
+Real vaqt: socket.io (`hooks/useGroupTestSocket`), manzil — `NEXT_PUBLIC_API_URL` origin'i + `/group-tests` namespace.
+`status` hodisasida holat qayta olinadi; `kicked` / `replaced` — xabar; `viewing` — ochilgan savol adminga.
+
 ## Yo'l belgilari
 
 `/signs` (kategoriyalar + qidiruv), `/signs/[group]`, `/signs/[group]/[sign]` — `GET /landing/signs/*`.

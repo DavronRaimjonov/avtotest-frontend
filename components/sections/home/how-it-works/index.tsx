@@ -8,7 +8,7 @@ export const HowItWorks = () => {
   const steps = t("how.steps", { returnObjects: true }) as { title: string; text: string }[];
 
   return (
-    <section className="mx-auto max-w-[1200px] px-6 pt-24">
+    <section className="mx-auto max-w-300 px-6 pt-24">
       <SectionHeading eyebrow={t("how.eyebrow")} title={t("how.title")} className="mb-10" />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
         {steps.map((s, i) => (

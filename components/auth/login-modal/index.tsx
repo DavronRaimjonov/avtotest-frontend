@@ -58,7 +58,7 @@ export const LoginModal = () => {
         aria-modal="true"
         aria-labelledby="auth-title"
         onClick={(e) => e.stopPropagation()}
-        className="relative my-auto flex w-full max-w-[420px] flex-col gap-5 rounded-3xl bg-white p-6 text-ink shadow-float sm:p-7"
+        className="relative my-auto flex w-full max-w-105 flex-col gap-5 rounded-3xl bg-white p-6 text-ink shadow-float sm:p-7"
       >
         <div className="flex items-center gap-2 pr-10">
           {back && (

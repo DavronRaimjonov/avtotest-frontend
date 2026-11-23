@@ -13,6 +13,10 @@ import { ROUTES } from "@/lib/routes";
 type Props = {
   attempt: Attempt;
   guest?: boolean;
+  // Berilmasa manba nomi (Variant 4, ...); jamoaviy testda test nomi
+  title?: string;
+  // Orqaga tugmasi: standart — variantlar
+  backHref?: string;
   current: number;
   // Mashq rejimida null — vaqt cheklanmagan
   secondsLeft: number | null;
@@ -34,7 +38,7 @@ const navTone = (myAnswerId: number | null, isCorrect: boolean | null) => {
   return "bg-white border-line text-slate";
 };
 
-export const TestHeader = ({ attempt, guest, current, secondsLeft, finishing, onGo, onFinish }: Props) => {
+export const TestHeader = ({ attempt, guest, title, backHref = ROUTES.variants, current, secondsLeft, finishing, onGo, onFinish }: Props) => {
   const { t } = useTranslation();
   const langLabel = TEST_LANGS.find((l) => l.value === attempt.lang)?.label;
   const unanswered = attempt.questionCount - attempt.answeredCount;
@@ -56,14 +60,14 @@ export const TestHeader = ({ attempt, guest, current, secondsLeft, finishing, on
     <header className="border-b border-line bg-white">
       <div className="mx-auto flex min-h-[68px] max-w-[1240px] flex-wrap items-center gap-4 px-4 sm:px-6">
         <Link
-          href={ROUTES.variants}
+          href={backHref}
           aria-label={t("common.back")}
           className="flex size-11 items-center justify-center rounded-[10px] border border-line text-navy sm:size-10"
         >
           <ChevronLeftIcon size={18} />
         </Link>
         <div className="flex flex-col">
-          <b>{attemptTitle(t, attempt)}</b>
+          <b>{title ?? attemptTitle(t, attempt)}</b>
           <span className="text-[13px] text-muted">
             {t(`mode.${attempt.mode}.title`)} · {langLabel}
           </span>

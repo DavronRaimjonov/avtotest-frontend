@@ -3,9 +3,10 @@
 import { Link } from "@/components/ui/link";
 import { useParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
+import { useMemo } from "react";
 import type { ResultData } from "@/@types";
 import { attemptTitle } from "@/components/test/test-header";
-import { useAttemptResultQuery } from "@/hooks/useQuery";
+import { useAttemptResultQuery, useExplanationsQuery } from "@/hooks/useQuery";
 import { GUEST_ID } from "@/lib/constants";
 import { getErrorCode } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
@@ -18,7 +19,11 @@ import { ResultSummary } from "./summary";
 // /result/guest — mehmon natijasi (sessionStorage), /result/<uuid> — serverdan
 export const Result = () => {
   const { attemptId } = useParams<{ attemptId: string }>();
-  return attemptId === GUEST_ID ? <GuestResult /> : <ServerResult id={attemptId} />;
+  return attemptId === GUEST_ID ? (
+    <GuestResult />
+  ) : (
+    <ServerResult id={attemptId} />
+  );
 };
 
 const ServerResult = ({ id }: { id: string }) => {
@@ -38,7 +43,10 @@ const ServerResult = ({ id }: { id: string }) => {
         action={t("result.continue")}
       />
     ) : (
-      <ResultMessage title={t("result.notFound")} text={t("result.notFoundText")} />
+      <ResultMessage
+        title={t("result.notFound")}
+        text={t("result.notFoundText")}
+      />
     );
   }
 
@@ -51,24 +59,62 @@ const GuestResult = () => {
   const result = useGuestStore((s) => s.result);
 
   if (!hydrated) return <ResultSkeleton />;
-  if (!result) return <ResultMessage title={t("result.notFound")} text={t("result.guestNotFoundText")} />;
-  return <ResultView result={result} />;
+  if (!result)
+    return (
+      <ResultMessage
+        title={t("result.notFound")}
+        text={t("result.guestNotFoundText")}
+      />
+    );
+  return <GuestResultView result={result} />;
 };
 
-const ResultView = ({ result }: { result: ResultData }) => {
+// Mehmonga izohlar berilmaydi: kirgach (yoki ro'yxatdan o'tgach) shu natijaning izohlari yuklanadi
+const GuestResultView = ({ result }: { result: ResultData }) => {
+  const hasSession = useAuthStore((s) => s.hasSession);
+  const ids = useMemo(() => result.review.map((i) => i.id), [result.review]);
+  const { data: explanations } = useExplanationsQuery(ids);
+
+  const withExplanations = useMemo(
+    () =>
+      explanations
+        ? {
+            ...result,
+            review: result.review.map((i) => ({
+              ...i,
+              explanation: explanations.get(i.id) ?? null,
+            })),
+          }
+        : result,
+    [result, explanations],
+  );
+  return (
+    <ResultView result={withExplanations} explanationsLocked={!hasSession} />
+  );
+};
+
+const ResultView = ({
+  result,
+  explanationsLocked = false,
+}: {
+  result: ResultData;
+  explanationsLocked?: boolean;
+}) => {
   const { t } = useTranslation();
   return (
     <div className="mx-auto flex max-w-[1040px] flex-col gap-6 px-6 pt-10 pb-20">
       <span className="text-sm font-semibold text-muted">
         {t("result.label", {
           title: attemptTitle(t, result),
-          mode: t(result.mode === "exam" ? "result.modeExam" : "result.modePractice"),
+          mode: t(
+            result.mode === "exam" ? "result.modeExam" : "result.modePractice",
+          ),
         })}
       </span>
       {result.guest && <GuestBanner />}
       <ResultSummary result={result} />
       <ResultStats result={result} />
-      <ResultReview result={result} />
+      <ResultReview result={result} explanationsLocked={explanationsLocked} />
     </div>
   );
 };
@@ -84,7 +130,9 @@ const GuestBanner = () => {
     <div className="flex flex-wrap items-center gap-4 rounded-[20px] border border-warn bg-warn-bg px-6 py-5">
       <div className="flex flex-[1_1_320px] flex-col gap-1">
         <b className="text-warn-text">{t("result.guestTitle")}</b>
-        <span className="text-sm leading-normal text-slate">{t("result.guestText")}</span>
+        <span className="text-sm leading-normal text-slate">
+          {t("result.guestText")}
+        </span>
       </div>
       <button
         type="button"
@@ -93,13 +141,30 @@ const GuestBanner = () => {
       >
         {t("result.guestLogin")}
       </button>
+      <button
+        type="button"
+        onClick={() => openLogin(undefined, "register")}
+        className="btn-hover h-12 rounded-xl border-[1.5px] border-navy bg-white px-5 text-sm font-bold text-navy"
+      >
+        {t("result.guestRegister")}
+      </button>
     </div>
   );
 };
 
-type MessageProps = { title: string; text: string; href?: string; action?: string };
+type MessageProps = {
+  title: string;
+  text: string;
+  href?: string;
+  action?: string;
+};
 
-const ResultMessage = ({ title, text, href = ROUTES.variants, action }: MessageProps) => {
+const ResultMessage = ({
+  title,
+  text,
+  href = ROUTES.variants,
+  action,
+}: MessageProps) => {
   const { t } = useTranslation();
   return (
     <div className="mx-auto flex max-w-[1040px] flex-col items-start gap-4 px-6 py-20">

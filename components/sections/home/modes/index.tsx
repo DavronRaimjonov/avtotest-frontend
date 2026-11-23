@@ -31,7 +31,7 @@ type Item = {
 };
 
 const MODES: Item[] = [
-  { key: "exam", start: { source: "random", mode: "exam", count: 20 }, Icon: ClockIcon, tone: "bg-tint-yellow text-tint-yellow-fg" },
+  { key: "exam", start: { source: "exam", mode: "exam" }, Icon: ClockIcon, tone: "bg-tint-yellow text-tint-yellow-fg" },
   { key: "variants", href: ROUTES.variants, Icon: GridIcon, tone: "bg-tint-blue text-navy-2" },
   { key: "topics", href: "#topics", Icon: BookIcon, tone: "bg-tint-green text-ok-text" },
   { key: "mistakes", href: ROUTES.mistakes, auth: true, Icon: RetryIcon, tone: "bg-tint-red text-bad-text" },
