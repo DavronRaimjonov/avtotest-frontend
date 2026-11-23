@@ -34,6 +34,9 @@ export const QUERY_KEYS = {
   explanations: (ids: number[], lang: TestLang) =>
     ["me", "explanations", lang, ids.join(",")] as const,
 
+  cheatSheets: (lang: TestLang) => ["cheat-sheets", lang] as const,
+  cheatSheet: (slug: string, lang: TestLang) => ["cheat-sheets", slug, lang] as const,
+
   // Tariflar va to'lov
   plans: (lang: TestLang) => ["plans", lang] as const,
   // Tarif nomi so'ralgan tilda keladi; yangilashda prefiks bilan (accessAll) hammasi

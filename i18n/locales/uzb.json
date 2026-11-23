@@ -12,7 +12,8 @@
     "pricing": "Tariflar",
     "pricingDescription": "Yakuniy test va har bir savol izohi uchun tarif tanlang. To‘lov Click, Payme, naqd yoki karta orqali.",
     "payment": "To‘lov natijasi",
-    "profile": "Profil"
+    "profile": "Profil",
+    "lessons": "Darslik"
   },
   "common": {
     "start": "Testni boshlash",
@@ -38,7 +39,8 @@
     "manual": "Darslik",
     "profile": "Profil",
     "menu": "Asosiy menyu",
-    "pricing": "Tariflar"
+    "pricing": "Tariflar",
+    "cheatSheets": "Shpargalka"
   },
   "auth": {
     "loggingIn": "Kirilmoqda…",
@@ -527,7 +529,9 @@
     "mistakes": "Xatolarim",
     "mistakesText": "Xato qilgan savollaringiz",
     "groupTestText": "O‘qituvchi bergan kod bilan qo‘shilish",
-    "planText": "Yakuniy test va izohlar"
+    "planText": "Yakuniy test va izohlar",
+    "lessonsText": "Mavzular bo‘yicha video darslar",
+    "cheatSheetsText": "Yodlash qiyin raqamlar: tezlik, masofa, gabarit"
   },
   "questions": {
     "number": "#{{id}}",
@@ -730,5 +734,36 @@
     "weakTopics": "E’tibor berish kerak bo‘lgan mavzular",
     "historyTitle": "Testlar tarixi",
     "historyEmpty": "Hali test ishlamadingiz. Birinchi variantdan boshlang!"
+  },
+  "lessons": {
+    "title": "Darslik",
+    "subtitle": "Mavzularni video darslar orqali o‘rganing va har biridan keyin test ishlang.",
+    "lesson": "{{n}}-dars",
+    "progress": "{{count}} mavzu · {{done}} tasini o‘tdingiz",
+    "start": "Boshlash",
+    "locked": "Yopiq",
+    "done": "O‘tilgan",
+    "unlock": "To‘liq dostup uchun to‘lash",
+    "loadError": "Darslarni yuklab bo‘lmadi",
+    "back": "Video dars",
+    "watchHint": "Video darsni tomosha qiling va testni boshlang",
+    "soon": "Videodars tez kunda",
+    "soonText": "Video tez orada qo‘shiladi. Hozircha shu mavzu bo‘yicha testni ishlab ko‘ring.",
+    "lockedTitle": "Videodars tarif bilan ochiladi",
+    "startTest": "Testni boshlash",
+    "questions": "{{count}} ta savol",
+    "next": "Keyingi mavzu",
+    "notFound": "Mavzu topilmadi",
+    "all": "Barcha darslar"
+  },
+  "cheatSheets": {
+    "title": "Shpargalka",
+    "subtitle": "Imtihonda ko‘p uchraydigan, yodlash qiyin ma’lumotlar",
+    "count": "{{count}} ta ma’lumot",
+    "loadError": "Shpargalkani yuklab bo‘lmadi",
+    "all": "Barcha kartochkalar",
+    "notFound": "Kartochka topilmadi",
+    "prev": "Oldingi",
+    "next": "Keyingi"
   }
 }

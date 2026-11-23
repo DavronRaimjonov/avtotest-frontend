@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import type { StartAttemptBody } from "@/@types";
 import {
   BookIcon,
+  ChecklistIcon,
   BookmarkIcon,
   CheckIcon,
   ChevronRightIcon,
@@ -14,6 +15,7 @@ import {
   GlobeIcon,
   KeyIcon,
   LogoutIcon,
+  ManualIcon,
   RetryIcon,
   UsersIcon,
   WarningIcon,
@@ -178,6 +180,20 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
                 onClick={then(() => router.push(ROUTES.groupTests))}
               />
             )}
+            <Row
+              icon={<ManualIcon size={18} />}
+              tone="bg-[#5856D6]"
+              title={t("nav.manual")}
+              text={t("more.lessonsText")}
+              onClick={then(() => router.push(ROUTES.lessons()))}
+            />
+            <Row
+              icon={<ChecklistIcon size={18} />}
+              tone="bg-[#FF2D55]"
+              title={t("nav.cheatSheets")}
+              text={t("more.cheatSheetsText")}
+              onClick={then(() => router.push(ROUTES.cheatSheets))}
+            />
             <Row
               icon={<BookIcon size={18} />}
               tone="bg-[#34C759]"

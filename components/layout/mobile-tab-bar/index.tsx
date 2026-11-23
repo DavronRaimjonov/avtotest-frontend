@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Link } from "@/components/ui/link";
 import { cn } from "@/lib/helpers";
@@ -81,7 +82,8 @@ const MoreTab = () => {
         <EllipsisFill size={25} />
         <span className="max-w-full truncate">{t("more.tab")}</span>
       </button>
-      {open && <MoreSheet onClose={() => setOpen(false)} />}
+      {/* Portal: tab bar'dagi backdrop-blur fixed elementni o'ziga bog'lab qo'yadi — oyna ekran kengligida bo'lishi uchun body'ga */}
+      {open && createPortal(<MoreSheet onClose={() => setOpen(false)} />, document.body)}
     </>
   );
 };

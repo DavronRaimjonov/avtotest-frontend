@@ -625,6 +625,36 @@ export interface CreatedOrder extends Order {
   paymentUrl: string;
 }
 
+// ---------- Shpargalka (FRONTEND-API.md 2.9) ----------
+// icon — lucide nomi (gauge, timer, ban, ...), color — red | blue | violet | amber | green | orange
+export interface CheatSheetCard {
+  id: number;
+  slug: string;
+  icon: string;
+  color: string;
+  title: string;
+  subtitle: string;
+  itemCount: number;
+}
+
+export interface CheatSheetItem {
+  // Matn: "2.55", "50–100", "DYHXX" — formatlanmaydi
+  value: string;
+  unit: string | null;
+  label: string;
+}
+
+export interface CheatSheetRef {
+  slug: string;
+  title: string;
+}
+
+export interface CheatSheet extends Omit<CheatSheetCard, "itemCount"> {
+  sections: { title: string; items: CheatSheetItem[] }[];
+  prev: CheatSheetRef | null;
+  next: CheatSheetRef | null;
+}
+
 // ---------- Xatolar ----------
 export type ApiErrorCode =
   | "VALIDATION_ERROR"

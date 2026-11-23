@@ -45,7 +45,7 @@ export const Hero = () => {
             type="button"
             onClick={() => start({ source: "exam", mode: "exam" })}
             disabled={isPending}
-            className="btn-hover shine flex h-16 cursor-pointer items-center gap-3 rounded-2xl border-0 bg-accent px-7 text-left text-navy disabled:cursor-wait disabled:opacity-80"
+            className="btn-hover shine flex h-16 cursor-pointer items-center gap-3 rounded-2xl border-0 bg-accent px-7 text-left text-navy disabled:cursor-wait disabled:opacity-80 max-[860px]:w-full max-[860px]:justify-center"
           >
             {locked ? <LockIcon size={20} strokeWidth={2.4} /> : <PlayIcon />}
             <span className="flex flex-col">
@@ -55,7 +55,7 @@ export const Hero = () => {
           </button>
           <Link
             href={ROUTES.variants}
-            className="btn-hover flex h-16 items-center gap-2.5 rounded-2xl border-[1.5px] border-white/30 px-6 font-bold text-white no-underline"
+            className="btn-hover flex h-16 items-center justify-center gap-2.5 rounded-2xl border-[1.5px] border-white/30 px-6 font-bold text-white no-underline max-[860px]:w-full"
           >
             <GridIcon size={18} />
             {t("common.variants")}

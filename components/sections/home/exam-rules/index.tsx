@@ -31,7 +31,7 @@ export const ExamRules = () => {
   ] as const;
 
   return (
-    <section className="mx-auto max-w-300 px-6 pt-24">
+    <section id="exam-rules" className="mx-auto max-w-300 scroll-mt-24 px-6 pt-24">
       <div className="flex flex-wrap gap-12 rounded-[28px] bg-navy p-8 text-white sm:p-12">
         <div className="flex flex-[1_1_380px] flex-col gap-4">
           <span className="text-[13px] font-extrabold tracking-[0.08em] text-accent">{t("examRules.eyebrow")}</span>

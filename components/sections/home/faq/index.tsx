@@ -11,7 +11,7 @@ export const Faq = () => {
   const items = t("faq.items", { returnObjects: true }) as { q: string; a: string }[];
 
   return (
-    <section className="mx-auto max-w-220 px-6 pt-24">
+    <section id="faq" className="mx-auto max-w-220 scroll-mt-24 px-6 pt-24">
       <h2 className="m-0 mb-8 text-center text-[32px] font-extrabold tracking-tight sm:text-[40px]">
         {t("faq.title")}
       </h2>

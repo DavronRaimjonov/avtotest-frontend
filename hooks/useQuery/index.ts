@@ -17,6 +17,7 @@ import {
 import { QUERY_KEYS } from "@/lib/query-keys";
 import { getAttempt, getAttemptResult, getAttempts } from "@/request/attempt";
 import { getOrder, getOrders, getPlans } from "@/request/billing";
+import { getCheatSheet, getCheatSheets } from "@/request/cheat-sheets";
 import { getGroupTest, getGroupTests } from "@/request/group-test";
 import {
   getDemoQuestion,
@@ -118,6 +119,26 @@ export const useSignSearchQuery = (search: string) => {
     enabled: q.length > 0,
     placeholderData: keepPreviousData,
     staleTime: 5 * 60_000,
+  });
+};
+
+// ---------- Shpargalka ----------
+// Admin kamdan-kam o'zgartiradi — sahifalar orasida qayta so'ralmaydi
+export const useCheatSheetsQuery = () => {
+  const lang = useCurrentLang();
+  return useQuery({
+    queryKey: QUERY_KEYS.cheatSheets(lang),
+    queryFn: () => getCheatSheets(lang),
+    staleTime: 10 * 60_000,
+  });
+};
+
+export const useCheatSheetQuery = (slug: string) => {
+  const lang = useCurrentLang();
+  return useQuery({
+    queryKey: QUERY_KEYS.cheatSheet(slug, lang),
+    queryFn: () => getCheatSheet(slug, lang),
+    staleTime: 10 * 60_000,
   });
 };
 

@@ -26,7 +26,11 @@ const PaywallDialog = () => {
   const hasSession = useAuthStore((s) => s.hasSession);
   const openLogin = useAuthStore((s) => s.openLogin);
   const { data: plans } = usePlansQuery();
-  const cheapest = plans?.items.filter((p) => !p.comingSoon).sort((a, b) => a.priceUzs - b.priceUzs)[0];
+  // Eng arzon sotuvdagi tarif — faqat shu imkoniyatni ochadiganlari orasidan (videos faqat Max'da: u "Tez kunda"
+  // bo'lsa narx ko'rsatilmaydi, aks holda Standart narxi chalg'itadi)
+  const cheapest = plans?.items
+    .filter((p) => !p.comingSoon && (!feature || p.features.includes(feature)))
+    .sort((a, b) => a.priceUzs - b.priceUzs)[0];
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();

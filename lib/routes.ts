@@ -19,6 +19,12 @@ export const ROUTES = {
   pricing: "/pricing",
   // Kabinet: profil, tarif, statistika, testlar tarixi, to'lovlar
   profile: "/profile",
+  // Darslik: darslar ro'yxati (?lesson=2 — tanlangan dars) va mavzuning video darsi
+  lessons: (lesson?: number) => (lesson ? `/lessons?lesson=${lesson}` : "/lessons"),
+  lesson: (topicSlug: string) => `/lessons/${topicSlug}`,
+  // Shpargalka: kartochkalar va bitta kartochka (raqamlar)
+  cheatSheets: "/cheat-sheets",
+  cheatSheet: (slug: string) => `/cheat-sheets/${slug}`,
   paymentResult: (orderId?: number | string) => (orderId ? `/payment/result?orderId=${orderId}` : "/payment/result"),
 } as const;
 
@@ -58,12 +64,13 @@ export const attemptHref = (a: { id: string; source: AttemptSource; status: Atte
   return a.status === "finished" ? ROUTES.result(a.id) : ROUTES.test(a.id);
 };
 
-// Header navigatsiyasi (matn — nav.<key> tarjimasi). Hali sahifasi yo'q bo'limlar "#" ga olib boradi
+// Header navigatsiyasi (matn — nav.<key> tarjimasi)
 export const NAV_LINKS = [
   { href: ROUTES.home, key: "home" },
   { href: ROUTES.variants, key: "variants" },
   { href: "/#topics", key: "topics" },
   { href: ROUTES.signs, key: "signs" },
+  { href: ROUTES.cheatSheets, key: "cheatSheets" },
   { href: ROUTES.pricing, key: "pricing" },
-  { href: "#", key: "manual" },
+  { href: "/lessons", key: "manual" },
 ] as const;

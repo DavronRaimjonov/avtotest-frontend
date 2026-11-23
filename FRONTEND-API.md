@@ -1,3 +1,4 @@
+
 # AvtoTest API — frontend uchun qo'llanma
 
 Backend: NestJS + PostgreSQL. Ikki alohida qism:
@@ -12,6 +13,7 @@ Backend: NestJS + PostgreSQL. Ikki alohida qism:
 - Landing tokeni admin API'da ishlamaydi, admin tokeni landing'da ishlamaydi (401).
 - **Mehmon (login qilmagan)** `/api/landing/guest/*` orqali faqat birinchi 3 ta variant va 20 savollik tasodifiy testni ishlaydi, hech narsasi saqlanmaydi (2.3, 2.4).
 - **Tariflar va to'lov** (Click, Payme), paywall, ekranlar, tiplar va tarjimalar: 2.8. Admin tomoni: 3.10. Tekshirish ro'yxati: 5.
+- **Shpargalka** (imtihonda ko'p uchraydigan raqamlar: tezlik, masofa, gabarit...): 2.9. Admin tomoni: 3.11.
 
 ---
 
@@ -940,8 +942,8 @@ Tariflar (narxi va muddatini admin o'zgartira oladi, shuning uchun **frontendga 
 | code | Nomi | Narx | Muddat | Holat |
 |---|---|---|---|---|
 | `standard` | Standart | 45 000 so'm | 14 kun | sotuvda |
-| `pro` | Pro | 70 000 so'm | 30 kun | sotuvda, POPULAR |
-| `max` | Max | 499 000 so'm | 30 kun | **Tez kunda** (sotib bo'lmaydi) |
+| `pro` | Pro | 65 000 so'm | 30 kun | sotuvda, POPULAR |
+| `max` | Max | 399 000 so'm | 30 kun | **Tez kunda** (sotib bo'lmaydi) |
 
 To'lov: **Click**, **Payme** (onlayn), naqd yoki karta orqali (admin qo'lda beradi, 3.10).
 
@@ -968,7 +970,7 @@ To'lov: **Click**, **Payme** (onlayn), naqd yoki karta orqali (admin qo'lda bera
       "code": "pro",
       "title": "Pro",
       "description": "Faqat testlar (videosiz)",
-      "priceUzs": 70000,
+      "priceUzs": 65000,
       "durationDays": 30,
       "features": ["all_tests", "final_exam", "explanations"],
       "isPopular": true,
@@ -979,7 +981,7 @@ To'lov: **Click**, **Payme** (onlayn), naqd yoki karta orqali (admin qo'lda bera
       "code": "max",
       "title": "Max",
       "description": "Testlar + videodarslar",
-      "priceUzs": 499000,
+      "priceUzs": 399000,
       "durationDays": 30,
       "features": ["all_tests", "final_exam", "explanations", "videos", "mnemonics"],
       "isPopular": false,
@@ -1047,7 +1049,7 @@ Javob (201):
   "planCode": "pro",
   "planTitle": "Pro",
   "durationDays": 30,
-  "amount": 70000,
+  "amount": 65000,
   "provider": "payme",
   "status": "pending",
   "paidAt": null,
@@ -1164,7 +1166,7 @@ Karta tarkibi:
 [POPULAR]                  ← isPopular
 Pro                        ← title
 Faqat testlar (videosiz)   ← description
-70 000 so'm                ← priceUzs (bo'shliq bilan formatlang)
+65 000 so'm                ← priceUzs (bo'shliq bilan formatlang)
 ✓ 30 kunlik dostup         ← durationDays
 ✓ Barcha testlar (1300+ savol)   ← features: all_tests
 ✓ Yakuniy test                   ← final_exam
@@ -1183,7 +1185,7 @@ Faqat testlar (videosiz)   ← description
 1. Token yo'q → login/registratsiya oynasi, keyin shu sahifaga qaytish (`?plan=2` saqlab).
 2. To'lov usuli tanlash oynasi (bottom sheet / modal):
    ```
-   Pro — 70 000 so'm, 30 kun
+   Pro — 65 000 so'm, 30 kun
    [ Click ]  [ Payme ]           ← faqat providers dagilar
    Naqd yoki karta orqali to'lash uchun: Telegram @... / +998 ...
    ```
@@ -1314,7 +1316,7 @@ export function useAccess() {
 }
 ```
 
-Narx formati: `new Intl.NumberFormat('ru-RU').format(70000) + " so'm"` → `70 000 so'm` (uzc/kk: `сўм` / `сум`).
+Narx formati: `new Intl.NumberFormat('ru-RU').format(65000) + " so'm"` → `65 000 so'm` (uzc/kk: `сўм` / `сум`).
 
 #### 2.8.6. Tarjimalar (4 til uchun kalitlar)
 
@@ -1371,6 +1373,96 @@ To'lovni haqiqatan o'tkazmasdan "to'langan" holatni ko'rish uchun: admin panelda
 
 ---
 
+### 2.9. Shpargalka (tokensiz)
+
+"Imtihonda ko'p uchraydigan, yodlash qiyin ma'lumotlar" sahifasi. Ikki bosqichli: kartochkalar ro'yxati, kartochkaga kirilganda uning raqamlari. Hozir 9 ta kartochka (admin qo'shishi yoki tahrirlashi mumkin). Swagger'da `cheat-sheets` tegi.
+
+```
+GET /api/landing/cheat-sheets?lang=uzb          ─►  kartochkalar ro'yxati
+GET /api/landing/cheat-sheets/:slug?lang=uzb    ─►  bitta kartochka (bo'limlar va raqamlar)
+```
+
+Hammasi `?lang=uzb|uzc|ru|kk` qabul qiladi. Hamma matn (birliklar ham: `km/soat` / `км/ч` / `км/сағ`) tanlangan tilda keladi. Login va tarif shart emas.
+
+#### `GET /api/landing/cheat-sheets?lang=uzb`
+```json
+[
+  {
+    "id": 1,
+    "slug": "ruxsat-etilgan-tezlik",
+    "icon": "gauge",
+    "color": "red",
+    "title": "Ruxsat etilgan tezlik",
+    "subtitle": "Aholi punktidan tashqarida va maxsus joylarda",
+    "itemCount": 14
+  }
+]
+```
+- `icon` — [lucide](https://lucide.dev/icons) ikonka nomi (`lucide-react` da PascalCase: `gauge` → `<Gauge />`, `triangle-alert` → `<TriangleAlert />`). Hozirgilari: `gauge`, `timer`, `ban`, `triangle-alert`, `ruler`, `package`, `link`, `disc`, `wrench`. Noma'lum nom kelsa — umumiy ikonka (masalan `FileText`).
+- `color` — ikonka foni (och rang) va ikonka rangi: `red`, `blue`, `violet`, `amber`, `green`, `orange`. Noma'lum bo'lsa — kulrang.
+- Ro'yxat tepasidagi "Imtihonda ko'p uchraydigan, yodlash qiyin ma'lumotlar" matni — frontend tarjimasi (backenddan kelmaydi).
+
+#### `GET /api/landing/cheat-sheets/:slug?lang=uzb`
+`:slug` o'rniga `id` ham bo'ladi. Topilmasa yoki yashirilgan bo'lsa `404 NOT_FOUND`.
+```json
+{
+  "id": 1,
+  "slug": "ruxsat-etilgan-tezlik",
+  "icon": "gauge",
+  "color": "red",
+  "title": "Ruxsat etilgan tezlik",
+  "subtitle": "Aholi punktidan tashqarida va maxsus joylarda",
+  "sections": [
+    {
+      "title": "Aholi punktlaridan tashqarida",
+      "items": [
+        { "value": "100", "unit": "km/soat", "label": "Yengil avto" },
+        { "value": "90", "unit": "km/soat", "label": "Shaharlararo avtobus va mikroavtobus" }
+      ]
+    },
+    {
+      "title": "Alohida holatlar",
+      "items": [
+        { "value": "8", "unit": "km/soat dan kam", "label": "Temir yo'l kesishmasi: temir yo'l boshlig'idan ruxsat so'raladi" },
+        { "value": "DYHXX", "unit": null, "label": "Og'ir vaznli va katta o'lchamli yuk avto — kelishilgan tezlikda" }
+      ]
+    }
+  ],
+  "prev": null,
+  "next": { "slug": "tezlik-va-reaksiya", "title": "Tezlik va reaktsiya" }
+}
+```
+- Har bir `section` — sarlavhali oq kartochka (kulrang sarlavha qatori), `items` — qatorlar.
+- Qator: chapda katta yashil `value`, yonida kichik `unit` (`null` bo'lsa ko'rsatilmaydi), vertikal chiziq, o'ngda `label`.
+- `value` — matn, raqam emas: `"2.55"`, `"50–100"`, `"0.3–0.5"`, `"DYHXX"` bo'lishi mumkin. Formatlamang, kelganicha chiqaring. Uzun bo'lsa (`150–300`) ikki qatorga tushishi mumkin — `value` ustunini o'ngga tekislang, kengligi taxminan 90–110px.
+- `prev` / `next` — oldingi va keyingi kartochka ("←  →" tugmalari, ixtiyoriy). Chetda bo'lsa `null`.
+- **Manzil:** `/{lang}/shpargalka` (ro'yxat) va `/{lang}/shpargalka/{slug}` (kartochka) tavsiya etiladi. Kartochka sahifasida sarlavha `title`, uning tagida kulrang `subtitle`.
+
+TypeScript:
+```ts
+export interface CheatSheetCard {
+  id: number;
+  slug: string;
+  icon: string;
+  color: string;
+  title: string;
+  subtitle: string;
+  itemCount: number;
+}
+export interface CheatSheet extends Omit<CheatSheetCard, 'itemCount'> {
+  sections: { title: string; items: { value: string; unit: string | null; label: string }[] }[];
+  prev: { slug: string; title: string } | null;
+  next: { slug: string; title: string } | null;
+}
+```
+
+Tarjima kalitlari (frontend `i18n/locales/*.json`):
+
+| Kalit | uzb | uzc | ru | kk |
+|---|---|---|---|---|
+| `cheatSheets.title` | Shpargalka | Шпаргалка | Шпаргалка | Шпаргалка |
+| `cheatSheets.subtitle` | Imtihonda ko'p uchraydigan, yodlash qiyin ma'lumotlar | Имтиҳонда кўп учрайдиган, ёдлаш қийин маълумотлар | Часто встречающиеся на экзамене данные, которые трудно запомнить | Емтиханда жиі кездесетін, есте сақтау қиын мәліметтер |
+
 ## 3. Admin API
 
 Hamma endpoint `/api/admin/*`, admin tokeni bilan.
@@ -1412,11 +1504,14 @@ Hamma endpoint `/api/admin/*`, admin tokeni bilan.
   "attempts24h": 37,
   "examPassRate": 61,
   "openReports": 3,
-  "daily": [{ "date": "2026-11-18", "attempts": 37, "newUsers": 4 }],
+  "premiumUsers": 18,
+  "revenueToday": 140000,
+  "revenueMonth": 2350000,
+  "daily": [{ "date": "2026-11-18", "attempts": 37, "newUsers": 4, "revenue": 140000 }],
   "hardest": [{ "id": 353, "text": "...", "answered": 40, "wrongRate": 72 }]
 }
 ```
-`daily` — oxirgi 30 kun (grafik uchun). `hardest` — kamida 5 marta javob berilgan, eng ko'p xato qilinadigan 10 ta savol.
+`daily` — oxirgi 30 kun (grafik uchun; `revenue` — shu kuni to'langan summa, so'm). `premiumUsers` — hozir tarifi faol foydalanuvchilar. Batafsil daromad: `GET /admin/orders/stats` (3.10). `hardest` — kamida 5 marta javob berilgan, eng ko'p xato qilinadigan 10 ta savol.
 
 ### 3.3. Savollar
 | Metod | Yo'l | Tavsif |
@@ -1526,8 +1621,10 @@ Javob: `{ "updated": 3 }`. `topicId: null` — mavzudan chiqarish.
 ### 3.6. Foydalanuvchilar
 | Metod | Yo'l | Tavsif |
 |---|---|---|
-| GET | `/admin/users?search&isBlocked&page&limit` | Har birida `finishedTests`, `avgPercent` |
-| GET | `/admin/users/:id` | Foydalanuvchi + `mistakesCount`, `bookmarksCount`, `recentAttempts` (oxirgi 30 ta) |
+| GET | `/admin/users?search&isBlocked&premium&page&limit` | Har birida `finishedTests`, `avgPercent`, **`planCode`** (`standard` / `pro` / `max` yoki `null`), **`planExpiresAt`**. `premium=true` — faqat tarifi faollar, `premium=false` — bepullar |
+| GET | `/admin/users/:id` | Foydalanuvchi + **`access`** (shakli `/landing/me/access` bilan bir xil: `isPremium`, `current`, `accessUntil`, `active`, `upcoming`), `mistakesCount`, `bookmarksCount`, `recentAttempts` (oxirgi 30 ta) |
+| GET | `/admin/users/:id/access` | Tarif davrlari tarixi (3.10) |
+| POST | `/admin/users/:id/access` | **Premium berish** `{ planId, amount?, note? }` (3.10) |
 | PATCH | `/admin/users/:id` | `{ isBlocked: true }` — bloklansa barcha sessiyalari yopiladi |
 
 ### 3.7. Xabarlar ("savolda xato")
@@ -1611,9 +1708,56 @@ Import qilingan belgilarda `ru` bo'sh (`""`). Tahrirlash formasida uchala til ma
 
 1. **Tariflar** (`GET /admin/plans`, `PATCH /admin/plans/:id`): jadval + tahrirlash formasi (narx, muddat, imkoniyatlar checkbox, holat: Sotuvda / Tez kunda / Yashirin, POPULAR, tartib, 4 tilda nom va tavsif). Ogohlantirish: "O'zgarish faqat yangi buyurtmalarga ta'sir qiladi".
 2. **To'lovlar** (`GET /admin/orders`): filtrlar (holat, Click/Payme/Naqd, sana oralig'i, qidiruv), jadval: #, foydalanuvchi, tarif, summa, usul, holat, admin/izoh, sana. Tepada `GET /admin/orders/stats` kartalari: bugun, shu oy, jami daromad, faol obunachilar; tariflar va usullar bo'yicha kichik diagramma.
-3. **Foydalanuvchi sahifasi** → "Tarif" bloki: `GET /admin/users/:id/access` (davrlar ro'yxati, faol/tugagan/bekor), **"Tarif berish"** tugmasi → modal: tarif, qabul qilingan summa (default — tarif narxi, sovg'a uchun 0), izoh ("naqd, ofisda") → `POST /admin/users/:id/access`.
-4. Qo'lda berilgan (`provider: "manual"`, `status: "paid"`) buyurtma qatorida **"Bekor qilish"** → `POST /admin/orders/:id/refund` (tasdiqlash oynasi bilan). Click/Payme qatorlarida bu tugma bo'lmaydi.
-5. "Jamoaviy testlar" menyusini yashiring (backend 404 qaytaradi).
+3. **Foydalanuvchilar ro'yxati**: `planCode` bo'yicha belgi (PRO / MAX / Standart) va "Tarif: barchasi / premium / bepul" filtri (`premium=true|false`).
+4. **Foydalanuvchi sahifasi** → "Tarif" bloki: hozirgi holat `GET /admin/users/:id` dagi `access` dan, tarix `GET /admin/users/:id/access` (davrlar ro'yxati, faol/tugagan/bekor), **"Tarif berish"** tugmasi → modal: tarif, qabul qilingan summa (default — tarif narxi, sovg'a uchun 0), izoh ("naqd, ofisda") → `POST /admin/users/:id/access`.
+5. Qo'lda berilgan (`provider: "manual"`, `status: "paid"`) buyurtma qatorida **"Bekor qilish"** → `POST /admin/orders/:id/refund` (tasdiqlash oynasi bilan). Click/Payme qatorlarida bu tugma bo'lmaydi.
+6. "Jamoaviy testlar" menyusini yashiring (backend 404 qaytaradi).
+7. **Dashboard**: `premiumUsers`, `revenueToday`, `revenueMonth` kartalari va `daily[].revenue` grafigi.
+
+### 3.11. Shpargalka
+
+| Metod | Yo'l | Tavsif |
+|---|---|---|
+| GET | `/admin/cheat-sheets` | Barcha kartochkalar (yashirinlari bilan), barcha tillarda |
+| GET | `/admin/cheat-sheets/:id` | Bitta kartochka |
+| POST | `/admin/cheat-sheets` | Yangi. `position` berilmasa — oxiriga |
+| PATCH | `/admin/cheat-sheets/:id` | Qisman. **`sections` yuborilsa butunlay almashtiriladi** (bo'lim yoki qatorni alohida tahrirlash endpointi yo'q — formadagi to'liq ro'yxatni yuboring) |
+| DELETE | `/admin/cheat-sheets/:id` | `204`. Saytdan vaqtincha olib tashlash uchun `isActive: false` qiling |
+
+Body (`POST`; `PATCH` da hammasi ixtiyoriy):
+```json
+{
+  "slug": "ruxsat-etilgan-tezlik",
+  "icon": "gauge",
+  "color": "red",
+  "title":    { "uzb": "Ruxsat etilgan tezlik", "uzc": "Рухсат этилган тезлик", "ru": "Разрешённая скорость", "kk": "Рұқсат етілген жылдамдық" },
+  "subtitle": { "uzb": "...", "uzc": "...", "ru": "...", "kk": "..." },
+  "sections": [
+    {
+      "title": { "uzb": "Aholi punktlaridan tashqarida", "uzc": "...", "ru": "...", "kk": "..." },
+      "items": [
+        {
+          "value": "100",
+          "valueText": null,
+          "unit":  { "uzb": "km/soat", "uzc": "км/соат", "ru": "км/ч", "kk": "км/сағ" },
+          "label": { "uzb": "Yengil avto", "uzc": "Енгил авто", "ru": "Легковой автомобиль", "kk": "Жеңіл автокөлік" }
+        }
+      ]
+    }
+  ],
+  "position": 1,
+  "isActive": true
+}
+```
+- Matnlar `{ uzb, uzc, ru, kk? }`: `uzb`, `uzc`, `ru` majburiy, `kk` ixtiyoriy (bo'lmasa ruschasi chiqadi).
+- `value` — 1–30 belgi (`100`, `2.55`, `50–100`). `valueText` — raqam o'rniga tilga qarab matn kerak bo'lsa (masalan `DYHXX` / `ГСБДД`), aks holda `null`. `unit` — birlik yoki `null`.
+- `slug` — kichik lotin harf, raqam va `-`, unikal. Band bo'lsa `409 CONFLICT` (`params.field: "slug"`).
+- `icon` — lucide nomi (2.9 ga qarang), `color` — `red | blue | violet | amber | green | orange`. Formada tanlov (select) qilib bering.
+- Cheklovlar: 20 tagacha bo'lim, bo'limda 50 tagacha qator.
+
+**Admin panel sahifasi:** "Shpargalka" menyusi → kartochkalar jadvali (tartib, ikonka, nom, qatorlar soni, faol/yashirin) → tahrirlash formasi: slug, ikonka, rang, 4 tilda nom va tavsif, so'ng bo'limlar ro'yxati (bo'lim qo'shish/o'chirish/surish; har bo'limda 4 tilda sarlavha va qatorlar jadvali: value, birlik, izoh — har biri 4 tilda; qator qo'shish/o'chirish/surish). Saqlashda butun `sections` bilan `PATCH`.
+
+Boshlang'ich 9 ta kartochka seed bilan yoziladi (`npm run seed:cheat-sheets`, faqat yo'qlarini qo'shadi; `-- --force` fayldagi holatga qaytaradi). Fayl: `src/database/seeds/data/cheat-sheets.ts`.
 
 ## 4. Tavsiyalar
 
