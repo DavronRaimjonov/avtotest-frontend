@@ -8,9 +8,15 @@ import {
 import { useTranslation } from "react-i18next";
 import type { PageParams, Paginated, VariantSize } from "@/@types";
 import { currentLang, toLanguage } from "@/i18n";
-import { GROUP_LOBBY_POLL_MS, SAVED_PAGE_SIZE } from "@/lib/constants";
+import {
+  GROUP_LOBBY_POLL_MS,
+  PAYMENT_POLL_MAX_MS,
+  PAYMENT_POLL_MS,
+  SAVED_PAGE_SIZE,
+} from "@/lib/constants";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import { getAttempt, getAttemptResult, getAttempts } from "@/request/attempt";
+import { getOrder, getOrders, getPlans } from "@/request/billing";
 import { getGroupTest, getGroupTests } from "@/request/group-test";
 import {
   getDemoQuestion,
@@ -135,11 +141,13 @@ export const useAttemptResultQuery = (id: string, enabled = true) =>
     staleTime: Infinity,
   });
 
+// Profildagi testlar tarixi: sahifa almashganda eski ro'yxat turib turadi
 export const useAttemptsQuery = (params: PageParams) =>
   useQuery({
     queryKey: QUERY_KEYS.attempts(params),
     queryFn: () => getAttempts(params),
     enabled: useHasSession(),
+    placeholderData: keepPreviousData,
   });
 
 // ---------- Jamoaviy test ----------
@@ -226,5 +234,40 @@ export const useExplanationsQuery = (questionIds: number[], enabled = true) => {
     enabled: useHasSession() && enabled && questionIds.length > 0,
     staleTime: Infinity,
     select: (rows) => new Map(rows.map((r) => [r.id, r.explanation])),
+  });
+};
+
+// ---------- Tariflar va to'lov ----------
+export const usePlansQuery = () => {
+  const lang = useCurrentLang();
+  return useQuery({
+    queryKey: QUERY_KEYS.plans(lang),
+    queryFn: () => getPlans(lang),
+    staleTime: 5 * 60_000,
+  });
+};
+
+// To'lovdan qaytgach: pending bo'lsa har 2.5 soniyada, startedAt dan ~60 soniyagacha qayta so'raladi.
+// "To'landi" faqat status === "paid" bo'lganda (sahifaga qaytishning o'zi to'lov emas)
+export const useOrderQuery = (id: number, startedAt: number) => {
+  const lang = useCurrentLang();
+  return useQuery({
+    queryKey: QUERY_KEYS.order(id),
+    queryFn: () => getOrder(id, lang),
+    enabled: useHasSession() && Number.isInteger(id) && id > 0,
+    refetchInterval: (query) =>
+      query.state.data?.status === "pending" && Date.now() - startedAt < PAYMENT_POLL_MAX_MS
+        ? PAYMENT_POLL_MS
+        : false,
+  });
+};
+
+export const useOrdersQuery = (page = 1) => {
+  const lang = useCurrentLang();
+  return useQuery({
+    queryKey: QUERY_KEYS.orders(page),
+    queryFn: () => getOrders({ page, limit: 20, lang }),
+    enabled: useHasSession(),
+    placeholderData: keepPreviousData,
   });
 };

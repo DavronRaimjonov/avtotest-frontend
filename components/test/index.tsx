@@ -305,16 +305,16 @@ const TestMessage = ({ title, text, children }: { title: string; text: string; c
 
 export const TestSkeleton = () => (
   <div className="flex min-h-dvh flex-col">
-    <div className="h-[140px] border-b border-line bg-white" />
-    <div className="mx-auto flex w-full max-w-[1240px] flex-wrap gap-7 px-6 pt-7">
+    <div className="h-35 border-b border-line bg-white" />
+    <div className="mx-auto flex w-full max-w-310 flex-wrap gap-7 px-6 pt-7">
       <div className="flex flex-[999_1_520px] flex-col gap-3.5">
         <span className="h-5 w-32 animate-pulse rounded bg-soft" />
         <span className="h-16 animate-pulse rounded-xl bg-soft" />
         {[0, 1, 2].map((i) => (
-          <span key={i} className="h-[60px] animate-pulse rounded-2xl bg-soft" />
+          <span key={i} className="h-15 animate-pulse rounded-2xl bg-soft" />
         ))}
       </div>
-      <div className="aspect-[4/3] flex-[1_1_380px] animate-pulse rounded-[20px] bg-soft" />
+      <div className="aspect-4/3 flex-[1_1_380px] animate-pulse rounded-[20px] bg-soft" />
     </div>
   </div>
 );

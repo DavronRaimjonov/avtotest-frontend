@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 import type { Variant } from "@/@types";
-import { PlayIcon } from "@/components/ui/icons";
+import { LockIcon, PlayIcon } from "@/components/ui/icons";
 import {
   EXAM_DURATION_MIN,
   EXAM_MODES,
@@ -16,7 +16,8 @@ import { useStartAttempt } from "@/request/mutation";
 import { useExamStore } from "@/store/exam.store";
 
 // Chap panel: til, tanlangan variant, rejim va "Testni boshlash".
-// Test tili = ilova tili (header'dagi bilan bir xil). Mehmon ham boshlay oladi — /guest/tests
+// Test tili = ilova tili (header'dagi bilan bir xil). Mehmon faqat 1–3-variantni boshlay oladi (/guest/tests),
+// qolganida (requiresLogin) kirish oynasi ochiladi va kirgach test o'zi boshlanadi
 export const VariantPanel = ({ variant, passPercent = PASS_PERCENT }: { variant?: Variant; passPercent?: number }) => {
   const { t } = useTranslation();
   const { lang, setLang } = useLang();
@@ -26,7 +27,7 @@ export const VariantPanel = ({ variant, passPercent = PASS_PERCENT }: { variant?
   const minutes = variant ? Math.round(variant.timeLimitSec / 60) : EXAM_DURATION_MIN;
 
   return (
-    <aside className="flex w-full flex-col gap-5 lg:sticky lg:top-24 lg:w-[380px] lg:flex-none">
+    <aside className="flex w-full flex-col gap-5 lg:sticky lg:top-24 lg:w-95 lg:flex-none">
       <div className="flex flex-col gap-5 rounded-3xl border border-line bg-white p-6">
         <div className="flex flex-col gap-2.5">
           <span className="text-[13px] font-bold text-muted">{t("variants.testLang")}</span>
@@ -102,12 +103,18 @@ export const VariantPanel = ({ variant, passPercent = PASS_PERCENT }: { variant?
         <button
           type="button"
           disabled={!variant || isPending}
-          onClick={() => variant && start({ source: "variant", variantId: variant.id, mode, lang })}
+          onClick={() =>
+            variant &&
+            start({ source: "variant", variantId: variant.id, mode, lang }, { requiresLogin: variant.requiresLogin })
+          }
           className="btn-hover flex h-14 items-center justify-center gap-2.5 rounded-[14px] bg-accent text-base font-extrabold text-navy disabled:opacity-60"
         >
-          <PlayIcon />
-          {isPending ? t("common.starting") : t("common.start")}
+          {variant?.requiresLogin ? <LockIcon size={18} strokeWidth={2.4} /> : <PlayIcon />}
+          {isPending ? t("common.starting") : variant?.requiresLogin ? t("guestLimits.loginToStart") : t("common.start")}
         </button>
+        {variant?.requiresLogin && (
+          <p className="-mt-2 m-0 text-center text-[13px] leading-snug text-muted">{t("guestLimits.variant")}</p>
+        )}
       </div>
     </aside>
   );

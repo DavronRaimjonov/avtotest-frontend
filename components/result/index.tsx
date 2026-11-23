@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 import type { ResultData } from "@/@types";
 import { attemptTitle } from "@/components/test/test-header";
+import { useAccess } from "@/hooks/useAccess";
 import { useAttemptResultQuery, useExplanationsQuery } from "@/hooks/useQuery";
 import { GUEST_ID } from "@/lib/constants";
 import { getErrorCode } from "@/lib/helpers";
@@ -50,7 +51,8 @@ const ServerResult = ({ id }: { id: string }) => {
     );
   }
 
-  return <ResultView result={result} />;
+  // Tarifsiz foydalanuvchida explanation doim null — izoh o'rniga "Tarif oling" bloki
+  return <ResultView result={result} explanationsLocked={!!result.explanationsLocked} />;
 };
 
 const GuestResult = () => {
@@ -69,11 +71,13 @@ const GuestResult = () => {
   return <GuestResultView result={result} />;
 };
 
-// Mehmonga izohlar berilmaydi: kirgach (yoki ro'yxatdan o'tgach) shu natijaning izohlari yuklanadi
+// Mehmonga izohlar berilmaydi: kirgach va tarifi bo'lsa shu natijaning izohlari yuklanadi.
+// Tarifsizga /me/explanations so'rovi yuborilmaydi (server 403 qaytaradi) — qulf bloki ko'rinadi
 const GuestResultView = ({ result }: { result: ResultData }) => {
-  const hasSession = useAuthStore((s) => s.hasSession);
+  const { has, isLoading } = useAccess();
+  const canExplain = has("explanations");
   const ids = useMemo(() => result.review.map((i) => i.id), [result.review]);
-  const { data: explanations } = useExplanationsQuery(ids);
+  const { data: explanations } = useExplanationsQuery(ids, canExplain);
 
   const withExplanations = useMemo(
     () =>
@@ -89,7 +93,7 @@ const GuestResultView = ({ result }: { result: ResultData }) => {
     [result, explanations],
   );
   return (
-    <ResultView result={withExplanations} explanationsLocked={!hasSession} />
+    <ResultView result={withExplanations} explanationsLocked={!canExplain && !isLoading} />
   );
 };
 
@@ -102,7 +106,7 @@ const ResultView = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <div className="mx-auto flex max-w-[1040px] flex-col gap-6 px-6 pt-10 pb-20">
+    <div className="mx-auto flex max-w-260 flex-col gap-6 px-6 pt-10 pb-20">
       <span className="text-sm font-semibold text-muted">
         {t("result.label", {
           title: attemptTitle(t, result),
@@ -167,7 +171,7 @@ const ResultMessage = ({
 }: MessageProps) => {
   const { t } = useTranslation();
   return (
-    <div className="mx-auto flex max-w-[1040px] flex-col items-start gap-4 px-6 py-20">
+    <div className="mx-auto flex max-w-260 flex-col items-start gap-4 px-6 py-20">
       <h1 className="m-0 text-3xl font-extrabold">{title}</h1>
       <p className="m-0 text-muted">{text}</p>
       <Link
@@ -181,8 +185,8 @@ const ResultMessage = ({
 };
 
 export const ResultSkeleton = () => (
-  <div className="mx-auto flex max-w-[1040px] flex-col gap-6 px-6 pt-10 pb-20">
-    <span className="h-[272px] animate-pulse rounded-[28px] bg-soft" />
+  <div className="mx-auto flex max-w-260 flex-col gap-6 px-6 pt-10 pb-20">
+    <span className="h-68 animate-pulse rounded-[28px] bg-soft" />
     <span className="h-24 animate-pulse rounded-[20px] bg-soft" />
     <span className="h-80 animate-pulse rounded-[28px] bg-soft" />
   </div>

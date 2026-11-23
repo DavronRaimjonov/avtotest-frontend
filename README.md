@@ -1,4 +1,4 @@
-# AvtoTest — frontend
+# PravaKey — frontend
 
 Haydovchilik imtihoniga onlayn tayyorgarlik platformasi. Next.js 16 (App Router, Cache Components), Tailwind v4, TanStack Query, Zustand, Axios.
 

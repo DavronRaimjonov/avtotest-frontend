@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "AvtoTest — haydovchilik imtihoniga onlayn tayyorgarlik",
+    "title": "PravaKey — haydovchilik imtihoniga onlayn tayyorgarlik",
     "description": "Rasmiy imtihon formatidagi testlar, 1300 dan ortiq savol, mavzular bo‘yicha mashq va har bir savolga izoh.",
     "variants": "Variantni tanlash",
     "test": "Test ishlash",
@@ -8,7 +8,11 @@
     "signs": "Yo‘l belgilari",
     "saved": "Saqlangan savollar",
     "mistakes": "Xatolarim",
-    "groupTest": "Jamoaviy test"
+    "groupTest": "Jamoaviy test",
+    "pricing": "Tariflar",
+    "pricingDescription": "Yakuniy test va har bir savol izohi uchun tarif tanlang. To‘lov Click, Payme, naqd yoki karta orqali.",
+    "payment": "To‘lov natijasi",
+    "profile": "Profil"
   },
   "common": {
     "start": "Testni boshlash",
@@ -33,7 +37,8 @@
     "signs": "Yo‘l belgilari",
     "manual": "Darslik",
     "profile": "Profil",
-    "menu": "Asosiy menyu"
+    "menu": "Asosiy menyu",
+    "pricing": "Tariflar"
   },
   "auth": {
     "loggingIn": "Kirilmoqda…",
@@ -90,12 +95,12 @@
   "hero": {
     "badge": "2026-yil YHQ asosida yangilangan",
     "title": "Haydovchilik imtihonini birinchi urinishda topshiring",
-    "text": "Rasmiy imtihon formatidagi testlar, 1300 dan ortiq savol, mavzular bo‘yicha mashq va har bir savolga tushunarli izoh — barchasi bepul va bitta platformada.",
+    "text": "Rasmiy imtihon formatidagi testlar, 1300 dan ortiq savol, mavzular bo‘yicha mashq va har bir savolga tushunarli izoh — barchasi bitta platformada.",
     "facts": [
       "20 ta savol",
       "25 daqiqa",
       "O‘tish bali 90%",
-      "To‘liq bepul"
+      "Bepul boshlash"
     ],
     "examCta": "Real imtihon topshirish",
     "examHint": "20 ta tasodifiy savol · 25 daqiqa"
@@ -107,7 +112,7 @@
     "pick": "Javob variantini tanlang",
     "correct": "To‘g‘ri!",
     "wrong": "Noto‘g‘ri.",
-    "noExplanation": "Har bir savol izohi ro‘yxatdan o‘tganlarga test yakunida ko‘rsatiladi.",
+    "noExplanation": "Har bir savol izohi tarif olganlarga test yakunida ko‘rsatiladi.",
     "continue": "Testni davom ettirish"
   },
   "modes": {
@@ -262,11 +267,15 @@
     "items": [
       {
         "q": "Platformadan foydalanish pullikmi?",
-        "a": "Yo‘q. Barcha variantlar, mavzular, izohlar va real imtihon rejimi to‘liq bepul."
+        "a": "Testlar bepul: barcha variantlar, mavzular, qiyin savollar va 50/100/200 savollik testlarni bepul ro‘yxatdan o‘tib ishlaysiz. Yakuniy test (real imtihon) va har bir savolning izohi tarif bilan ochiladi — narxlar “Tariflar” sahifasida."
       },
       {
         "q": "Test ishlash uchun ro‘yxatdan o‘tish kerakmi?",
-        "a": "Yo‘q, testni darhol boshlashingiz mumkin. Natijalar va xatolar saqlanishi uchun email yoki Google orqali kiring."
+        "a": "Shart emas: birinchi 3 ta variant va 20 savollik tasodifiy testni darhol ishlashingiz mumkin. Qolgan variantlar, mavzular va katta testlar uchun bepul ro‘yxatdan o‘ting — natijalar va xatolaringiz ham saqlanadi."
+      },
+      {
+        "q": "Tarif nimani ochadi va qanday to‘lanadi?",
+        "a": "Tarif yakuniy testni va har bir savolning batafsil izohini ochadi. To‘lov Click, Payme, naqd yoki karta orqali, dostup to‘lovdan so‘ng darhol ochiladi."
       },
       {
         "q": "Imtihonda nechta xato qilish mumkin?",
@@ -317,12 +326,12 @@
         ]
       }
     ],
-    "rights": "© 2026 AvtoTest. Barcha huquqlar himoyalangan."
+    "rights": "© 2026 PravaKey. Barcha huquqlar himoyalangan."
   },
   "mode": {
     "practice": {
       "title": "Mashq rejimi",
-      "desc": "Javob va izoh darhol ko‘rsatiladi"
+      "desc": "To‘g‘ri javob darhol ko‘rsatiladi, vaqt cheklanmagan"
     },
     "exam": {
       "title": "Imtihon rejimi",
@@ -422,7 +431,7 @@
       "yourAnswer": "Sizning javobingiz: {{text}}",
       "noAnswer": "Javob berilmagan",
       "correct": "To‘g‘ri javob: {{text}}",
-      "explanationLocked": "Izohni ko‘rish uchun kiring yoki ro‘yxatdan o‘ting"
+      "explanationLocked": "Izohni ko‘rish uchun kiring va tarif oling"
     },
     "notFound": "Natija topilmadi",
     "notFoundText": "Havola noto‘g‘ri yoki test boshqa akkauntga tegishli.",
@@ -432,7 +441,7 @@
     "continue": "Testni davom ettirish",
     "backToVariants": "Variantlarga qaytish",
     "guestTitle": "Izohlar va natijalar — ro‘yxatdan o‘tganlar uchun",
-    "guestText": "Har bir savolning izohini ko‘rish uchun tizimga kiring yoki ro‘yxatdan o‘ting. Kirgach izohlar shu sahifada ochiladi, keyingi natijalar, xatolar va progress saqlanib boradi.",
+    "guestText": "Har bir savolning izohini ko‘rish uchun tizimga kiring va tarif oling. Kirgach natijalar, xatolar va progress saqlanib boradi.",
     "guestLogin": "Kirish",
     "reason": {
       "time_up": "Vaqt tugadi",
@@ -479,7 +488,11 @@
     "GROUP_TEST_NOT_INVITED": "Siz bu testga taklif qilinmagansiz",
     "GROUP_TEST_KICKED": "Siz bu testdan chiqarilgansiz",
     "GROUP_TEST_INVALID_STATE": "Test holati o‘zgardi — sahifa yangilandi",
-    "GROUP_ATTEMPT": "Bu jamoaviy test — uni “Jamoaviy test” sahifasida oching"
+    "GROUP_ATTEMPT": "Bu jamoaviy test — uni “Jamoaviy test” sahifasida oching",
+    "PREMIUM_REQUIRED": "Bu bo‘lim tarif bilan ochiladi",
+    "PLAN_NOT_AVAILABLE": "Bu tarif hozircha sotuvda emas",
+    "PAYMENT_PROVIDER_DISABLED": "Bu to‘lov tizimi vaqtincha ishlamayapti, boshqasini tanlang",
+    "ORDER_INVALID_STATE": "Buyurtma holati o‘zgargan, sahifani yangilang"
   },
   "validation": {
     "email": "Email manzilini to‘g‘ri kiriting",
@@ -513,7 +526,8 @@
     "savedText": "Test paytida saqlaganlaringiz",
     "mistakes": "Xatolarim",
     "mistakesText": "Xato qilgan savollaringiz",
-    "groupTestText": "O‘qituvchi bergan kod bilan qo‘shilish"
+    "groupTestText": "O‘qituvchi bergan kod bilan qo‘shilish",
+    "planText": "Yakuniy test va izohlar"
   },
   "questions": {
     "number": "#{{id}}",
@@ -610,5 +624,111 @@
       "all_finished": "Barcha qatnashchilar yakunladi",
       "stopped": "O‘qituvchi testni to‘xtatdi"
     }
+  },
+  "pricing": {
+    "title": "Tariflar",
+    "subtitle": "Testlar hammaga bepul. Yakuniy test va har bir savolning izohi tarif bilan ochiladi.",
+    "currency": "so‘m",
+    "popular": "POPULAR",
+    "current": "FAOL",
+    "days": "{{count}} kunlik dostup",
+    "choose": "Tanlash",
+    "comingSoon": "Tez kunda",
+    "feature": {
+      "all_tests": "Barcha testlar (1300+ savol)",
+      "final_exam": "Yakuniy test",
+      "explanations": "Savollar izohi",
+      "videos": "Videodarslar",
+      "mnemonics": "Mnemonika usuli"
+    },
+    "footer": "To‘lov: Click, Payme, naqd yoki karta orqali. Dostup to‘lovdan so‘ng darhol ochiladi.",
+    "paymentsOff": "Onlayn to‘lov vaqtincha ishlamayapti. Naqd yoki karta orqali to‘lash uchun biz bilan bog‘laning.",
+    "activeBanner": "Sizda {{plan}} tarifi {{date}} gacha faol",
+    "activeHint": "Yana sotib olsangiz, yangi davr shu muddatdan keyin boshlanadi. Kengroq tarif darhol boshlanadi.",
+    "expiresSoon": "Tarifingiz tugashiga {{count}} kun qoldi — uzaytirib qo‘ying.",
+    "loadError": "Tariflarni yuklab bo‘lmadi"
+  },
+  "payment": {
+    "chooseMethod": "To‘lov usulini tanlang",
+    "summary": "{{plan}} — {{price}}, {{count}} kun",
+    "queueNote": "Sizda {{date}} gacha faol tarif bor. Bir xil yoki torroq tarif shu muddatdan keyin, kengroq tarif esa darhol boshlanadi.",
+    "redirecting": "O‘tilmoqda…",
+    "cashNote": "Naqd yoki karta orqali to‘lash uchun biz bilan bog‘laning — tarifni admin qo‘lda beradi.",
+    "checking": "To‘lov tekshirilmoqda…",
+    "checkingText": "Bu bir necha soniya oladi. Sahifani yopmang.",
+    "stillPending": "To‘lov hali tasdiqlanmadi. Bir necha daqiqada avtomatik ochiladi. Muammo bo‘lsa, biz bilan bog‘laning.",
+    "success": "To‘lov qabul qilindi!",
+    "successText": "{{plan}} tarifi {{date}} gacha faol",
+    "startExam": "Yakuniy testni boshlash",
+    "home": "Bosh sahifa",
+    "failed": "To‘lov amalga oshmadi",
+    "failedText": "Hisobingizdan pul yechilmagan. Qaytadan urinib ko‘ring yoki boshqa to‘lov usulini tanlang.",
+    "refunded": "To‘lov qaytarilgan",
+    "refundedText": "Bu buyurtma puli qaytarilgan, tarif yopilgan.",
+    "retry": "Qayta urinish",
+    "notFound": "Buyurtma topilmadi",
+    "notFoundText": "Havola noto‘g‘ri yoki bu buyurtma boshqa akkauntga tegishli.",
+    "status": {
+      "pending": "Kutilmoqda",
+      "paid": "To‘langan",
+      "cancelled": "Bekor qilingan",
+      "refunded": "Qaytarilgan"
+    }
+  },
+  "paywall": {
+    "title": "Bu bo‘lim tarif bilan ochiladi",
+    "text": "Yakuniy test va har bir savolning batafsil izohi tarif bilan ochiladi.",
+    "final_exam": "Yakuniy test — haqiqiy imtihon sharoitida 20 savol, 25 daqiqa.",
+    "explanations": "Har bir savolning batafsil izohi.",
+    "videos": "Videodarslar tez kunda.",
+    "mnemonics": "Mnemonika usuli tez kunda.",
+    "from": "{{price}}dan",
+    "cta": "Tariflarni ko‘rish",
+    "loginCta": "Kirish va tarif tanlash",
+    "lockedExplanation": "Izohni ko‘rish uchun tarif oling —",
+    "lockedExplanationGuest": "Izohni ko‘rish uchun kiring va tarif oling —"
+  },
+  "account": {
+    "noPlan": "Sizda tarif yo‘q",
+    "getPlan": "Tarif olish",
+    "until": "{{date}} gacha",
+    "payments": "To‘lovlar tarixi",
+    "manual": "Naqd / karta",
+    "next": "Keyin: {{plan}}, {{date}} gacha",
+    "myPlan": "Mening tarifim"
+  },
+  "guestLimits": {
+    "badge": "Kirish",
+    "loginToStart": "Kirib boshlash",
+    "variant": "Qolgan variantlarni ishlash uchun ro‘yxatdan o‘ting — bepul",
+    "test_size": "Katta testlar uchun tizimga kiring",
+    "exam": "Real imtihon uchun tizimga kiring",
+    "source": "Bu bo‘lim uchun tizimga kiring — bepul"
+  },
+  "profile": {
+    "since": "{{date}} dan beri a’zo",
+    "methodPassword": "Email va parol",
+    "notVerified": "Email tasdiqlanmagan",
+    "edit": "Ismni tahrirlash",
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda…",
+    "saved": "Ma’lumotlar saqlandi",
+    "loadError": "Profilni yuklab bo‘lmadi",
+    "daysLeft": "{{count}} kun qoldi",
+    "extend": "Tarifni uzaytirish",
+    "noPlanText": "Yakuniy test va har bir savolning izohi tarif bilan ochiladi.",
+    "statsTitle": "Statistika",
+    "statsError": "Statistikani yuklab bo‘lmadi",
+    "finishedTests": "Yakunlangan testlar",
+    "examsPassed": "O‘tilgan imtihonlar",
+    "avgPercent": "O‘rtacha natija",
+    "correctRate": "To‘g‘ri javoblar",
+    "variantsSolved": "Yechilgan variantlar",
+    "totalTime": "Jami vaqt",
+    "time": "{{h}} soat {{m}} daq",
+    "coverage": "Ko‘rilgan savollar",
+    "weakTopics": "E’tibor berish kerak bo‘lgan mavzular",
+    "historyTitle": "Testlar tarixi",
+    "historyEmpty": "Hali test ishlamadingiz. Birinchi variantdan boshlang!"
   }
 }

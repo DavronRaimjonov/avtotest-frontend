@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { ResultData, ReviewItem } from "@/@types";
+import { LockedExplanation } from "@/components/billing/locked-explanation";
 import { cn } from "@/lib/helpers";
-import { useAuthStore } from "@/store/auth.store";
 
 const answerText = (item: ReviewItem, id: number | null) =>
   item.answers.find((a) => a.id === id)?.text;
 
-// explanationsLocked — mehmon: izoh o'rnida "kiring" taklifi. Faqat review kerak (jamoaviy test natijasi ham ishlatadi)
+// explanationsLocked — mehmon yoki tarifsiz: izoh o'rnida "tarif oling" bloki. Faqat review kerak (jamoaviy test natijasi ham ishlatadi)
 export const ResultReview = ({
   result,
   explanationsLocked = false,
@@ -18,13 +18,12 @@ export const ResultReview = ({
   explanationsLocked?: boolean;
 }) => {
   const { t } = useTranslation();
-  const openLogin = useAuthStore((s) => s.openLogin);
   const [onlyWrong, setOnlyWrong] = useState(false);
   const wrongItems = result.review.filter((i) => !i.isCorrect);
   const list = onlyWrong ? wrongItems : result.review;
 
   return (
-    <section className="flex flex-col gap-[18px] rounded-[28px] border border-line bg-white p-5 sm:p-7">
+    <section className="flex flex-col gap-4.5 rounded-[28px] border border-line bg-white p-5 sm:p-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="m-0 text-[22px] font-extrabold">
           {t("result.review.title")}
@@ -78,7 +77,7 @@ export const ResultReview = ({
           <div
             key={i.id}
             className={cn(
-              "flex flex-col gap-2.5 rounded-[18px] border-[1.5px] px-5 py-[18px]",
+              "flex flex-col gap-2.5 rounded-[18px] border-[1.5px] px-5 py-4.5",
               i.isCorrect
                 ? "border-ok-line bg-[#F5FBF7]"
                 : "border-bad-line bg-[#FFF7F7]",
@@ -117,14 +116,7 @@ export const ResultReview = ({
               </span>
             </div>
             {explanationsLocked ? (
-              <button
-                type="button"
-                onClick={() => openLogin()}
-                className="flex w-fit items-center gap-2 rounded-[10px] border-0 bg-bg px-3 py-2 text-left text-[13px] font-semibold text-navy-2"
-              >
-                <span aria-hidden>🔒</span>{" "}
-                {t("result.review.explanationLocked")}
-              </button>
+              <LockedExplanation />
             ) : (
               i.explanation && (
                 <p className="m-0 text-sm leading-relaxed text-slate">

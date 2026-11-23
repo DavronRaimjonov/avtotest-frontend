@@ -36,7 +36,7 @@ export const QuestionView = ({ question, index, total, saved, onPick, onBookmark
   const locked = question.myAnswerId !== null;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1240px] flex-1 flex-wrap items-start gap-7 px-4 pt-7 pb-[120px] sm:px-6">
+    <div className="mx-auto flex w-full max-w-310 flex-1 flex-wrap items-start gap-7 px-4 pt-7 pb-30 sm:px-6">
       <section className="flex min-w-0 flex-[999_1_520px] flex-col gap-3.5">
         <span className="text-sm font-bold text-muted">
           {t("test.question", { n: index + 1, total })}
@@ -53,7 +53,7 @@ export const QuestionView = ({ question, index, total, saved, onPick, onBookmark
           />
         ))}
         {question.explanation && (
-          <div className="mt-1.5 flex animate-fade-in gap-3.5 rounded-2xl border border-line bg-white px-5 py-[18px]">
+          <div className="mt-1.5 flex animate-fade-in gap-3.5 rounded-2xl border border-line bg-white px-5 py-4.5">
             <span className="flex size-9 flex-none items-center justify-center rounded-[10px] bg-tint-blue text-navy-2">
               <ManualIcon />
             </span>
@@ -65,7 +65,7 @@ export const QuestionView = ({ question, index, total, saved, onPick, onBookmark
         )}
       </section>
 
-      <aside className="flex max-w-[520px] flex-[1_1_380px] flex-col gap-3 max-lg:order-first max-lg:max-w-none">
+      <aside className="flex max-w-130 flex-[1_1_380px] flex-col gap-3 max-lg:order-first max-lg:max-w-none">
         <QuestionImage src={question.imageUrl} alt={question.text} noImage={t("test.noImage")} />
         <div className="flex flex-wrap gap-2 text-[13px] font-semibold text-muted">
           {question.topic && (

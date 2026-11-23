@@ -14,7 +14,7 @@ export const SectionHeading = ({ eyebrow, title, className, children }: Props) =
       {eyebrow && (
         <span className="text-[13px] font-extrabold tracking-[0.08em] text-navy-2">{eyebrow}</span>
       )}
-      <h2 className="m-0 max-w-[720px] text-[32px] font-extrabold tracking-tight sm:text-[40px]">
+      <h2 className="m-0 max-w-180 text-[32px] font-extrabold tracking-tight sm:text-[40px]">
         {title}
       </h2>
     </div>

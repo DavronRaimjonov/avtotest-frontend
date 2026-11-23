@@ -2,15 +2,19 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@/hooks/useRouter";
-import type { AnswerBody, Attempt, GuestSource, StartAttemptBody } from "@/@types";
+import { isAxiosError } from "axios";
+import type { AnswerBody, ApiError, Attempt, GuestSource, StartAttemptBody } from "@/@types";
 import { notify, notifyApiError } from "@/generics/notification";
 import i18next, { currentLang } from "@/i18n";
-import { FINISH_DELAY_MS, GUEST_ID, LAST_ATTEMPT_KEY, LOGIN_ONLY_SOURCES } from "@/lib/constants";
+import { FINISH_DELAY_MS, GUEST_ID, LAST_ATTEMPT_KEY } from "@/lib/constants";
 import { getErrorCode } from "@/lib/helpers";
 import { QUERY_KEYS } from "@/lib/query-keys";
 import { ROUTES } from "@/lib/routes";
+import { fetchAccess } from "@/hooks/useAccess";
+import { currentGuestLimits, guestNeedsLogin } from "@/hooks/useGuestLimits";
 import { useAuthStore } from "@/store/auth.store";
 import { useGuestStore } from "@/store/guest.store";
+import { usePaywallStore } from "@/store/paywall.store";
 import { answerAttempt, finishAttempt, startAttempt } from "../attempt";
 import { checkGuestAnswer, getGuestResult, startGuestTest } from "../guest";
 
@@ -28,7 +32,10 @@ const storage = {
 };
 
 // Testni boshlash. Kirgan — /attempts (saqlanadi), mehmon — /guest/tests (saqlanmaydi).
-// Xatolar va saqlanganlar faqat kirganlarga: mehmonga Google oynasi ochiladi, kirgach test o'zi boshlanadi
+// Mehmon faqat 1–3-variant va 20 savolgacha tasodifiy test ishlaydi (hooks/useGuestLimits): qolganida kirish
+// oynasi ochiladi, kirgach test o'zi boshlanadi. Server baribir 401 LOGIN_REQUIRED qaytarsa ham shunday.
+// Yakuniy test (source: "exam") — faqat tarif bilan: mehmonga avval kirish, tarifsizga paywall oynasi.
+// Kesh eskirgan bo'lsa server 403 PREMIUM_REQUIRED qaytaradi — paywall request/index.ts da ochiladi
 export const useStartAttempt = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -52,15 +59,38 @@ export const useStartAttempt = () => {
       useGuestStore.getState().begin(test);
       router.push(ROUTES.test(GUEST_ID));
     },
-    onError: notifyApiError,
+    // Cheklovdan oshdi (masalan, keshdagi requiresLogin eskirgan): sababi aytiladi va kirish oynasi ochiladi
+    onError: (error, body) => {
+      if (isAxiosError<ApiError>(error) && error.response?.data?.code === "LOGIN_REQUIRED") {
+        const reason = error.response.data.params?.reason;
+        notify(i18next.t(`guestLimits.${reason ?? "source"}`, { defaultValue: i18next.t("guestLimits.source") }), "info");
+        useAuthStore.getState().openLogin(() => start(body));
+        return;
+      }
+      notifyApiError(error);
+    },
   });
 
-  const start = (body: StartAttemptBody) => {
+  // requiresLogin — variant kartasidagi backend belgisi (mehmonda 4-variantdan boshlab true)
+  const start = (body: StartAttemptBody, opts: { requiresLogin?: boolean } = {}) => {
     // Test tili — joriy ilova tili (berilmagan bo'lsa)
     const withLang = { ...body, lang: body.lang ?? currentLang() };
     const { hasSession, openLogin } = useAuthStore.getState();
+    if (body.source === "exam") {
+      const startExam = async () => {
+        const access = await fetchAccess().catch(() => null);
+        if (access && !access.features.includes("final_exam")) {
+          usePaywallStore.getState().openPaywall("final_exam");
+          return;
+        }
+        server.mutate(withLang);
+      };
+      if (hasSession) startExam();
+      else openLogin(startExam);
+      return;
+    }
     if (hasSession) server.mutate(withLang);
-    else if (LOGIN_ONLY_SOURCES.includes(body.source)) openLogin(() => server.mutate(withLang));
+    else if (guestNeedsLogin(body, currentGuestLimits(), opts.requiresLogin)) openLogin(() => server.mutate(withLang));
     else guest.mutate({ ...withLang, source: body.source as GuestSource });
   };
 
@@ -145,6 +175,8 @@ export const useFinishAttemptMutation = (attemptId: string) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.variants });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stats });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.mistakeLists });
+      // Profildagi testlar tarixi
+      queryClient.invalidateQueries({ queryKey: ["attempts", "list"] });
       storage.clear();
       router.replace(ROUTES.result(attemptId));
     },

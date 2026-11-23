@@ -2,7 +2,8 @@
 
 import { Link } from "@/components/ui/link";
 import { useTranslation } from "react-i18next";
-import { ArrowRightIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, LockIcon } from "@/components/ui/icons";
+import { useGuestLimits } from "@/hooks/useGuestLimits";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { useTopicsQuery } from "@/hooks/useQuery";
 import { cn } from "@/lib/helpers";
@@ -15,6 +16,8 @@ export const Topics = () => {
   const { t } = useTranslation();
   const { data: topics, isPending } = useTopicsQuery();
   const start = useStartAttempt();
+  // Mavzu bo'yicha test mehmonga yopiq: bosilganda kirish oynasi, kirgach test boshlanadi
+  const { isGuest } = useGuestLimits();
 
   return (
     <section id="topics" className="mx-auto max-w-300 scroll-mt-24 px-6 pt-24">
@@ -51,6 +54,7 @@ export const Topics = () => {
                   <span className={`size-2 rounded-full ${DOTS[i % DOTS.length]}`} />
                   {topic.name}
                   {!empty && <span className="text-xs text-muted">{topic.questionCount}</span>}
+                  {!empty && isGuest && <LockIcon size={13} strokeWidth={2.4} className="text-subtle" />}
                 </button>
               );
             })}

@@ -51,8 +51,8 @@ export const AnswerOption = ({
     disabled={disabled}
     style={style}
     className={cn(
-      "flex w-full items-center gap-3 border-[1.5px] text-left font-semibold text-ink transition-[transform,border-color,background] hover:translate-x-[3px] disabled:cursor-default disabled:hover:translate-x-0",
-      size === "md" ? "min-h-[60px] gap-3.5 rounded-2xl px-4 py-3.5 text-base" : "min-h-[52px] rounded-xl px-3.5 py-2.5 text-[15px]",
+      "flex w-full items-center gap-3 border-[1.5px] text-left font-semibold text-ink transition-[transform,border-color,background] hover:translate-x-0.75 disabled:cursor-default disabled:hover:translate-x-0",
+      size === "md" ? "min-h-15 gap-3.5 rounded-2xl px-4 py-3.5 text-base" : "min-h-13 rounded-xl px-3.5 py-2.5 text-[15px]",
       box[state],
       className,
     )}
@@ -60,7 +60,7 @@ export const AnswerOption = ({
     <span
       className={cn(
         "flex flex-none items-center justify-center font-extrabold transition-colors",
-        size === "md" ? "h-8 w-[38px] rounded-[9px] text-[13px]" : "h-[26px] w-[30px] rounded-[7px] text-xs",
+        size === "md" ? "h-8 w-9.5 rounded-[9px] text-[13px]" : "h-6.5 w-7.5 rounded-[7px] text-xs",
         keyBox[state],
       )}
     >

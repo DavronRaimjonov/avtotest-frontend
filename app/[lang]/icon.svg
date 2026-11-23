@@ -1,8 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 38 38">
-  <rect width="38" height="38" rx="10" fill="#FFC21A"/>
-  <g transform="translate(7.5 7.5) scale(0.958)" fill="none" stroke="#0E1A3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="9"/>
-    <circle cx="12" cy="12" r="2.5"/>
-    <path d="M12 14.5V21M9.6 11.2 3.4 9.5M14.4 11.2l6.2-1.7"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128" rx="28" fill="#0E1A3A"/><g transform="translate(14,31)"><rect x="46" y="27" width="50" height="12" rx="3" fill="#FFFFFF"/><rect x="72" y="39" width="8" height="10" rx="1.5" fill="#FFFFFF"/><rect x="85" y="39" width="8" height="15" rx="1.5" fill="#FFFFFF"/><circle cx="32" cy="33" r="31" fill="#FFC21A"/><circle cx="32" cy="33" r="25" fill="none" stroke="#FFFFFF" stroke-width="2" opacity=".15"/><text x="32" y="45" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-weight="800" font-size="34" fill="#0E1A3A">P</text></g></svg>

@@ -13,7 +13,7 @@ export const LicenseSteps = () => {
   const steps = t("license.steps", { returnObjects: true }) as { title: string; text: string }[];
 
   return (
-    <section className="mx-auto max-w-[1200px] px-6 pt-24">
+    <section className="mx-auto max-w-300 px-6 pt-24">
       <SectionHeading eyebrow={t("license.eyebrow")} title={t("license.title")} />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         {steps.map((s, i) => (

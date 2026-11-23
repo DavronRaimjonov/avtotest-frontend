@@ -33,4 +33,12 @@ export const QUERY_KEYS = {
   mistakeList: (lang: TestLang) => ["me", "mistakes", lang] as const,
   explanations: (ids: number[], lang: TestLang) =>
     ["me", "explanations", lang, ids.join(",")] as const,
+
+  // Tariflar va to'lov
+  plans: (lang: TestLang) => ["plans", lang] as const,
+  // Tarif nomi so'ralgan tilda keladi; yangilashda prefiks bilan (accessAll) hammasi
+  accessAll: ["me", "access"] as const,
+  access: (lang: TestLang) => ["me", "access", lang] as const,
+  order: (id: number) => ["orders", id] as const,
+  orders: (page: number) => ["orders", "list", page] as const,
 };

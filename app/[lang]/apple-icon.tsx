@@ -1,18 +1,46 @@
 import { ImageResponse } from "next/og";
 
-// iPhone "Bosh ekranga qo'shish" ikonkasi (PNG talab qilinadi) — navbar logosi bilan bir xil
+// iPhone "Bosh ekranga qo'shish" ikonkasi (PNG talab qilinadi) — public/brand/pravakey-icon.svg bilan bir xil.
+// Satori SVG ichidagi <text> ni chizmaydi, shuning uchun "P" harfi alohida div bilan ustiga qo'yiladi
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
+
+// pravakey-icon.svg: 128×128 maydon, belgi (98×66) translate(14,31) da
+const S = 180 / 128;
 
 export default function AppleIcon() {
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#FFC21A" }}>
-        <svg width="112" height="112" viewBox="0 0 24 24" fill="none" stroke="#0E1A3A" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="2.5" />
-          <path d="M12 14.5V21M9.6 11.2 3.4 9.5M14.4 11.2l6.2-1.7" />
+      <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", background: "#0E1A3A" }}>
+        <svg
+          width={98 * S}
+          height={66 * S}
+          viewBox="0 0 98 66"
+          style={{ position: "absolute", left: 14 * S, top: 31 * S }}
+        >
+          <rect x="46" y="27" width="50" height="12" rx="3" fill="#FFFFFF" />
+          <rect x="72" y="39" width="8" height="10" rx="1.5" fill="#FFFFFF" />
+          <rect x="85" y="39" width="8" height="15" rx="1.5" fill="#FFFFFF" />
+          <circle cx="32" cy="33" r="31" fill="#FFC21A" />
+          <circle cx="32" cy="33" r="25" fill="none" stroke="#FFFFFF" strokeWidth="2" opacity="0.15" />
         </svg>
+        <div
+          style={{
+            position: "absolute",
+            left: (14 + 32 - 31) * S,
+            top: (31 + 33 - 31) * S,
+            width: 62 * S,
+            height: 62 * S,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 34 * S,
+            fontWeight: 800,
+            color: "#0E1A3A",
+          }}
+        >
+          P
+        </div>
       </div>
     ),
     size,

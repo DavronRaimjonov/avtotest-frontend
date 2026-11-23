@@ -171,6 +171,7 @@ export const useLogoutMutation = () => {
       notify(i18next.t("auth.loggedOut"), "info");
       queryClient.removeQueries({ queryKey: QUERY_KEYS.me });
       queryClient.removeQueries({ queryKey: ["attempts"] });
+      queryClient.removeQueries({ queryKey: ["orders"] });
       if (isProtectedPath(window.location.pathname)) router.replace(ROUTES.home);
     },
   });

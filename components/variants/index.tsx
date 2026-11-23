@@ -38,7 +38,7 @@ export const Variants = () => {
           {hasSession ? (
             <div className="flex items-center gap-3 rounded-[14px] border border-line bg-white px-4 py-2.5">
               <span className="text-[13px] font-semibold text-muted">{t("variants.progress")}</span>
-              <span className="block h-2 w-[140px] overflow-hidden rounded-full bg-soft">
+              <span className="block h-2 w-35 overflow-hidden rounded-full bg-soft">
                 <span
                   className="block h-full rounded-full bg-ok transition-[width]"
                   style={{ width: `${percent(solved, total)}%` }}

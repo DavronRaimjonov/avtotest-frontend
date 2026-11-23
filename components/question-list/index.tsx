@@ -89,7 +89,7 @@ export const QuestionList = <T extends SavedQuestion>({ kind, query, meta, myAns
 
       {/* Header ostida qotib turadi: ro'yxat qancha uzun bo'lsa ham test bir bosishda */}
       {total > 0 && (
-        <div className="sticky top-15 z-30 -mx-4 bg-bg/90 px-4 py-2 backdrop-blur-md sm:-mx-6 sm:px-6 min-[861px]:top-[72px]">
+        <div className="sticky top-15 z-30 -mx-4 bg-bg/90 px-4 py-2 backdrop-blur-md sm:-mx-6 sm:px-6 min-[861px]:top-18">
           <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-line bg-white p-2 pl-3.5 shadow-sm">
             <span className="mr-auto flex items-center gap-2 text-sm font-bold text-ink">
               <PlayIcon size={14} className="text-navy-2" />
@@ -119,7 +119,7 @@ export const QuestionList = <T extends SavedQuestion>({ kind, query, meta, myAns
       {isPending && (
         <div className="flex flex-col gap-4" aria-busy="true">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-[82px] animate-pulse rounded-2xl bg-soft sm:h-24" />
+            <div key={i} className="h-20.5 animate-pulse rounded-2xl bg-soft sm:h-24" />
           ))}
         </div>
       )}
@@ -184,7 +184,7 @@ const secondaryBtn =
   "flex h-12 items-center justify-center rounded-[14px] border-[1.5px] border-navy bg-white px-5 font-bold text-navy disabled:opacity-60";
 
 const Shell = ({ children }: { children: React.ReactNode }) => (
-  <div className="mx-auto flex w-full max-w-[920px] flex-col gap-6 px-4 pt-8 pb-16 sm:px-6 lg:pt-10">{children}</div>
+  <div className="mx-auto flex w-full max-w-230 flex-col gap-6 px-4 pt-8 pb-16 sm:px-6 lg:pt-10">{children}</div>
 );
 
 const State = ({ icon, title, text, action }: { icon: React.ReactNode; title: string; text?: string; action?: React.ReactNode }) => (

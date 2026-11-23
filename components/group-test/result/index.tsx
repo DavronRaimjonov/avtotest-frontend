@@ -63,7 +63,7 @@ export const GroupResultView = ({ state, result, connected = false }: Props) => 
           <div className="flex flex-wrap gap-3 pt-1.5">
             <Link
               href={ROUTES.groupTests}
-              className="btn-hover flex h-[52px] items-center rounded-[14px] bg-accent px-6 font-extrabold text-navy no-underline"
+              className="btn-hover flex h-13 items-center rounded-[14px] bg-accent px-6 font-extrabold text-navy no-underline"
             >
               {t("groupTest.mine.title")}
             </Link>
@@ -73,7 +73,7 @@ export const GroupResultView = ({ state, result, connected = false }: Props) => 
                 type="button"
                 disabled={isPending}
                 onClick={() => start({ source: "mistakes", mode: "practice" })}
-                className="flex h-[52px] items-center gap-2 rounded-[14px] border-[1.5px] border-line bg-white px-[22px] font-bold text-bad-text disabled:opacity-60"
+                className="flex h-13 items-center gap-2 rounded-[14px] border-[1.5px] border-line bg-white px-5.5 font-bold text-bad-text disabled:opacity-60"
               >
                 <RetryIcon size={18} />
                 {isPending ? t("common.starting") : t("result.mistakes")}
@@ -85,7 +85,7 @@ export const GroupResultView = ({ state, result, connected = false }: Props) => 
 
       <section className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         {stats.map((s) => (
-          <div key={s.label} className="flex flex-col gap-1.5 rounded-[20px] border border-line bg-white px-[22px] py-5">
+          <div key={s.label} className="flex flex-col gap-1.5 rounded-[20px] border border-line bg-white px-5.5 py-5">
             <span className="text-[13px] font-bold text-muted">{s.label}</span>
             <b className={cn("text-[28px]", s.tone)}>{s.value}</b>
           </div>
@@ -95,7 +95,7 @@ export const GroupResultView = ({ state, result, connected = false }: Props) => 
       {finished && state.review ? (
         <ResultReview result={{ review: state.review }} />
       ) : (
-        <div role="status" className="flex items-center gap-3.5 rounded-[20px] border border-line bg-white px-5 py-[18px]">
+        <div role="status" className="flex items-center gap-3.5 rounded-[20px] border border-line bg-white px-5 py-4.5">
           <span className="flex size-10 flex-none items-center justify-center rounded-[10px] bg-tint-blue text-navy-2">
             <ClockIcon size={20} />
           </span>

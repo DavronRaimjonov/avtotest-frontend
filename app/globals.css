@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Dizayn tokenlari (Avtotest platforma dizayni) */
+/* Dizayn tokenlari (PravaKey brendi, avvalgi "Avtotest platforma dizayni") */
 @theme {
   --font-sans: var(--font-manrope), system-ui, sans-serif;
 

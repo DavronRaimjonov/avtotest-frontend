@@ -15,6 +15,11 @@ export const ROUTES = {
   // Jamoaviy test: kod bilan qo'shilish + mening testlarim, /group-test/<id> — lobby / test / natija
   groupTests: "/group-test",
   groupTest: (id: string) => `/group-test/${id}`,
+  // Tariflar va to'lovdan qaytish sahifasi (backend PAYMENT_RETURN_URL, ?orderId= ni o'zi qo'shadi)
+  pricing: "/pricing",
+  // Kabinet: profil, tarif, statistika, testlar tarixi, to'lovlar
+  profile: "/profile",
+  paymentResult: (orderId?: number | string) => (orderId ? `/payment/result?orderId=${orderId}` : "/payment/result"),
 } as const;
 
 // "/variants" → "/variants" (uzb), "/ru/variants" (ru). "/#topics" → "/ru#topics". "#", "https://..." — o'zgarmaydi
@@ -33,8 +38,8 @@ export const splitLocale = (pathname: string): { lang: TestLang; path: string } 
 
 // Token talab qiladigan sahifalar (yo'lning birinchi segmenti): tokensiz kirilsa variantlarga qaytariladi.
 // Mehmon testi (/test/guest, /result/guest) bundan mustasno — holati brauzerda.
-// saved, mistakes — saqlangan savollar va xatolarim (faqat kirganlarga)
-export const PROTECTED_SEGMENTS = ["test", "result", "saved", "mistakes"];
+// saved, mistakes — saqlangan savollar va xatolarim (faqat kirganlarga), payment — to'lov natijasi, profile — kabinet
+export const PROTECTED_SEGMENTS = ["test", "result", "saved", "mistakes", "payment", "profile"];
 
 // Faqat ichki sahifasi himoyalangan: /group-test (kod kiritish) mehmonga kirish taklifini o'zi ko'rsatadi,
 // /group-test/<id> — tokensiz kirilsa variantlarga qaytariladi
@@ -59,5 +64,6 @@ export const NAV_LINKS = [
   { href: ROUTES.variants, key: "variants" },
   { href: "/#topics", key: "topics" },
   { href: ROUTES.signs, key: "signs" },
+  { href: ROUTES.pricing, key: "pricing" },
   { href: "#", key: "manual" },
 ] as const;

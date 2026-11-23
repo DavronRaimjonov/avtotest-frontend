@@ -1,4 +1,4 @@
-import type { AttemptSource, ExamMode, TestLang, VariantSize } from "@/@types";
+import type { AttemptSource, ExamMode, PlanFeature, TestLang, VariantSize } from "@/@types";
 
 // Backend manzili /api prefiksi bilan, masalan: http://localhost:4002/api
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4002/api";
@@ -67,8 +67,13 @@ export const EXAM_MODES: ExamMode[] = ["practice", "exam"];
 
 export const VARIANT_SIZES: VariantSize[] = [20, 10];
 
-// Mehmonga yopiq manbalar: bosilganda Google oynasi ochiladi
-export const LOGIN_ONLY_SOURCES: AttemptSource[] = ["mistakes", "bookmarks"];
+// Mehmonga yopiq manbalar: bosilganda kirish oynasi ochiladi, kirgach test o'zi boshlanadi.
+// exam — kirgach tarif ham tekshiriladi (request/mutation/attempt.ts)
+export const LOGIN_ONLY_SOURCES: AttemptSource[] = ["mistakes", "bookmarks", "topic", "hard", "exam"];
+
+// Backend /meta (guestLimits) kelguncha: mehmon birinchi 3 variant va 20 savolgacha tasodifiy test ishlaydi
+export const GUEST_FREE_VARIANTS = 3;
+export const GUEST_MAX_TEST_SIZE = 20;
 
 // Mehmon testi va natijasi uchun yo'l: /test/guest, /result/guest (holat sessionStorage'da)
 export const GUEST_ID = "guest";
@@ -96,3 +101,28 @@ export const REPORT_MIN = 3;
 export const REPORT_MAX = 1000;
 
 export const TELEGRAM_URL = "#";
+
+// Jamoaviy test backendda hozircha o'chiq (FEATURE_GROUP_TESTS): havolalar yashiriladi, sahifalar 404.
+// Avtomaktablar uchun qaytarilganda .env'da NEXT_PUBLIC_FEATURE_GROUP_TESTS=true
+export const GROUP_TESTS_ENABLED = process.env.NEXT_PUBLIC_FEATURE_GROUP_TESTS === "true";
+
+// ---------- Tariflar va to'lov ----------
+// Narxlar kartasidagi imkoniyatlar tartibi: har biri plan.features bo'yicha ✓ yoki ✗.
+// optional — tarifda bo'lmasa umuman ko'rsatilmaydi (✗ emas)
+export const PLAN_FEATURES: { key: PlanFeature; optional?: boolean }[] = [
+  { key: "all_tests" },
+  { key: "final_exam" },
+  { key: "explanations" },
+  { key: "videos" },
+  { key: "mnemonics", optional: true },
+];
+
+// To'lovdan qaytgach buyurtma holati shu oraliqda so'raladi, ko'pi bilan shuncha vaqt (ms)
+export const PAYMENT_POLL_MS = 2500;
+export const PAYMENT_POLL_MAX_MS = 60_000;
+
+// Tarif tugashiga shuncha kun qolganda "uzaytirish" eslatmasi
+export const PLAN_EXPIRY_WARN_DAYS = 3;
+
+// Login oynasidan keyin narxlar sahifasida tanlangan tarif (?plan=2)
+export const PLAN_QUERY_PARAM = "plan";

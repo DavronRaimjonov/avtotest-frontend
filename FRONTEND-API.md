@@ -4,13 +4,14 @@ Backend: NestJS + PostgreSQL. Ikki alohida qism:
 
 | Qism | Prefiks | Kim ishlatadi | Kirish |
 |---|---|---|---|
-| **Landing** | `/api/landing/*` | Sayt (foydalanuvchilar) | Email + parol (emailga kod bilan tasdiqlanadi) yoki Google. Test ishlash uchun shart emas (2.3) |
+| **Landing** | `/api/landing/*` | Sayt (foydalanuvchilar) | Email + parol (emailga kod bilan tasdiqlanadi) yoki Google. Mehmon cheklangan testlarni ishlay oladi (2.3), qolgani login va tarif bilan (2.8) |
 | **Admin** | `/api/admin/*` | Admin panel | Email + parol |
 
 - **Base URL (lokal):** `http://localhost:4002`
 - **Swagger:** `http://localhost:4002/api/docs` (yuqoridagi ro'yxatdan Landing yoki Admin tanlanadi). Har bir maydonning to'liq tavsifi shu yerda. Mehmon endpoint'lari `guest` tegi ostida.
 - Landing tokeni admin API'da ishlamaydi, admin tokeni landing'da ishlamaydi (401).
-- **Test ishlash uchun login shart emas.** Mehmon `/api/landing/guest/*` orqali test ishlaydi, lekin uning hech narsasi saqlanmaydi (2.3 va 2.4 bo'limlar).
+- **Mehmon (login qilmagan)** `/api/landing/guest/*` orqali faqat birinchi 3 ta variant va 20 savollik tasodifiy testni ishlaydi, hech narsasi saqlanmaydi (2.3, 2.4).
+- **Tariflar va to'lov** (Click, Payme), paywall, ekranlar, tiplar va tarjimalar: 2.8. Admin tomoni: 3.10. Tekshirish ro'yxati: 5.
 
 ---
 
@@ -276,7 +277,7 @@ Hero bloki va "Imtihon qanday o'tadi" bo'limi uchun.
 }
 ```
 - `position` — tugmadagi `F1`, `F2`, ... raqami.
-- **Izoh qoidasi:** `explanation` faqat **kirgan foydalanuvchiga** va **test yakunlangandan keyin** keladi: `/attempts/:id/result`, yakunlangan attempt holati, `/me/mistakes`, `/me/bookmarks`. Mehmon rejimida, demo savolda (shu endpoint) va davom etayotgan testda doim `null`. `null` bo'lsa izoh blokini yashiring.
+- **Izoh qoidasi:** `explanation` faqat **tarifi bor (Standart/Pro/Max) foydalanuvchiga** va **test yakunlangandan keyin** keladi (2.8): `/attempts/:id/result`, yakunlangan attempt holati, `/me/mistakes`, `/me/bookmarks`. Mehmon rejimida, demo savolda (shu endpoint) va davom etayotgan testda doim `null`. `null` bo'lsa izoh blokini yashiring.
 
 #### `GET /api/landing/variants?size=20` — token ixtiyoriy
 "Variantni tanlang" setkasi. Token yuborilsa, har bir variant bo'yicha foydalanuvchining natijasi qo'shiladi. Mehmonda (tokensiz) hamma `result: null`, `solved: 0`: barcha kartochkalar oq ("yangi"), "Umumiy progress" blokini yashiring yoki o'rniga "Natijalarni saqlash uchun kiring" deb yozing.
@@ -339,7 +340,11 @@ Test ishlash uchun login **shart emas**. Lekin kirmagan foydalanuvchining hech n
 
 | Imkoniyat | Mehmon (tokensiz) | Kirgan (Google) |
 |---|---|---|
-| Variant, mavzu, aralash, qiyin savollar bo'yicha test | ✅ `/guest/*` | ✅ `/attempts/*` |
+| Variantlar | ✅ faqat **birinchi 3 tasi** (har bir formatda: 20 va 10 savollik) | ✅ hammasi |
+| Tasodifiy (aralash) test | ✅ faqat **20 savollik** | ✅ |
+| Mavzu bo'yicha, qiyin savollar | ❌ login | ✅ |
+| **Real imtihon** | ❌ login | ✅ (tarif bilan, 2.8) |
+| **50 / 100 / 200 savollik test** | ❌ login | ✅ |
 | Mashq va imtihon rejimi, natija va tahlil | ✅ | ✅ |
 | Natija saqlanishi, variant kartochkasida % | ❌ | ✅ |
 | Testlar tarixi, sahifa yangilansa davom ettirish | ❌ (faqat frontend xotirasida) | ✅ |
@@ -360,17 +365,44 @@ Bosh sahifadagi tugmalar (body ikkala API uchun bir xil):
 
 | Tugma | Body | Mehmon | Kirgan |
 |---|---|---|---|
-| Variantlar → "Testni boshlash" | `{ source: "variant", variantId, mode }` | `POST /guest/tests` | `POST /attempts` |
-| **"Real imtihon topshirish"** (bosh sahifadagi katta tugma, "Real imtihon" kartasi) | `{ source: "exam", mode: "exam" }` — har safar 20 ta yangi tasodifiy savol | `POST /guest/tests` | `POST /attempts` |
-| 50 / 100 / 200 savollik test | `{ source: "random", mode: "exam" \| "practice", count: 50 \| 100 \| 200 }` | `POST /guest/tests` | `POST /attempts` |
-| "Mavzular bo'yicha" | `{ source: "topic", topicId, mode: "practice" }` | `POST /guest/tests` | `POST /attempts` |
-| "Qiyin savollar" | `{ source: "hard", mode: "practice" }` | `POST /guest/tests` | `POST /attempts` |
+| Variantlar → "Testni boshlash" | `{ source: "variant", variantId, mode }` | 1–3-variant: `POST /guest/tests`; 4-dan boshlab ❌ login (`requiresLogin: true`) | `POST /attempts` |
+| **"Real imtihon topshirish"** (bosh sahifadagi katta tugma, "Real imtihon" kartasi) | `{ source: "exam", mode: "exam" }` — har safar 20 ta yangi tasodifiy savol | ❌ login oynasi | `POST /attempts` (tarif kerak) |
+| 50 / 100 / 200 savollik test | `{ source: "random", mode: "exam" \| "practice", count: 50 \| 100 \| 200 }` | ❌ login oynasi (20 talik — ✅) | `POST /attempts` |
+| "Mavzular bo'yicha" | `{ source: "topic", topicId, mode: "practice" }` | ❌ login oynasi | `POST /attempts` |
+| "Qiyin savollar" | `{ source: "hard", mode: "practice" }` | ❌ login oynasi | `POST /attempts` |
 | "Xatolar ustida ishlash" | `{ source: "mistakes", mode: "practice" }` | ❌ login oynasi | `POST /attempts` |
 | Saqlangan savollar | `{ source: "bookmarks", mode: "practice" }` | ❌ login oynasi | `POST /attempts` |
 
 Mehmonga ❌ bo'lgan tugmalarni ("Saqlash", "Xatolar ustida ishlash", "Xato haqida xabar", kabinet) ko'rsatish mumkin, lekin bosilganda Google login oynasini oching. Natija sahifasida "Natijangizni saqlash uchun tizimga kiring" bannerini ko'rsatish tavsiya etiladi.
 
 Mehmon kirish talab qilinadigan endpoint'ga tokensiz murojaat qilsa `401` oladi.
+
+#### Mehmon cheklovlari (login qilmagan)
+
+Mehmon faqat **birinchi 3 ta variantni** (har formatda) va **20 savollik tasodifiy testni** ishlay oladi. Qolgani — 4-variantdan keyingilar, 50/100/200 talik testlar, real imtihon, mavzu bo'yicha va qiyin savollar testi — login bilan.
+
+`POST /api/landing/guest/tests` (va 20 tadan ko'p savolli `POST /guest/result`) cheklovdan oshsa:
+```json
+{ "statusCode": 401, "code": "LOGIN_REQUIRED", "message": "Davom etish uchun tizimga kiring", "params": { "reason": "variant" } }
+```
+| `reason` | Qachon | UI matni (tavsiya) |
+|---|---|---|
+| `variant` | 4-variantdan keyingisi | "Qolgan variantlarni ishlash uchun ro'yxatdan o'ting — bepul" |
+| `test_size` | 50 / 100 / 200 savol | "Katta testlar uchun tizimga kiring" |
+| `exam` | Real imtihon | "Real imtihon uchun tizimga kiring" |
+| `source` | Mavzu bo'yicha yoki qiyin savollar testi | "Bu bo'lim uchun tizimga kiring — bepul" |
+
+Bu 401 — **token refresh qilmang** (mehmonda token yo'q), to'g'ridan-to'g'ri login/registratsiya oynasini oching. Login'dan keyin foydalanuvchi bosgan amalni davom ettiring (variant → `POST /attempts`; real imtihon → tarif bo'lmasa paywall).
+
+Oldindan qulf ko'rsatish (so'rov yubormasdan):
+- `GET /api/landing/variants?size=20` → har bir elementda `requiresLogin: boolean` (mehmonda 4-dan boshlab `true`, kirganda doim `false`). Kartada 🔒 + "Kirish kerak".
+- `GET /api/landing/meta` → `guestLimits: { "freeVariants": 3, "maxTestSize": 20 }`. Mehmonga 50/100/200, "Real imtihon", "Mavzular bo'yicha" va "Qiyin savollar" tugmalari 🔒 bilan.
+
+```ts
+export interface GuestLimits { freeVariants: number; maxTestSize: number; }
+// VariantItem ga qo'shilgan maydon
+requiresLogin: boolean;
+```
 
 ---
 
@@ -389,7 +421,7 @@ POST /guest/tests   ─►  savollar (to'g'ri javobsiz)
 ```
 
 #### `POST /api/landing/guest/tests`
-Body (`/attempts` bilan bir xil, lekin `source` faqat `variant`, `topic`, `random`, `hard` yoki `exam`):
+Body (`/attempts` bilan bir xil). Mehmonga amalda ochiq: `variant` (1–3-variant) va `random` (`count` ≤ 20). `topic`, `hard`, `exam` va 20 dan katta `count` → 401 `LOGIN_REQUIRED` (2.3):
 ```json
 { "source": "variant", "variantId": 4, "mode": "exam", "lang": "ru", "count": 20 }
 ```
@@ -886,6 +918,457 @@ Raqamning boshi (`5.2` → 5.2, 5.20.1, ...) yoki nomi bo'yicha, 4 tilda va ingl
 - Belgilar SVG formatida. `<img src={imageUrl}>` bilan ko'rsating: o'lchami istalgancha kattalashadi, sifati buzilmaydi.
 - SVG ichida skript bo'lmaydi: import va admin yuklashda tekshiriladi, server ham taqiqlaydi.
 
+### 2.8. Tariflar, paywall va to'lov (Click, Payme)
+
+Loyiha umumiy sayt: foydalanuvchi tarif sotib oladi. Swagger'da `billing` tegi.
+
+#### 2.8.1. Kim nimaga kira oladi
+
+| | Mehmon | Bepul (kirgan, tarifsiz) | Standart / Pro | Max |
+|---|---|---|---|---|
+| Variantlar | faqat **1–3-variant** (20 va 10 savollik formatlarning har birida) | ✅ hammasi | ✅ | ✅ |
+| Tasodifiy test | faqat **20 savollik** | ✅ | ✅ | ✅ |
+| Mavzu bo'yicha, qiyin savollar | ❌ (login) | ✅ | ✅ | ✅ |
+| 50 / 100 / 200 savollik test | ❌ (login) | ✅ | ✅ | ✅ |
+| Xatolarim, saqlanganlar, tarix, statistika | ❌ (login kerak) | ✅ | ✅ | ✅ |
+| **Yakuniy test** (real imtihon, `source: "exam"`) | ❌ (login) | ❌ (tarif) | ✅ | ✅ |
+| **Izohlar** (`explanation`) | ❌ | ❌ | ✅ | ✅ |
+| Videodarslar, mnemonika | ❌ | ❌ | ❌ | ✅ (hozircha "Tez kunda") |
+
+Tariflar (narxi va muddatini admin o'zgartira oladi, shuning uchun **frontendga qattiq yozmang** — `GET /plans` dan oling):
+
+| code | Nomi | Narx | Muddat | Holat |
+|---|---|---|---|---|
+| `standard` | Standart | 45 000 so'm | 14 kun | sotuvda |
+| `pro` | Pro | 70 000 so'm | 30 kun | sotuvda, POPULAR |
+| `max` | Max | 499 000 so'm | 30 kun | **Tez kunda** (sotib bo'lmaydi) |
+
+To'lov: **Click**, **Payme** (onlayn), naqd yoki karta orqali (admin qo'lda beradi, 3.10).
+
+#### 2.8.2. Endpointlar
+
+##### `GET /api/landing/plans?lang=uzb` — tokensiz
+
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "code": "standard",
+      "title": "Standart",
+      "description": "Faqat testlar (videosiz)",
+      "priceUzs": 45000,
+      "durationDays": 14,
+      "features": ["all_tests", "final_exam", "explanations"],
+      "isPopular": false,
+      "comingSoon": false
+    },
+    {
+      "id": 2,
+      "code": "pro",
+      "title": "Pro",
+      "description": "Faqat testlar (videosiz)",
+      "priceUzs": 70000,
+      "durationDays": 30,
+      "features": ["all_tests", "final_exam", "explanations"],
+      "isPopular": true,
+      "comingSoon": false
+    },
+    {
+      "id": 3,
+      "code": "max",
+      "title": "Max",
+      "description": "Testlar + videodarslar",
+      "priceUzs": 499000,
+      "durationDays": 30,
+      "features": ["all_tests", "final_exam", "explanations", "videos", "mnemonics"],
+      "isPopular": false,
+      "comingSoon": true
+    }
+  ],
+  "providers": ["click", "payme"]
+}
+```
+
+- `title`, `description` — so'ralgan tilda tayyor matn.
+- `providers` — serverda ulangan to'lov tizimlari. Bo'sh massiv bo'lsa to'lov tugmalarini yashiring ("To'lov vaqtincha ishlamayapti").
+
+##### `GET /api/landing/me/access?lang=uzb` — token kerak
+
+```json
+{
+  "isPremium": true,
+  "features": ["all_tests", "final_exam", "explanations"],
+  "current": {
+    "planCode": "pro",
+    "planTitle": "Pro",
+    "expiresAt": "2026-12-23T06:59:08.146Z"
+  },
+  "accessUntil": "2027-01-06T06:59:08.146Z",
+  "active": [
+    { "id": 1, "planCode": "pro", "planTitle": "Pro", "features": ["all_tests", "final_exam", "explanations"],
+      "startsAt": "2026-11-23T06:59:08.146Z", "expiresAt": "2026-12-23T06:59:08.146Z" }
+  ],
+  "upcoming": [
+    { "id": 2, "planCode": "standard", "planTitle": "Standart", "features": ["all_tests", "final_exam", "explanations"],
+      "startsAt": "2026-12-23T06:59:08.146Z", "expiresAt": "2027-01-06T06:59:08.146Z" }
+  ]
+}
+```
+
+Tarifsiz foydalanuvchida:
+```json
+{ "isPremium": false, "features": [], "current": null, "accessUntil": null, "active": [], "upcoming": [] }
+```
+
+| Maydon | Ma'nosi |
+|---|---|
+| `isPremium` | Hozir faol tarif bormi |
+| `features` | Hozir ochiq imkoniyatlar. **Paywall shu ro'yxat bo'yicha** (`features.includes('final_exam')`) |
+| `current` | Hozirgi tarif (header/kabinetda "Pro · 23-dekabrgacha") |
+| `accessUntil` | Navbatdagi davrlar bilan birga oxirgi kirish kuni |
+| `upcoming` | Oldingisi tugagach boshlanadigan davrlar (tarif tugamasdan yana sotib olinganda) |
+
+**Qachon chaqirish:** login/registratsiyadan keyin, ilova ochilganda (token bo'lsa), to'lov `paid` bo'lgandan keyin, `PREMIUM_REQUIRED` xatosi kelganda (keshni yangilash uchun).
+
+##### `POST /api/landing/orders` — token kerak
+
+So'rov:
+```json
+{ "planId": 2, "provider": "payme", "lang": "uzb" }
+```
+- `provider`: `"click"` | `"payme"`
+- `lang` — to'lov sahifasi tili (ixtiyoriy; `ru`/`kk` → ruscha, qolgani o'zbekcha).
+
+Javob (201):
+```json
+{
+  "id": 123,
+  "planCode": "pro",
+  "planTitle": "Pro",
+  "durationDays": 30,
+  "amount": 70000,
+  "provider": "payme",
+  "status": "pending",
+  "paidAt": null,
+  "createdAt": "2026-11-23T06:58:55.593Z",
+  "paymentUrl": "https://checkout.paycom.uz/bT10ZXN0..."
+}
+```
+→ `window.location.href = paymentUrl` (yangi tabda emas, shu tabda).
+
+Xatolar:
+| HTTP | code | Qachon | Nima ko'rsatish |
+|---|---|---|---|
+| 404 | `PLAN_NOT_AVAILABLE` | Tarif "Tez kunda" yoki yashirilgan | "Bu tarif hozircha sotuvda emas", `GET /plans` ni yangilang |
+| 503 | `PAYMENT_PROVIDER_DISABLED` | Shu to'lov tizimi ulanmagan (`params.provider`) | "Click hozircha ishlamayapti, Payme orqali to'lang" |
+| 429 | `TOO_MANY_REQUESTS` | Daqiqasiga 10 tadan ko'p buyurtma | "Biroz kuting" |
+| 401 | — | Token yo'q | Login oynasi |
+
+##### `GET /api/landing/orders/:id?lang=uzb` — token kerak
+
+Shakli `POST /orders` javobi bilan bir xil (`paymentUrl` siz). Faqat o'z buyurtmasini ko'radi, boshqasiga 404.
+
+`status`:
+| status | Ma'nosi | UI |
+|---|---|---|
+| `pending` | To'lov kutilmoqda | Spinner "To'lov tekshirilmoqda…" |
+| `paid` | To'landi, kirish ochildi | ✅ "To'lov qabul qilindi! Pro tarifi 23-dekabrgacha faol" |
+| `cancelled` | To'lanmasdan bekor | ❌ "To'lov amalga oshmadi" + "Qayta urinish" |
+| `refunded` | Pul qaytarildi, kirish yopildi | "To'lov qaytarilgan" |
+
+##### `GET /api/landing/orders?page=1&limit=20&lang=uzb` — token kerak
+
+Mening to'lovlarim (faqat `paid` va `refunded`). Standart sahifalash: `{ items, total, page, limit }`.
+
+#### 2.8.3. Mavjud endpointlardagi o'zgarishlar (paywall)
+
+Mehmon cheklovlari (4-variantdan keyingilar, 50/100/200, real imtihon, mavzu, qiyin savollar) — 2.3 bo'limda.
+
+##### Yakuniy test yopiq
+
+Mehmon `source: "exam"` → **401 `LOGIN_REQUIRED`** (`reason: "exam"`, 2.3). Kirgan, lekin tarifsiz foydalanuvchi `POST /api/landing/attempts` da `source: "exam"` →
+
+```json
+{
+  "statusCode": 403,
+  "code": "PREMIUM_REQUIRED",
+  "message": "Bu bo'lim tarif bilan ochiladi",
+  "params": { "feature": "final_exam" }
+}
+```
+
+Tavsiya: "Real imtihon topshirish" tugmasini bosishdan **oldin** tekshiring:
+- mehmon → login oynasi, login'dan keyin tarif bo'lmasa narxlar sahifasi;
+- kirgan, `!access.features.includes('final_exam')` → paywall modal (2.8.4);
+- tarifi bor → testni boshlash.
+
+Tugmaning yonida 🔒 belgisi bo'lsin (bosiladigan, lekin paywall ochadi).
+
+##### Izohlar yopiq
+
+Tarifsiz foydalanuvchida `explanation` **doim `null`** keladi:
+- `GET /attempts/:id` (yakunlangan test),
+- `GET /attempts/:id/result`,
+- `GET /me/mistakes`, `GET /me/bookmarks`.
+
+Yangi maydon: **`explanationsLocked`**:
+- `GET /attempts/:id/result` → `explanationsLocked: true | false`
+- `GET /attempts/:id` → `explanationsLocked: true` faqat test `finished` bo'lsa va tarif bo'lmasa (davom etayotgan testda doim `false`)
+
+```json
+{
+  "id": "58292c0d-...",
+  "status": "finished",
+  "explanationsLocked": true,
+  "review": [
+    { "number": 1, "id": 12, "text": "...", "correctAnswerId": 302, "explanation": null, "myAnswerId": 301, "isCorrect": false }
+  ]
+}
+```
+
+UI: `explanationsLocked: true` bo'lsa har bir savol ostida izoh o'rniga bitta xira blok:
+> 🔒 Izohni ko'rish uchun tarif oling — **Tariflarni ko'rish**
+
+`/me/mistakes` va `/me/bookmarks` da `explanationsLocked` maydoni yo'q — u yerda `access.features.includes('explanations')` bo'yicha bir xil blokni ko'rsating.
+
+`POST /api/landing/me/explanations` (mehmon natijasidan keyin login qilganda izohlarni olish) tarifsizga **403 `PREMIUM_REQUIRED`** (`feature: "explanations"`) qaytaradi. Bunda so'rovni yubormang yoki xatoni jim o'tkazib, qulf blokini ko'rsating.
+
+Mehmon natija sahifasidagi CTA endi: "Izohlarni ko'rish uchun **kiring va tarif oling**".
+
+##### Jamoaviy test o'chirildi
+
+`/api/landing/group-tests/*` va socket `/group-tests` hozircha **404 / ulanmaydi**. "Kod bilan qo'shilish" sahifasi va menyudagi havolani yashiring (keyin avtomaktablar uchun qaytariladi).
+
+##### Xato kodi `PREMIUM_REQUIRED` — global ishlov
+
+API klientda (axios interceptor yoki fetch wrapper) bitta joyda:
+
+```ts
+if (error.code === 'PREMIUM_REQUIRED') {
+  openPaywall({ feature: error.params?.feature }); // modal
+  refetchAccess();                                 // /me/access keshini yangilash
+}
+```
+
+`feature` qiymatlari: `final_exam`, `explanations`, `videos`, `mnemonics`.
+
+#### 2.8.4. Ekranlar
+
+##### Narxlar sahifasi — `/[lang]/pricing`
+
+Dizayn — mijoz bergan skrinshot (3 ta karta yonma-yon, mobil'da ustma-ust).
+
+Karta tarkibi:
+```
+[POPULAR]                  ← isPopular
+Pro                        ← title
+Faqat testlar (videosiz)   ← description
+70 000 so'm                ← priceUzs (bo'shliq bilan formatlang)
+✓ 30 kunlik dostup         ← durationDays
+✓ Barcha testlar (1300+ savol)   ← features: all_tests
+✓ Yakuniy test                   ← final_exam
+✓ Izohlar                        ← explanations
+✗ Videodarslar                   ← videos (yo'q bo'lsa kulrang ✗)
+✓ Mnemonika usuli                ← mnemonics (faqat bor bo'lsa ko'rsating)
+[ Tanlash ]
+```
+
+- Ro'yxatni `features` dan chizing: frontendda imkoniyatlarning to'liq tartibli ro'yxati bo'ladi, har biri `features.includes(x)` bo'yicha ✓ yoki ✗.
+- `comingSoon: true` → tugma o'rniga **"Tez kunda"** (disabled), karta biroz xira.
+- Pastda: "🛡 To'lov: Click, Payme, naqd yoki karta orqali. Dostup to'lovdan so'ng darhol ochiladi."
+- Foydalanuvchida faol tarif bo'lsa, tepada banner: "Sizda **Pro** tarifi 23-dekabrgacha faol. Yangi tarif shu muddatdan keyin boshlanadi." (bir xil yoki torroq tarif tanlanganda). Kengroq tarif (masalan, Max) darhol boshlanadi.
+
+**"Tanlash" bosilganda:**
+1. Token yo'q → login/registratsiya oynasi, keyin shu sahifaga qaytish (`?plan=2` saqlab).
+2. To'lov usuli tanlash oynasi (bottom sheet / modal):
+   ```
+   Pro — 70 000 so'm, 30 kun
+   [ Click ]  [ Payme ]           ← faqat providers dagilar
+   Naqd yoki karta orqali to'lash uchun: Telegram @... / +998 ...
+   ```
+3. `POST /orders` → `location.href = paymentUrl`. Tugmani so'rov davomida bloklang (ikki marta bosilmasin).
+
+##### To'lov natijasi — `/[lang]/payment/result?orderId=123`
+
+Click/Payme to'lovdan keyin shu manzilga qaytaradi (backenddagi `PAYMENT_RETURN_URL`; lokal: `http://localhost:3000/payment/result`, backend `?orderId=` ni o'zi qo'shadi).
+
+Mantiq:
+```ts
+// har 2.5 soniyada, ko'pi bilan ~60 soniya
+const order = await api.get(`/landing/orders/${orderId}`);
+switch (order.status) {
+  case 'paid':      stop(); refetchAccess(); showSuccess(order); break;
+  case 'cancelled': stop(); showFailed(); break;
+  case 'pending':   continue polling;
+}
+// 60 soniyadan keyin ham pending:
+// "To'lov hali tasdiqlanmadi. Bir necha daqiqada avtomatik ochiladi. Muammo bo'lsa: @support"
+```
+
+**Muhim:** foydalanuvchi shu sahifaga qaytgani to'lov bo'lganini bildirmaydi (to'lov sahifasida "Orqaga" ham shu yerga olib keladi). "To'landi" faqat `status === 'paid'` bo'lganda.
+
+Muvaffaqiyat ekrani: ✅ "To'lov qabul qilindi", "Pro tarifi 23-dekabrgacha faol", tugmalar: **"Yakuniy testni boshlash"**, "Bosh sahifa".
+
+##### Paywall modal
+
+`PREMIUM_REQUIRED` kelganda yoki qulflangan elementni bosganda:
+```
+🔒 Bu bo'lim tarif bilan ochiladi
+[feature ga qarab matn]
+  final_exam   → "Yakuniy test — haqiqiy imtihon sharoitida 20 savol, 25 daqiqa"
+  explanations → "Har bir savolning batafsil izohi"
+  videos       → "Videodarslar tez kunda"
+[ Tariflarni ko'rish ]  [ Yopish ]
+```
+Ixtiyoriy: modal ichida eng arzon sotuvdagi tarif narxini ko'rsating ("45 000 so'mdan").
+
+##### Header va kabinet
+
+- Header (kirgan): tarif bo'lsa kichik belgi `PRO`, yo'q bo'lsa **"Tarif olish"** tugmasi.
+- Kabinet → "Mening tarifim":
+  - faol: "**Pro** — 23.12.2026 gacha (30 kun qoldi)" + `upcoming` bo'lsa "Keyin: Standart, 06.01.2027 gacha";
+  - yo'q: "Sizda tarif yo'q" + "Tariflarni ko'rish";
+  - "To'lovlar tarixi" → `GET /orders` (sana, tarif, summa, Click/Payme/Naqd, holat).
+- Muddat tugashiga 3 kun qolganda banner: "Tarifingiz 3 kundan keyin tugaydi — uzaytirish".
+
+`provider` ko'rinishi: `click` → "Click", `payme` → "Payme", `manual` → "Naqd / karta".
+
+#### 2.8.5. TypeScript tiplari
+
+```ts
+export type PlanFeature = 'all_tests' | 'final_exam' | 'explanations' | 'videos' | 'mnemonics';
+export type PaymentProvider = 'click' | 'payme';
+export type OrderProvider = PaymentProvider | 'manual';
+export type OrderStatus = 'pending' | 'paid' | 'cancelled' | 'refunded';
+
+export interface Plan {
+  id: number;
+  code: string;            // 'standard' | 'pro' | 'max' (yangilari qo'shilishi mumkin)
+  title: string;
+  description: string | null;
+  priceUzs: number;
+  durationDays: number;
+  features: PlanFeature[];
+  isPopular: boolean;
+  comingSoon: boolean;
+}
+
+export interface PlansResponse {
+  items: Plan[];
+  providers: PaymentProvider[];
+}
+
+export interface AccessPeriod {
+  id: number;
+  planCode: string;
+  planTitle: string | null;
+  features: PlanFeature[];
+  startsAt: string;
+  expiresAt: string;
+}
+
+export interface MyAccess {
+  isPremium: boolean;
+  features: PlanFeature[];
+  current: { planCode: string; planTitle: string | null; expiresAt: string } | null;
+  accessUntil: string | null;
+  active: AccessPeriod[];
+  upcoming: AccessPeriod[];
+}
+
+export interface Order {
+  id: number;
+  planCode: string;
+  planTitle: string;
+  durationDays: number;
+  amount: number;
+  provider: OrderProvider;
+  status: OrderStatus;
+  paidAt: string | null;
+  createdAt: string;
+}
+
+export interface CreatedOrder extends Order {
+  paymentUrl: string;
+}
+
+// Attempt state / result ga qo'shilgan maydon
+export interface AttemptResultExtra {
+  explanationsLocked: boolean;
+}
+```
+
+Yordamchi hook (React Query misoli):
+```ts
+export function useAccess() {
+  const { isLoggedIn } = useAuth();
+  const q = useQuery({
+    queryKey: ['me', 'access'],
+    queryFn: () => api.get<MyAccess>('/landing/me/access'),
+    enabled: isLoggedIn,
+    staleTime: 60_000,
+  });
+  const has = (f: PlanFeature) => !!q.data?.features.includes(f);
+  return { ...q, has, isPremium: !!q.data?.isPremium };
+}
+```
+
+Narx formati: `new Intl.NumberFormat('ru-RU').format(70000) + " so'm"` → `70 000 so'm` (uzc/kk: `сўм` / `сум`).
+
+#### 2.8.6. Tarjimalar (4 til uchun kalitlar)
+
+| Kalit | uzb |
+|---|---|
+| `pricing.title` | Tariflar |
+| `pricing.popular` | POPULAR |
+| `pricing.days` | {n} kunlik dostup |
+| `pricing.choose` | Tanlash |
+| `pricing.comingSoon` | Tez kunda |
+| `pricing.feature.all_tests` | Barcha testlar (1300+ savol) |
+| `pricing.feature.final_exam` | Yakuniy test |
+| `pricing.feature.explanations` | Savollar izohi |
+| `pricing.feature.videos` | Videodarslar |
+| `pricing.feature.mnemonics` | Mnemonika usuli |
+| `pricing.footer` | To'lov: Click, Payme, naqd yoki karta orqali. Dostup to'lovdan so'ng darhol ochiladi. |
+| `pricing.activeBanner` | Sizda {plan} tarifi {date} gacha faol |
+| `payment.chooseMethod` | To'lov usulini tanlang |
+| `payment.checking` | To'lov tekshirilmoqda… |
+| `payment.success` | To'lov qabul qilindi! |
+| `payment.failed` | To'lov amalga oshmadi |
+| `payment.stillPending` | To'lov hali tasdiqlanmadi. Bir necha daqiqada avtomatik ochiladi. |
+| `payment.retry` | Qayta urinish |
+| `paywall.title` | Bu bo'lim tarif bilan ochiladi |
+| `paywall.final_exam` | Yakuniy test — haqiqiy imtihon sharoitida 20 savol, 25 daqiqa |
+| `paywall.explanations` | Har bir savolning batafsil izohi |
+| `paywall.cta` | Tariflarni ko'rish |
+| `paywall.lockedExplanation` | Izohni ko'rish uchun tarif oling |
+| `account.myPlan` | Mening tarifim |
+| `account.noPlan` | Sizda tarif yo'q |
+| `account.until` | {date} gacha |
+| `account.next` | Keyin: {plan}, {date} gacha |
+| `account.payments` | To'lovlar tarixi |
+| `errors.PREMIUM_REQUIRED` | Bu bo'lim tarif bilan ochiladi |
+| `errors.PLAN_NOT_AVAILABLE` | Bu tarif hozircha sotuvda emas |
+| `errors.PAYMENT_PROVIDER_DISABLED` | Bu to'lov tizimi vaqtincha ishlamayapti |
+| `errors.ORDER_INVALID_STATE` | Buyurtma holati o'zgargan, sahifani yangilang |
+
+`uzc`, `ru`, `kk` tarjimalari mavjud locale fayllardagi uslubda.
+
+#### 2.8.7. Lokal sinash
+
+Backend `.env` da test kalitlari (haqiqiy merchant bo'lmasa ham `paymentUrl` yasaladi):
+```
+PAYMENT_RETURN_URL=http://localhost:3000/payment/result
+PAYME_MERCHANT_ID=test
+PAYME_KEY=test
+PAYME_TEST=true
+CLICK_SERVICE_ID=1
+CLICK_MERCHANT_ID=1
+CLICK_SECRET_KEY=test
+```
+To'lovni haqiqatan o'tkazmasdan "to'langan" holatni ko'rish uchun: admin panelda (yoki `POST /api/admin/users/:id/access`) foydalanuvchiga tarifni qo'lda bering — `/me/access` darhol yangilanadi.
+
 ---
 
 ## 3. Admin API
@@ -1114,14 +1597,52 @@ Belgi obyekti:
 ```
 Import qilingan belgilarda `ru` bo'sh (`""`). Tahrirlash formasida uchala til majburiy, shuning uchun admin belgini saqlaganda ruschasini ham kiritadi.
 
+### 3.10. Tariflar, buyurtmalar, qo'lda tarif berish
+- `GET /admin/plans`: barcha tariflar (yashirinlari bilan).
+- `PATCH /admin/plans/:id`: `{ priceUzs?, durationDays?, features?, status?: "active"|"coming_soon"|"hidden", isPopular?, position?, title?, description? }`. Eski buyurtmalarga ta'sir qilmaydi (buyurtma tarif nusxasini saqlaydi). Max'ni videolar tayyor bo'lganda `status: "active"` qiling.
+- `GET /admin/orders?status=paid&provider=click&search=ali&from=2026-11-01&to=2026-12-01&page=1`: buyurtmalar ro'yxati (foydalanuvchi, summa, kim berdi, izoh).
+- `GET /admin/orders/stats`: `{ revenueToday, revenueMonth, revenueTotal, paidCount, activeSubscribers, byPlan[], byProvider[] }`.
+- `GET /admin/users/:id/access`: foydalanuvchining tarif davrlari (`isActive`, `revokedAt`).
+- `POST /admin/users/:id/access`: `{ planId, amount?, note? }` qo'lda beradi: naqd, karta o'tkazma yoki sovg'a (`amount: 0`). "Tez kunda" tarifni ham berish mumkin. Buyurtma `provider: "manual"`, `status: "paid"` bo'lib yoziladi.
+- `POST /admin/orders/:id/refund`: faqat `manual` buyurtmani bekor qiladi, kirish darhol yopiladi. Click yoki Payme to'lovining puli o'sha tizim kabineti orqali qaytariladi (Payme `CancelTransaction` yuboradi va kirish avtomatik yopiladi).
+- Jamoaviy test (`/admin/group-tests`) hozircha o'chiq: `FEATURE_GROUP_TESTS=true` bo'lmaguncha 404 qaytaradi.
+
+**Admin panelda kerakli sahifalar:**
+
+1. **Tariflar** (`GET /admin/plans`, `PATCH /admin/plans/:id`): jadval + tahrirlash formasi (narx, muddat, imkoniyatlar checkbox, holat: Sotuvda / Tez kunda / Yashirin, POPULAR, tartib, 4 tilda nom va tavsif). Ogohlantirish: "O'zgarish faqat yangi buyurtmalarga ta'sir qiladi".
+2. **To'lovlar** (`GET /admin/orders`): filtrlar (holat, Click/Payme/Naqd, sana oralig'i, qidiruv), jadval: #, foydalanuvchi, tarif, summa, usul, holat, admin/izoh, sana. Tepada `GET /admin/orders/stats` kartalari: bugun, shu oy, jami daromad, faol obunachilar; tariflar va usullar bo'yicha kichik diagramma.
+3. **Foydalanuvchi sahifasi** → "Tarif" bloki: `GET /admin/users/:id/access` (davrlar ro'yxati, faol/tugagan/bekor), **"Tarif berish"** tugmasi → modal: tarif, qabul qilingan summa (default — tarif narxi, sovg'a uchun 0), izoh ("naqd, ofisda") → `POST /admin/users/:id/access`.
+4. Qo'lda berilgan (`provider: "manual"`, `status: "paid"`) buyurtma qatorida **"Bekor qilish"** → `POST /admin/orders/:id/refund` (tasdiqlash oynasi bilan). Click/Payme qatorlarida bu tugma bo'lmaydi.
+5. "Jamoaviy testlar" menyusini yashiring (backend 404 qaytaradi).
+
 ## 4. Tavsiyalar
 
 - **Token yangilash:** 401 kelsa bitta `refresh` so'rov yuboring, bir vaqtda kelgan boshqa so'rovlarni shu so'rov tugashini kutishga qo'ying, keyin qaytaring.
 - **Imtihon, 3-xato:** javob kartochkasini qizil qilib ko'rsating, "Imtihondan o'ta olmadingiz — 3 ta xato" xabarini chiqarib, natija sahifasiga o'ting. Mehmonda buni frontend o'zi aniqlaydi (`wrongCount > maxMistakes`), kirgan foydalanuvchida server `finished: true` qaytaradi.
-- **Katta testlar (100, 200 savol):** savollar navigatsiyasi (1–200 tugma) gorizontal scroll yoki "har 20 tadan" sahifalab ko'rsatilsin. Mehmon testida 200 ta savol `sessionStorage` ga sig'adi (~200 KB).
+- **Katta testlar (100, 200 savol):** savollar navigatsiyasi (1–200 tugma) gorizontal scroll yoki "har 20 tadan" sahifalab ko'rsatilsin. Bu faqat kirgan foydalanuvchiga tegishli (mehmon testi 20 savolgacha).
 - **Imtihon taymeri:** taymerni `remainingSec` dan boshlang. Tab qayta faollashganda (`visibilitychange`) `GET /attempts/:id` bilan vaqtni yangilang.
 - **Mehmon testi:** holatni (`questions`, javoblar, taymer) `sessionStorage` da saqlang, aks holda sahifa yangilanganda test yo'qoladi.
 - **Test davom ettirish (kirgan foydalanuvchi):** joriy `attemptId` ni `localStorage` da saqlang. Sahifa ochilganda `GET /attempts/:id` chaqiring: `status: "finished"` bo'lsa natijaga o'ting.
 - **Til:** kirgan foydalanuvchi tilni o'zgartirganda `PATCH /me { lang }` yuboring va ochiq test uchun `GET /attempts/:id?lang=...` ni qayta chaqiring. Mehmonda tilni `localStorage` da saqlang va har so'rovga `lang` qilib qo'shing.
 - **Natija sahifasi:** `guest: true` bo'lsa "Natijangizni saqlash uchun Google bilan kiring" tugmasini ko'rsating. Mehmon natijasida `id` yo'q, shuning uchun uni ulashish yoki qayta ochish havolasi bo'lmaydi.
 - **Rasmlar:** URL'lar o'zgarmaydi va bir yil keshlanadi (yangi rasm har doim yangi nom oladi).
+
+## 5. Tekshirish ro'yxati (tariflar va mehmon cheklovlari)
+
+- [ ] `/pricing` sahifasi `GET /plans` dan chiziladi, Max "Tez kunda"
+- [ ] Login'siz "Tanlash" → login → pricing ga qaytish
+- [ ] Click va Payme tugmalari faqat `providers` da borlari
+- [ ] `POST /orders` → `paymentUrl` ga o'tish, tugma qayta bosilmaydi
+- [ ] `/payment/result` polling: paid / cancelled / 60 soniya pending
+- [ ] `useAccess()` hook va header'dagi tarif belgisi
+- [ ] Mehmon: 4-variantdan keyin 🔒 (`requiresLogin`); 50/100/200, real imtihon, mavzular, qiyin savollar 🔒 → login oynasi
+- [ ] `LOGIN_REQUIRED` (`reason`) → login oynasi, refresh qilinmaydi
+- [ ] "Real imtihon" tugmasi kirgan tarifsizga paywall ochadi
+- [ ] Natija sahifasida `explanationsLocked` → qulf bloki
+- [ ] Xatolarim / Saqlanganlarda izoh o'rniga qulf bloki (tarifsiz)
+- [ ] Mehmon natijasidan login → `/me/explanations` 403 to'g'ri ishlanadi
+- [ ] Global `PREMIUM_REQUIRED` interceptor
+- [ ] Kabinet: Mening tarifim + To'lovlar tarixi
+- [ ] Group test sahifalari yashirilgan
+- [ ] 4 til tarjimalari
+- [ ] Admin: Tariflar, To'lovlar, Foydalanuvchiga tarif berish

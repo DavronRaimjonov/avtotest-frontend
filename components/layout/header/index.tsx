@@ -3,6 +3,7 @@ import { Logo } from "../logo";
 import { AccountLink } from "./account-link";
 import { GroupTestLink } from "./group-test-link";
 import { LangSwitcher } from "./lang-switcher";
+import { PlanBadge } from "./plan-badge";
 import { NavLinks, NavList } from "./nav-links";
 
 // Yuqorida qotib turadi (sticky). Mobilda navigatsiya va akkaunt pastki tab bar'da (MobileTabBar)
@@ -15,6 +16,7 @@ export const Header = () => (
       </Suspense>
       <div className="ml-auto flex items-center gap-2.5">
         <LangSwitcher />
+        <PlanBadge />
         <GroupTestLink />
         <div className="max-[860px]:hidden">
           <AccountLink />

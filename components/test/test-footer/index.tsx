@@ -20,12 +20,12 @@ export const TestFooter = ({ okCount, badCount, mistakesLeft, status, isFirst, i
   const { t } = useTranslation();
   return (
   <footer className="sticky bottom-0 border-t border-line bg-white">
-    <div className="mx-auto flex max-w-[1240px] items-center gap-3 px-4 py-3.5 sm:px-6">
+    <div className="mx-auto flex max-w-310 items-center gap-3 px-4 py-3.5 sm:px-6">
       <button
         type="button"
         onClick={onPrev}
         disabled={isFirst}
-        className="flex h-12 items-center gap-2 rounded-xl border-[1.5px] border-line bg-white px-[18px] text-[15px] font-bold text-ink disabled:opacity-50"
+        className="flex h-12 items-center gap-2 rounded-xl border-[1.5px] border-line bg-white px-4.5 text-[15px] font-bold text-ink disabled:opacity-50"
       >
         <ChevronLeftIcon size={18} />
         <span className="max-sm:sr-only">{t("test.prev")}</span>
@@ -47,7 +47,7 @@ export const TestFooter = ({ okCount, badCount, mistakesLeft, status, isFirst, i
         type="button"
         onClick={onNext}
         disabled={isLast}
-        className="flex h-12 items-center gap-2 rounded-xl border-0 bg-accent px-[22px] text-[15px] font-extrabold text-navy disabled:opacity-50"
+        className="flex h-12 items-center gap-2 rounded-xl border-0 bg-accent px-5.5 text-[15px] font-extrabold text-navy disabled:opacity-50"
       >
         {t("test.next")}
         <ChevronRightIcon size={18} />

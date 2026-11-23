@@ -20,7 +20,7 @@ export const GroupShell = ({ title, subtitle, aside, children }: ShellProps) => 
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="border-b border-line bg-white">
-        <div className="mx-auto flex min-h-[68px] max-w-[1240px] items-center gap-4 px-4 sm:px-6">
+        <div className="mx-auto flex min-h-17 max-w-310 items-center gap-4 px-4 sm:px-6">
           <Link
             href={ROUTES.groupTests}
             aria-label={t("common.back")}
@@ -35,7 +35,7 @@ export const GroupShell = ({ title, subtitle, aside, children }: ShellProps) => 
           {aside && <div className="ml-auto flex-none">{aside}</div>}
         </div>
       </header>
-      <main className="mx-auto flex w-full max-w-[1040px] flex-1 flex-col gap-6 px-4 pt-8 pb-20 sm:px-6">{children}</main>
+      <main className="mx-auto flex w-full max-w-260 flex-1 flex-col gap-6 px-4 pt-8 pb-20 sm:px-6">{children}</main>
     </div>
   );
 };
@@ -85,9 +85,9 @@ export const GroupMessage = ({ title, text, children }: MessageProps) => {
 
 export const GroupTestSkeleton = () => (
   <div className="flex min-h-dvh flex-col" aria-busy="true">
-    <div className="h-[69px] border-b border-line bg-white" />
-    <div className="mx-auto flex w-full max-w-[1040px] flex-col gap-6 px-4 pt-8 sm:px-6">
-      <span className="h-[360px] animate-pulse rounded-[28px] bg-soft" />
+    <div className="h-17.25 border-b border-line bg-white" />
+    <div className="mx-auto flex w-full max-w-260 flex-col gap-6 px-4 pt-8 sm:px-6">
+      <span className="h-90 animate-pulse rounded-[28px] bg-soft" />
       <span className="h-24 animate-pulse rounded-[20px] bg-soft" />
     </div>
   </div>

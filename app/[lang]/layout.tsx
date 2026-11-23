@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
 import { notFound } from "next/navigation";
 import type { TestLang } from "@/@types";
+import { BRAND_NAME } from "@/components/layout/logo";
 import { createServerI18n, LANGUAGES, LOCALE_CODES } from "@/i18n";
 import { localePath } from "@/lib/routes";
 import ProviderApi from "@/provider";
@@ -29,7 +30,8 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
   if (!isLang(lang)) return {};
   const { t } = createServerI18n(lang);
   return {
-    title: { default: t("meta.title"), template: "%s · AvtoTest" },
+    title: { default: t("meta.title"), template: `%s · ${BRAND_NAME}` },
+    applicationName: BRAND_NAME,
     description: t("meta.description"),
     // Qidiruv tizimlari uchun boshqa tildagi nusxalar
     alternates: {

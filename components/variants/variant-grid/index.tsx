@@ -3,6 +3,7 @@
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import type { Variant } from "@/@types";
+import { LockIcon } from "@/components/ui/icons";
 import { PASS_PERCENT } from "@/lib/constants";
 import { cn } from "@/lib/helpers";
 import { useExamStore } from "@/store/exam.store";
@@ -30,7 +31,7 @@ export const VariantGrid = ({ variants, selectedId, passPercent = PASS_PERCENT, 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(76px,1fr))] gap-2.5">
         {loading
           ? Array.from({ length: 64 }, (_, i) => (
-              <span key={i} className="h-[72px] animate-pulse rounded-[14px] bg-soft" />
+              <span key={i} className="h-18 animate-pulse rounded-[14px] bg-soft" />
             ))
           : variants?.map((v) => {
               const c = tone(t, v.result);
@@ -43,7 +44,7 @@ export const VariantGrid = ({ variants, selectedId, passPercent = PASS_PERCENT, 
                   aria-pressed={selected}
                   onClick={() => setSelectedVariantId(v.id)}
                   className={cn(
-                    "flex h-[72px] flex-col items-center justify-center gap-0.5 rounded-[14px] text-ink transition-transform hover:-translate-y-0.5",
+                    "flex h-18 flex-col items-center justify-center gap-0.5 rounded-[14px] text-ink transition-transform hover:-translate-y-0.5",
                     c.box,
                     selected
                       ? "border-[2.5px] border-navy shadow-[0_6px_16px_-6px_rgba(14,26,58,0.45)]"
@@ -51,7 +52,15 @@ export const VariantGrid = ({ variants, selectedId, passPercent = PASS_PERCENT, 
                   )}
                 >
                   <span className="text-lg font-extrabold">{v.number}</span>
-                  <span className={cn("text-[11px] font-bold", c.sub)}>{c.label}</span>
+                  {/* Mehmonda 4-variantdan boshlab: kirish kerak (tanlash mumkin, boshlashda kirish oynasi) */}
+                  {v.requiresLogin ? (
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-subtle">
+                      <LockIcon size={11} strokeWidth={2.6} />
+                      {t("guestLimits.badge")}
+                    </span>
+                  ) : (
+                    <span className={cn("text-[11px] font-bold", c.sub)}>{c.label}</span>
+                  )}
                 </button>
               );
             })}

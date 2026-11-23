@@ -23,7 +23,7 @@ export const GroupJoin = () => {
   const openLogin = useAuthStore((s) => s.openLogin);
 
   return (
-    <div className="mx-auto flex max-w-[1040px] flex-col gap-7 px-4 pt-10 pb-20 sm:px-6">
+    <div className="mx-auto flex max-w-260 flex-col gap-7 px-4 pt-10 pb-20 sm:px-6">
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 text-[28px] font-extrabold tracking-tight sm:text-[32px]">{t("groupTest.title")}</h1>
         <p className="m-0 text-[15px] text-muted">{t("groupTest.join.subtitle")}</p>
@@ -109,7 +109,7 @@ const MyGroupTests = () => {
       {isPending && (
         <div className="flex flex-col gap-3" aria-busy="true">
           {[0, 1, 2].map((i) => (
-            <span key={i} className="h-[76px] animate-pulse rounded-2xl bg-soft" />
+            <span key={i} className="h-19 animate-pulse rounded-2xl bg-soft" />
           ))}
         </div>
       )}

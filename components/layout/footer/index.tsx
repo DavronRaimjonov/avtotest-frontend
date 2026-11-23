@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
+import { BrandMark, BrandName } from "../logo";
 
 export const Footer = () => {
   const { t } = useTranslation();
@@ -10,8 +11,9 @@ export const Footer = () => {
     <footer className="bg-navy text-[#B9C3DD]">
       <div className="mx-auto grid max-w-300 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-8 px-6 pt-14 pb-8">
         <div className="flex flex-col gap-3">
-          <span className="text-xl font-extrabold text-white">
-            Avto<span className="text-accent">Test</span>
+          <span className="flex items-center gap-2">
+            <BrandMark className="h-8 w-auto" />
+            <BrandName className="text-xl" />
           </span>
           <span className="text-sm leading-relaxed">{t("footer.about")}</span>
         </div>

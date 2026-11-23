@@ -21,14 +21,14 @@ export const SignGroups = () => {
   const groupSlug = (groupId: number) => groups.data?.find((g) => g.id === groupId)?.slug ?? String(groupId);
 
   return (
-    <div className="mx-auto flex max-w-[1200px] flex-col gap-8 px-6 pt-10 pb-20">
+    <div className="mx-auto flex max-w-300 flex-col gap-8 px-6 pt-10 pb-20">
       <div className="flex flex-wrap items-end justify-between gap-5">
-        <div className="flex max-w-[640px] flex-col gap-2">
+        <div className="flex max-w-160 flex-col gap-2">
           <span className="text-[13px] font-extrabold tracking-[0.08em] text-navy-2">{t("signs.eyebrow")}</span>
           <h1 className="m-0 text-[32px] font-extrabold tracking-tight sm:text-[40px]">{t("signs.title")}</h1>
           <p className="m-0 text-[15px] leading-relaxed text-muted">{t("signs.text")}</p>
         </div>
-        <label className="relative w-full max-w-[380px]">
+        <label className="relative w-full max-w-95">
           <span className="sr-only">{t("signs.search")}</span>
           <SearchIcon size={18} className="absolute top-1/2 left-4 -translate-y-1/2 text-muted" />
           <input
@@ -53,7 +53,7 @@ export const SignGroups = () => {
       ) : (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
           {groups.isPending
-            ? Array.from({ length: 7 }, (_, i) => <span key={i} className="h-[150px] animate-pulse rounded-[20px] bg-soft" />)
+            ? Array.from({ length: 7 }, (_, i) => <span key={i} className="h-37.5 animate-pulse rounded-[20px] bg-soft" />)
             : groups.data?.map((g) => (
                 <Link
                   key={g.id}

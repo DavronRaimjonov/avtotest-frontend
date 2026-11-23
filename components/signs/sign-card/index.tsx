@@ -21,4 +21,4 @@ export const SignCard = ({ sign, group }: { sign: Sign; group: string }) => (
   </Link>
 );
 
-export const SignCardSkeleton = () => <span className="h-[230px] animate-pulse rounded-[20px] bg-soft" />;
+export const SignCardSkeleton = () => <span className="h-57.5 animate-pulse rounded-[20px] bg-soft" />;

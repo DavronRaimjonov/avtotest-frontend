@@ -125,7 +125,17 @@ export interface Meta {
     secondsPerQuestion: number;
   };
   langs: TestLang[];
+  // Mehmon cheklovlari: birinchi N ta variant (har formatda) va shuncha savolgacha tasodifiy test
+  guestLimits?: GuestLimits;
 }
+
+export interface GuestLimits {
+  freeVariants: number;
+  maxTestSize: number;
+}
+
+// 401 LOGIN_REQUIRED (mehmon cheklovdan oshdi) params.reason
+export type LoginRequiredReason = "variant" | "test_size" | "exam" | "source";
 
 export interface Answer {
   id: number;
@@ -168,6 +178,8 @@ export interface Variant {
   timeLimitSec: number;
   // Token bo'lmasa yoki yechilmagan bo'lsa null
   result: VariantResult | null;
+  // Mehmonda 4-variantdan boshlab true (kirish kerak), kirganda doim false
+  requiresLogin?: boolean;
 }
 
 export interface VariantList {
@@ -243,6 +255,8 @@ export interface AttemptBase {
   startedAt: string;
   finishedAt: string | null;
   lang: TestLang;
+  // Tarifsiz foydalanuvchida true: izoh o'rniga "Tarif oling" bloki. Holatda faqat yakunlangan testda keladi
+  explanationsLocked?: boolean;
 }
 
 export interface Attempt extends AttemptBase {
@@ -541,6 +555,76 @@ export interface GroupStatusEvent {
   finishReason: GroupTestFinishReason | null;
 }
 
+// ---------- Tariflar va to'lov (FRONTEND-API.md 2.8, docs/FRONTEND-TARIFLAR.md) ----------
+export type PlanFeature = "all_tests" | "final_exam" | "explanations" | "videos" | "mnemonics";
+export type PaymentProvider = "click" | "payme";
+// manual — admin qo'lda bergan (naqd / karta o'tkazma / sovg'a)
+export type OrderProvider = PaymentProvider | "manual";
+export type OrderStatus = "pending" | "paid" | "cancelled" | "refunded";
+
+export interface Plan {
+  id: number;
+  // standard | pro | max (yangilari qo'shilishi mumkin)
+  code: string;
+  title: string;
+  description: string | null;
+  priceUzs: number;
+  durationDays: number;
+  features: PlanFeature[];
+  isPopular: boolean;
+  // "Tez kunda" — sotib bo'lmaydi
+  comingSoon: boolean;
+}
+
+export interface PlansResponse {
+  items: Plan[];
+  // Serverda ulangan to'lov tizimlari. Bo'sh bo'lsa to'lov tugmalari yashiriladi
+  providers: PaymentProvider[];
+}
+
+export interface AccessPeriod {
+  id: number;
+  planCode: string;
+  planTitle: string | null;
+  features: PlanFeature[];
+  startsAt: string;
+  expiresAt: string;
+}
+
+export interface MyAccess {
+  isPremium: boolean;
+  // Hozir ochiq imkoniyatlar — paywall shu ro'yxat bo'yicha
+  features: PlanFeature[];
+  current: { planCode: string; planTitle: string | null; expiresAt: string } | null;
+  // Navbatdagi davrlar bilan birga oxirgi kirish kuni
+  accessUntil: string | null;
+  active: AccessPeriod[];
+  // Oldingisi tugagach boshlanadigan davrlar
+  upcoming: AccessPeriod[];
+}
+
+export interface CreateOrderBody {
+  planId: number;
+  provider: PaymentProvider;
+  lang?: TestLang;
+}
+
+export interface Order {
+  id: number;
+  planCode: string;
+  planTitle: string;
+  durationDays: number;
+  amount: number;
+  provider: OrderProvider;
+  status: OrderStatus;
+  paidAt: string | null;
+  createdAt: string;
+}
+
+export interface CreatedOrder extends Order {
+  paymentUrl: string;
+}
+
 // ---------- Xatolar ----------
 export type ApiErrorCode =
   | "VALIDATION_ERROR"
@@ -573,7 +657,11 @@ export type ApiErrorCode =
   | "GROUP_TEST_NOT_INVITED"
   | "GROUP_TEST_KICKED"
   | "GROUP_TEST_INVALID_STATE"
-  | "GROUP_ATTEMPT";
+  | "GROUP_ATTEMPT"
+  | "PREMIUM_REQUIRED"
+  | "PLAN_NOT_AVAILABLE"
+  | "PAYMENT_PROVIDER_DISABLED"
+  | "ORDER_INVALID_STATE";
 
 export interface ApiError {
   statusCode: number;

@@ -7,9 +7,11 @@ import {
   ChecklistIcon,
   ClockIcon,
   GridIcon,
+  LockIcon,
   PlayIcon,
   ShieldIcon,
 } from "@/components/ui/icons";
+import { useAccess } from "@/hooks/useAccess";
 import { ROUTES } from "@/lib/routes";
 import { useStartAttempt } from "@/request/mutation/attempt";
 import { TryCard } from "./try-card";
@@ -20,6 +22,9 @@ export const Hero = () => {
   const { t } = useTranslation();
   const facts = t("hero.facts", { returnObjects: true }) as string[];
   const { start, isPending } = useStartAttempt();
+  // Yakuniy test faqat tarif bilan: tugma bosiladi, lekin tarifsizga paywall ochadi (qulf belgisi)
+  const { has, isLoading } = useAccess();
+  const locked = !isLoading && !has("final_exam");
   return (
   <section className="relative overflow-hidden bg-navy pt-14 pb-24 text-white">
     <div className="relative z-1 mx-auto grid max-w-300 grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] items-center gap-14 px-6">
@@ -35,14 +40,14 @@ export const Hero = () => {
           {t("hero.text")}
         </p>
         <div className="flex animate-up flex-wrap gap-3 [animation-delay:.4s]">
-          {/* Real imtihon: 20 ta tasodifiy savol, har safar yangi (oldin tushganlari takrorlanmaydi) */}
+          {/* Real imtihon: 20 ta tasodifiy savol, har safar yangi (oldin tushganlari takrorlanmaydi). Tarif bilan */}
           <button
             type="button"
             onClick={() => start({ source: "exam", mode: "exam" })}
             disabled={isPending}
             className="btn-hover shine flex h-16 cursor-pointer items-center gap-3 rounded-2xl border-0 bg-accent px-7 text-left text-navy disabled:cursor-wait disabled:opacity-80"
           >
-            <PlayIcon />
+            {locked ? <LockIcon size={20} strokeWidth={2.4} /> : <PlayIcon />}
             <span className="flex flex-col">
               <span className="text-[18px] leading-tight font-extrabold">{t("hero.examCta")}</span>
               <span className="text-[13px] font-semibold opacity-75">{t("hero.examHint")}</span>

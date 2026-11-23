@@ -58,7 +58,7 @@ export const TestHeader = ({ attempt, guest, title, backHref = ROUTES.variants, 
 
   return (
     <header className="border-b border-line bg-white">
-      <div className="mx-auto flex min-h-[68px] max-w-[1240px] flex-wrap items-center gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex min-h-17 max-w-310 flex-wrap items-center gap-4 px-4 sm:px-6">
         <Link
           href={backHref}
           aria-label={t("common.back")}
@@ -92,7 +92,7 @@ export const TestHeader = ({ attempt, guest, title, backHref = ROUTES.variants, 
             onClick={onFinishClick}
             disabled={finishing}
             className={cn(
-              "flex h-10 items-center rounded-[10px] px-[18px] text-sm font-bold text-white disabled:opacity-60",
+              "flex h-10 items-center rounded-[10px] px-4.5 text-sm font-bold text-white disabled:opacity-60",
               confirming ? "bg-bad" : "bg-navy",
             )}
           >
@@ -101,7 +101,7 @@ export const TestHeader = ({ attempt, guest, title, backHref = ROUTES.variants, 
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-[1240px] flex-col gap-3 px-4 pb-3.5 sm:px-6">
+      <div className="mx-auto flex max-w-310 flex-col gap-3 px-4 pb-3.5 sm:px-6">
         <span className="block h-1 overflow-hidden rounded-full bg-soft">
           <span
             className="block h-full rounded-full bg-accent transition-[width]"

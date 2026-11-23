@@ -8,6 +8,7 @@ import {
   ChevronRightIcon,
   ClockIcon,
   GridIcon,
+  LockIcon,
   RetryIcon,
   SignIcon,
   WarningIcon,
@@ -16,6 +17,8 @@ import { BIG_TEST_COUNTS } from "@/lib/constants";
 import { cn } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
 import { useRouter } from "@/hooks/useRouter";
+import { useAccess } from "@/hooks/useAccess";
+import { useGuestLimits } from "@/hooks/useGuestLimits";
 import { useStartAttempt } from "@/request/mutation";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -45,7 +48,7 @@ const TOOLS: Item[] = [
 const cardClass =
   "lift flex animate-up flex-col gap-3.5 rounded-[20px] border border-line bg-white p-6 text-left text-ink no-underline shadow-card disabled:opacity-60";
 const toolClass =
-  "lift flex items-center gap-4 rounded-[20px] border border-line bg-white px-6 py-[22px] text-left text-ink no-underline disabled:opacity-60";
+  "lift flex items-center gap-4 rounded-[20px] border border-line bg-white px-6 py-5.5 text-left text-ink no-underline disabled:opacity-60";
 
 export const Modes = () => {
   const { t } = useTranslation();
@@ -53,6 +56,11 @@ export const Modes = () => {
   const router = useRouter();
   const hasSession = useAuthStore((s) => s.hasSession);
   const openLogin = useAuthStore((s) => s.openLogin);
+  // Yakuniy test faqat tarif bilan: kartada qulf belgisi (bosilganda paywall)
+  const { has, isLoading } = useAccess();
+  const examLocked = !isLoading && !has("final_exam");
+  // Mehmonga yopiq: 50/100/200, qiyin savollar (bosilganda kirish oynasi)
+  const { locked } = useGuestLimits();
 
   // Bir xil ko'rinish: start yoki mehmonga yopiq sahifa bo'lsa tugma, aks holda havola
   const action = (item: Item, className: string, content: React.ReactNode, style?: React.CSSProperties) =>
@@ -85,7 +93,7 @@ export const Modes = () => {
 
   return (
     <>
-      <section className="relative z-[2] mx-auto -mt-12 max-w-[1200px] px-6">
+      <section className="relative z-2 mx-auto -mt-12 max-w-300 px-6">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
           {MODES.map((item, i) =>
             action(
@@ -95,7 +103,12 @@ export const Modes = () => {
                 <span className={cn("ico flex size-12 items-center justify-center rounded-[14px]", item.tone)}>
                   <item.Icon size={24} />
                 </span>
-                <span className="text-lg font-extrabold">{t(`modes.${item.key}.title`)}</span>
+                <span className="flex items-center gap-2 text-lg font-extrabold">
+                  {t(`modes.${item.key}.title`)}
+                  {item.start?.source === "exam" && examLocked && (
+                    <LockIcon size={16} strokeWidth={2.4} className="text-tint-yellow-fg" />
+                  )}
+                </span>
                 <span className="text-sm leading-normal text-muted">{t(`modes.${item.key}.text`)}</span>
               </>,
               { animationDelay: `${0.28 + i * 0.12}s` },
@@ -105,7 +118,7 @@ export const Modes = () => {
       </section>
 
       {/* Katta testlar: aralash savollar, imtihon sharoitida (vaqt va xatolar limiti bilan) */}
-      <section className="mx-auto max-w-[1200px] px-6 pt-6">
+      <section className="mx-auto max-w-300 px-6 pt-6">
         <div className="flex flex-wrap items-center gap-4 rounded-[20px] border border-line bg-white px-6 py-5">
           <span className="flex flex-[1_1_260px] flex-col gap-0.5">
             <b>{t("modes.big.title")}</b>
@@ -120,14 +133,17 @@ export const Modes = () => {
                 onClick={() => start({ source: "random", mode: "exam", count })}
                 className="btn-hover h-11 rounded-xl bg-navy px-5 text-sm font-bold text-white disabled:opacity-60"
               >
-                {t("modes.big.count", { count })}
+                <span className="flex items-center gap-1.5">
+                  {locked({ source: "random", mode: "exam", count }) && <LockIcon size={14} strokeWidth={2.4} />}
+                  {t("modes.big.count", { count })}
+                </span>
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-6 pt-4">
+      <section className="mx-auto max-w-300 px-6 pt-4">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
           {TOOLS.map((item) =>
             action(
@@ -136,7 +152,12 @@ export const Modes = () => {
               <>
                 <item.Icon size={28} className={cn("ico", item.tone)} />
                 <span className="flex flex-1 flex-col gap-0.5">
-                  <b>{t(`modes.${item.key}.title`)}</b>
+                  <b className="flex items-center gap-1.5">
+                    {t(`modes.${item.key}.title`)}
+                    {item.start && locked(item.start) && (
+                      <LockIcon size={14} strokeWidth={2.4} className="text-subtle" />
+                    )}
+                  </b>
                   <span className="text-[13px] text-muted">{t(`modes.${item.key}.text`)}</span>
                 </span>
                 <ChevronRightIcon strokeWidth={2} className="text-muted" />

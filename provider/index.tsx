@@ -6,6 +6,7 @@ import { I18nextProvider } from "react-i18next";
 import { Toaster } from "sonner";
 import type { TestLang } from "@/@types";
 import { LoginModal } from "@/components/auth/login-modal";
+import { PaywallModal } from "@/components/billing/paywall-modal";
 import i18next, { createServerI18n, LOCALE_CODES } from "@/i18n";
 import { getQueryClient } from "@/lib/query-client";
 import { hasAuthTokens } from "@/request/token";
@@ -34,6 +35,7 @@ export default function ProviderApi({ lang, children }: { lang: TestLang; childr
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={queryClient}>
         {children}
+        <PaywallModal />
         <LoginModal />
         {/* Header (sticky) ustida emas, ostida chiqadi */}
         <Toaster position="top-center" richColors closeButton offset={84} mobileOffset={{ top: 72 }} duration={4000} />

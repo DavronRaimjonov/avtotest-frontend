@@ -18,14 +18,14 @@ export const Categories = () => {
   const items = t("categories.items", { returnObjects: true }) as { title: string; text: string }[];
 
   return (
-    <section className="mx-auto max-w-[1200px] px-6 pt-24">
+    <section className="mx-auto max-w-300 px-6 pt-24">
       <SectionHeading eyebrow={t("categories.eyebrow")} title={t("categories.title")} />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-4">
         {CODES.map((c, i) => (
           <div key={c.code} className="lift flex flex-col gap-3.5 rounded-[20px] border border-line bg-white p-6">
             <span
               className={cn(
-                "flex h-[52px] min-w-[52px] items-center justify-center self-start rounded-[14px] px-3.5 font-extrabold",
+                "flex h-13 min-w-13 items-center justify-center self-start rounded-[14px] px-3.5 font-extrabold",
                 c.code.length > 2 ? "text-base" : "text-2xl",
                 c.tone,
               )}

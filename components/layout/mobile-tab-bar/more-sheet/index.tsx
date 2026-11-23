@@ -10,6 +10,7 @@ import {
   CheckIcon,
   ChevronRightIcon,
   ClockIcon,
+  CrownIcon,
   GlobeIcon,
   KeyIcon,
   LogoutIcon,
@@ -18,11 +19,12 @@ import {
   WarningIcon,
   XIcon,
 } from "@/components/ui/icons";
+import { useAccess } from "@/hooks/useAccess";
 import { useLang } from "@/hooks/useLang";
 import { useMeQuery } from "@/hooks/useQuery";
 import { useRouter } from "@/hooks/useRouter";
-import { TEST_LANGS } from "@/lib/constants";
-import { cn } from "@/lib/helpers";
+import { GROUP_TESTS_ENABLED, TEST_LANGS } from "@/lib/constants";
+import { cn, formatDate } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
 import { useLogoutMutation, useStartAttempt } from "@/request/mutation";
 import { useAuthStore } from "@/store/auth.store";
@@ -39,6 +41,8 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
   const logout = useLogoutMutation();
   const { start, isPending } = useStartAttempt();
   const [langOpen, setLangOpen] = useState(false);
+  const { access, has } = useAccess();
+  const current = access?.current;
 
   const name = [me?.firstName, me?.lastName].filter(Boolean).join(" ") || t("common.user");
   const initials = name
@@ -76,9 +80,9 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
         aria-modal="true"
         aria-labelledby="more-title"
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[92dvh] animate-sheet-up flex-col rounded-t-[28px] bg-[#F2F2F7] [font-family:-apple-system,BlinkMacSystemFont,'SF_Pro_Text',system-ui,sans-serif]"
+        className="flex max-h-[92dvh] animate-sheet-up flex-col rounded-t-[28px] bg-[#F2F2F7] font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Text',system-ui,sans-serif]"
       >
-        <span className="mx-auto mt-2 h-[5px] w-9 flex-none rounded-full bg-black/15" aria-hidden="true" />
+        <span className="mx-auto mt-2 h-1.25 w-9 flex-none rounded-full bg-black/15" aria-hidden="true" />
         <div className="flex flex-none items-center justify-between px-4 pt-3 pb-2">
           <h2 id="more-title" className="m-0 text-[22px] font-bold tracking-tight text-black">
             {t("more.title")}
@@ -87,7 +91,7 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
             type="button"
             onClick={onClose}
             aria-label={t("common.close")}
-            className="flex size-[30px] items-center justify-center rounded-full bg-black/[0.07] text-[#3C3C43]/70"
+            className="flex size-7.5 items-center justify-center rounded-full bg-black/[0.07] text-[#3C3C43]/70"
           >
             <XIcon size={16} strokeWidth={2.6} />
           </button>
@@ -97,8 +101,12 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
           {/* Profil / kirish */}
           <Group>
             {hasSession ? (
-              <div className="flex items-center gap-3 px-4 py-3">
-                <span className="relative flex size-[52px] flex-none items-center justify-center overflow-hidden rounded-full bg-navy-2 text-lg font-bold text-white">
+              <button
+                type="button"
+                onClick={then(() => router.push(ROUTES.profile))}
+                className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-black/5"
+              >
+                <span className="relative flex size-13 flex-none items-center justify-center overflow-hidden rounded-full bg-navy-2 text-lg font-bold text-white">
                   {me?.avatarUrl ? (
                     <Image src={me.avatarUrl} alt="" fill unoptimized referrerPolicy="no-referrer" className="object-cover" />
                   ) : (
@@ -109,7 +117,8 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
                   <b className="truncate text-[17px] font-semibold text-black">{name}</b>
                   {me?.email && <span className="truncate text-[13px] text-[#8E8E93]">{me.email}</span>}
                 </span>
-              </div>
+                <ChevronRightIcon size={16} strokeWidth={2.4} className="ml-auto flex-none text-[#C4C4C7]" />
+              </button>
             ) : (
               <Row
                 icon={<span className="text-lg font-bold">?</span>}
@@ -138,7 +147,7 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
                   key={l.value}
                   type="button"
                   onClick={then(() => setLang(l.value))}
-                  className="flex h-11 w-full items-center justify-between border-t border-black/[0.08] pr-4 pl-[60px] text-left text-[17px] text-black active:bg-black/5"
+                  className="flex h-11 w-full items-center justify-between border-t border-black/8 pr-4 pl-15 text-left text-[17px] text-black active:bg-black/5"
                 >
                   {l.label}
                   {l.value === lang && <CheckIcon size={18} strokeWidth={2.6} className="text-[#007AFF]" />}
@@ -146,16 +155,29 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
               ))}
           </Group>
 
+          {/* Tarif: faol bo'lsa nomi va muddati, yo'q bo'lsa "Tarif olish" */}
+          <Group>
+            <Row
+              icon={<CrownIcon size={18} />}
+              tone="bg-[#FFB800]"
+              title={current ? (current.planTitle ?? current.planCode) : t("account.getPlan")}
+              text={current ? t("account.until", { date: formatDate(current.expiresAt) }) : t("more.planText")}
+              onClick={then(() => router.push(ROUTES.pricing))}
+            />
+          </Group>
+
           {/* Bo'limlar */}
           <Section title={t("more.sections")}>
-            {/* Jamoaviy test: mehmonga sahifaning o'zi kirish taklifini ko'rsatadi */}
-            <Row
-              icon={<UsersIcon size={18} />}
-              tone="bg-navy-2"
-              title={t("groupTest.join.cta")}
-              text={t("more.groupTestText")}
-              onClick={then(() => router.push(ROUTES.groupTests))}
-            />
+            {/* Jamoaviy test (backendda o'chiq bo'lsa yashirin): mehmonga sahifaning o'zi kirish taklifini ko'rsatadi */}
+            {GROUP_TESTS_ENABLED && (
+              <Row
+                icon={<UsersIcon size={18} />}
+                tone="bg-navy-2"
+                title={t("groupTest.join.cta")}
+                text={t("more.groupTestText")}
+                onClick={then(() => router.push(ROUTES.groupTests))}
+              />
+            )}
             <Row
               icon={<BookIcon size={18} />}
               tone="bg-[#34C759]"
@@ -166,7 +188,7 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
             <Row
               icon={<ClockIcon size={18} />}
               tone="bg-[#FF9500]"
-              title={t("modes.exam.title")}
+              title={has("final_exam") ? t("modes.exam.title") : `🔒 ${t("modes.exam.title")}`}
               text={t("modes.exam.text")}
               onClick={startTest({ source: "exam", mode: "exam" })}
               disabled={isPending}
@@ -174,7 +196,7 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
             <Row
               icon={<WarningIcon size={18} />}
               tone="bg-[#FF3B30]"
-              title={t("modes.hard.title")}
+              title={hasSession ? t("modes.hard.title") : `🔒 ${t("modes.hard.title")}`}
               text={t("modes.hard.text")}
               onClick={startTest({ source: "hard", mode: "practice" })}
               disabled={isPending}
@@ -215,9 +237,9 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
                 type="button"
                 disabled={logout.isPending}
                 onClick={() => logout.mutate(undefined, { onSettled: onClose })}
-                className="flex h-12 w-full items-center gap-3 border-t border-black/[0.08] px-4 text-left text-[17px] text-[#FF3B30] active:bg-black/5 disabled:opacity-50"
+                className="flex h-12 w-full items-center gap-3 border-t border-black/8 px-4 text-left text-[17px] text-[#FF3B30] active:bg-black/5 disabled:opacity-50"
               >
-                <span className="flex size-[30px] items-center justify-center rounded-[7px] bg-[#FF3B30] text-white">
+                <span className="flex size-7.5 items-center justify-center rounded-[7px] bg-[#FF3B30] text-white">
                   <LogoutIcon size={18} />
                 </span>
                 {t("common.logout")}
@@ -239,7 +261,7 @@ const Group = ({ children }: { children: React.ReactNode }) => (
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="flex flex-none flex-col gap-1.5">
     <h3 className="m-0 px-4 text-[13px] font-normal tracking-wide text-[#8E8E93] uppercase">{title}</h3>
-    <div className="overflow-hidden rounded-[14px] bg-white [&>*+*]:border-t [&>*+*]:border-black/[0.08]">
+    <div className="overflow-hidden rounded-[14px] bg-white [&>*+*]:border-t [&>*+*]:border-black/8">
       {children}
     </div>
   </section>
@@ -264,13 +286,13 @@ const Row = ({ icon, tone, title, text, onClick, disabled, expanded, big }: RowP
     aria-expanded={expanded}
     className={cn(
       "flex w-full items-center gap-3 px-4 text-left active:bg-black/5 disabled:opacity-50",
-      big ? "min-h-[76px] py-3" : "min-h-[58px] py-2.5",
+      big ? "min-h-19 py-3" : "min-h-14.5 py-2.5",
     )}
   >
     <span
       className={cn(
         "flex flex-none items-center justify-center text-white",
-        big ? "size-[52px] rounded-full" : "size-[30px] rounded-[7px]",
+        big ? "size-13 rounded-full" : "size-7.5 rounded-[7px]",
         tone,
       )}
     >

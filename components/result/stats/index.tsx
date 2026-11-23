@@ -45,7 +45,7 @@ export const ResultStats = ({ result }: { result: ResultData }) => {
       {stats.map((s) => (
         <div
           key={s.label}
-          className="flex flex-col gap-1.5 rounded-[20px] border border-line bg-white px-[22px] py-5"
+          className="flex flex-col gap-1.5 rounded-[20px] border border-line bg-white px-5.5 py-5"
         >
           <span className="text-[13px] font-bold text-muted">{s.label}</span>
           <b className={cn("text-[28px]", s.tone)}>{s.value}</b>

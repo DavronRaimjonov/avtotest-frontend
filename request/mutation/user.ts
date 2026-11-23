@@ -1,11 +1,11 @@
 "use client";
 
 import { type InfiniteData, type QueryClient, type QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Paginated, ReportBody } from "@/@types";
+import type { Paginated, ReportBody, UpdateMeBody } from "@/@types";
 import { notify, notifyApiError } from "@/generics/notification";
 import i18next from "@/i18n";
 import { QUERY_KEYS } from "@/lib/query-keys";
-import { addBookmark, deleteMistake, reportQuestion, removeBookmark } from "../user";
+import { addBookmark, deleteMistake, reportQuestion, removeBookmark, updateMe } from "../user";
 
 // "Saqlash" — belgi darhol almashadi, xato bo'lsa qaytariladi
 export const useToggleBookmarkMutation = () => {
@@ -109,3 +109,17 @@ export const useReportMutation = () =>
     // VALIDATION_ERROR, TOO_MANY_REQUESTS
     onError: notifyApiError,
   });
+
+// Profil: ism va familiyani saqlash. Javobdagi foydalanuvchi keshga yoziladi (header, menyu darhol yangilanadi)
+export const useUpdateMeMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["me", "update"],
+    mutationFn: (body: UpdateMeBody) => updateMe(body),
+    onSuccess: (me) => {
+      queryClient.setQueryData(QUERY_KEYS.me, me);
+      notify(i18next.t("profile.saved"));
+    },
+    onError: notifyApiError,
+  });
+};

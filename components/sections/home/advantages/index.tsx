@@ -17,7 +17,7 @@ export const Advantages = () => {
   const items = t("advantages.items", { returnObjects: true }) as { title: string; text: string }[];
 
   return (
-    <section className="mx-auto max-w-[1200px] px-6 pt-24">
+    <section className="mx-auto max-w-300 px-6 pt-24">
       <h2 className="m-0 mb-8 text-[32px] font-extrabold tracking-tight sm:text-[40px]">{t("advantages.title")}</h2>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
         {ICONS.map(({ Icon, tone }, i) => (

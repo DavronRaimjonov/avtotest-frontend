@@ -4,7 +4,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedQuestion } from "@/@types";
+import { LockedExplanation } from "@/components/billing/locked-explanation";
 import { CheckIcon, ChevronRightIcon, ImageIcon, XIcon } from "@/components/ui/icons";
+import { useAccess } from "@/hooks/useAccess";
 import { cn } from "@/lib/helpers";
 
 type Props = {
@@ -23,6 +25,9 @@ export const QuestionCard = ({ item, meta, myAnswerId, onRemove }: Props) => {
   const [open, setOpen] = useState(false);
   const answers = [...item.answers].sort((a, b) => a.position - b.position);
   const panelId = `q-${item.id}`;
+  // Izohlar faqat tarif bilan: tarifsizga explanation null keladi — o'rnida qulf bloki
+  const { has, isLoading } = useAccess();
+  const explanationsLocked = !isLoading && !has("explanations");
 
   return (
     <article className={cn("rounded-2xl border bg-white transition-colors", open ? "border-navy/40" : "border-line")}>
@@ -75,7 +80,7 @@ export const QuestionCard = ({ item, meta, myAnswerId, onRemove }: Props) => {
                   >
                     <span
                       className={cn(
-                        "flex h-[26px] w-8 flex-none items-center justify-center rounded-[7px] text-xs font-extrabold",
+                        "flex h-6.5 w-8 flex-none items-center justify-center rounded-[7px] text-xs font-extrabold",
                         correct ? "bg-ok text-white" : mine ? "bg-bad text-white" : "bg-bg text-slate",
                       )}
                     >
@@ -100,13 +105,15 @@ export const QuestionCard = ({ item, meta, myAnswerId, onRemove }: Props) => {
             </ul>
 
             {item.imageUrl && (
-              <div className="relative aspect-[4/3] w-full flex-none overflow-hidden rounded-2xl border border-line bg-img md:w-[260px]">
+              <div className="relative aspect-4/3 w-full flex-none overflow-hidden rounded-2xl border border-line bg-img md:w-65">
                 <Image src={item.imageUrl} alt={item.text} fill unoptimized className="object-contain" />
               </div>
             )}
           </div>
 
-          {item.explanation && (
+          {explanationsLocked ? (
+            <LockedExplanation />
+          ) : item.explanation && (
             <p className="m-0 rounded-xl bg-bg px-4 py-3 text-sm leading-relaxed text-slate">
               <b className="text-ink">{t("questions.explanation")}: </b>
               {item.explanation}

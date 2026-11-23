@@ -3,6 +3,7 @@
 import { useTranslation } from "react-i18next";
 import { UsersIcon } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
+import { GROUP_TESTS_ENABLED } from "@/lib/constants";
 import { ROUTES } from "@/lib/routes";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -10,7 +11,7 @@ import { useAuthStore } from "@/store/auth.store";
 export const GroupTestLink = () => {
   const { t } = useTranslation();
   const hasSession = useAuthStore((s) => s.hasSession);
-  if (!hasSession) return null;
+  if (!hasSession || !GROUP_TESTS_ENABLED) return null;
 
   return (
     <Link

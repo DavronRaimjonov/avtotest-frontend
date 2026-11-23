@@ -41,3 +41,10 @@ export const getErrorMessage = (error: unknown) => {
   const params = isAxiosError<ApiError>(error) ? error.response?.data?.params : undefined;
   return i18next.t(code && KNOWN_CODES.has(code) ? `errors.${code}` : "errors.unexpected", params);
 };
+
+// 70000 → "70 000 so'm" (valyuta nomi joriy tilda: so'm / сўм / сум / сом)
+export const formatPrice = (amount: number) =>
+  `${new Intl.NumberFormat("ru-RU").format(amount).replace(/ | /g, " ")} ${i18next.t("pricing.currency")}`;
+
+// Muddatgacha qolgan to'liq kunlar (o'tib ketgan bo'lsa 0)
+export const daysLeft = (iso: string) => Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000));
