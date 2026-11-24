@@ -1,11 +1,11 @@
 "use client";
 
 import { type InfiniteData, type QueryClient, type QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Paginated, ReportBody, UpdateMeBody } from "@/@types";
+import type { Paginated, ReportBody, UpdateMeBody, User } from "@/@types";
 import { notify, notifyApiError } from "@/generics/notification";
 import i18next from "@/i18n";
 import { QUERY_KEYS } from "@/lib/query-keys";
-import { addBookmark, deleteMistake, reportQuestion, removeBookmark, updateMe } from "../user";
+import { addBookmark, deleteMistake, reportQuestion, removeBookmark, unlinkTelegram, updateMe } from "../user";
 
 // "Saqlash" — belgi darhol almashadi, xato bo'lsa qaytariladi
 export const useToggleBookmarkMutation = () => {
@@ -123,6 +123,22 @@ export const useUpdateMeMutation = () => {
     onSuccess: (me) => {
       queryClient.setQueryData(QUERY_KEYS.me, me);
       notify(i18next.t("profile.saved"));
+    },
+    onError: notifyApiError,
+  });
+};
+
+// Profil: Telegram'ni uzish. LAST_LOGIN_METHOD — boshqa kirish usuli yo'q (avval parol yoki Google)
+export const useUnlinkTelegramMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["me", "telegram", "unlink"],
+    mutationFn: unlinkTelegram,
+    onSuccess: () => {
+      queryClient.setQueryData<User>(QUERY_KEYS.me, (me) =>
+        me ? { ...me, hasTelegram: false, telegramUsername: null } : me,
+      );
+      notify(i18next.t("profile.telegram.unlinked"), "info");
     },
     onError: notifyApiError,
   });

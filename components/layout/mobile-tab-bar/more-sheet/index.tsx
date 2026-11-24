@@ -26,7 +26,7 @@ import { useLang } from "@/hooks/useLang";
 import { useMeQuery } from "@/hooks/useQuery";
 import { useRouter } from "@/hooks/useRouter";
 import { GROUP_TESTS_ENABLED, TEST_LANGS } from "@/lib/constants";
-import { cn, formatDate } from "@/lib/helpers";
+import { cn, formatDate, userContact } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
 import { useLogoutMutation, useStartAttempt } from "@/request/mutation";
 import { useAuthStore } from "@/store/auth.store";
@@ -117,7 +117,7 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
                 </span>
                 <span className="flex min-w-0 flex-col">
                   <b className="truncate text-[17px] font-semibold text-black">{name}</b>
-                  {me?.email && <span className="truncate text-[13px] text-[#8E8E93]">{me.email}</span>}
+                  {userContact(me) && <span className="truncate text-[13px] text-[#8E8E93]">{userContact(me)}</span>}
                 </span>
                 <ChevronRightIcon size={16} strokeWidth={2.4} className="ml-auto flex-none text-[#C4C4C7]" />
               </button>
@@ -247,7 +247,7 @@ export const MoreSheet = ({ onClose }: { onClose: () => void }) => {
                 icon={<KeyIcon size={18} />}
                 tone="bg-[#007AFF]"
                 title={me?.hasPassword === false ? t("auth.setPassword") : t("auth.titles.change")}
-                onClick={then(() => openLogin(undefined, me?.hasPassword === false ? "forgot" : "change", me?.email))}
+                onClick={then(() => openLogin(undefined, me?.hasPassword === false ? "setPassword" : "change"))}
               />
               <button
                 type="button"

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { LockIcon, XIcon } from "@/components/ui/icons";
+import { CrownIcon, LockIcon, XIcon } from "@/components/ui/icons";
 import { usePlansQuery } from "@/hooks/useQuery";
 import { useRouter } from "@/hooks/useRouter";
 import { formatPrice } from "@/lib/helpers";
@@ -11,7 +11,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { usePaywallStore } from "@/store/paywall.store";
 
 // "Bu bo'lim tarif bilan ochiladi": PREMIUM_REQUIRED kelganda yoki qulflangan elementni bosganda.
-// Matn feature'ga qarab, pastida eng arzon sotuvdagi tarif narxi ("45 000 so'mdan")
+// Matn feature'ga qarab, pastida shu imkoniyat qaysi tariflarda borligi (nomi va narxi, "Tez kunda" bo'lsa shunday)
 export const PaywallModal = () => {
   const open = usePaywallStore((s) => s.open);
   if (!open) return null;
@@ -26,11 +26,10 @@ const PaywallDialog = () => {
   const hasSession = useAuthStore((s) => s.hasSession);
   const openLogin = useAuthStore((s) => s.openLogin);
   const { data: plans } = usePlansQuery();
-  // Eng arzon sotuvdagi tarif — faqat shu imkoniyatni ochadiganlari orasidan (videos faqat Max'da: u "Tez kunda"
-  // bo'lsa narx ko'rsatilmaydi, aks holda Standart narxi chalg'itadi)
-  const cheapest = plans?.items
-    .filter((p) => !p.comingSoon && (!feature || p.features.includes(feature)))
-    .sort((a, b) => a.priceUzs - b.priceUzs)[0];
+  // Shu imkoniyatni ochadigan tariflar, arzonidan boshlab (masalan, aqlli takrorlash — Pro va Max)
+  const included = (plans?.items ?? [])
+    .filter((p) => !feature || p.features.includes(feature))
+    .sort((a, b) => a.priceUzs - b.priceUzs);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
@@ -71,10 +70,21 @@ const PaywallDialog = () => {
           {t("paywall.title")}
         </h2>
         <p className="m-0 text-[15px] leading-relaxed text-slate">{text}</p>
-        {cheapest && (
-          <span className="rounded-full bg-bg px-3 py-1 text-[13px] font-bold text-navy-2">
-            {t("paywall.from", { price: formatPrice(cheapest.priceUzs) })}
-          </span>
+        {included.length > 0 && (
+          <div className="flex w-full flex-col gap-2 rounded-2xl bg-bg p-3 text-left">
+            <span className="px-1 text-xs font-bold tracking-wide text-muted uppercase">{t("paywall.availableIn")}</span>
+            {included.map((p) => (
+              <div key={p.id} className="flex items-center gap-2.5 rounded-xl bg-white px-3 py-2.5">
+                <CrownIcon size={16} className="flex-none text-tint-yellow-fg" />
+                <b className="flex-1 text-[15px]">{p.title}</b>
+                {p.comingSoon ? (
+                  <span className="rounded-full bg-soft px-2.5 py-0.5 text-xs font-bold text-muted">{t("pricing.comingSoon")}</span>
+                ) : (
+                  <span className="text-sm font-extrabold text-navy-2">{formatPrice(p.priceUzs)}</span>
+                )}
+              </div>
+            ))}
+          </div>
         )}
         <div className="flex w-full flex-col gap-2 pt-1">
           <button

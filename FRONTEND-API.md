@@ -6,8 +6,8 @@ Backend: NestJS + PostgreSQL. Ikki alohida qism:
 
 | Qism | Prefiks | Kim ishlatadi | Kirish |
 |---|---|---|---|
-| **Landing** | `/api/landing/*` | Sayt (foydalanuvchilar) | Email + parol (emailga kod bilan tasdiqlanadi) yoki Google. Mehmon cheklangan testlarni ishlay oladi (2.3), qolgani login va tarif bilan (2.8) |
-| **Admin** | `/api/admin/*` | Admin panel | Email + parol |
+| **Landing** | `/api/landing/*` | Sayt (foydalanuvchilar) | Telegram bot orqali (keyin telefon + parol bilan ham). Mehmon cheklangan testlarni ishlay oladi (2.3), qolgani login va tarif bilan (2.8) |
+| **Admin** | `/api/admin/*` | Admin panel | Telefon + parol |
 
 - **Base URL (lokal):** `http://localhost:4002`
 - **Swagger:** `http://localhost:4002/api/docs` (yuqoridagi ro'yxatdan Landing yoki Admin tanlanadi). Har bir maydonning to'liq tavsifi shu yerda. Mehmon endpoint'lari `guest` tegi ostida.
@@ -67,16 +67,18 @@ Hamma xato bir xil shaklda keladi:
 | `VALIDATION_ERROR` | Body yoki query noto'g'ri |
 | `UNAUTHORIZED` | Token yo'q, eskirgan yoki noto'g'ri |
 | `ACCOUNT_BLOCKED` | Foydalanuvchi yoki admin bloklangan (403) |
-| `INVALID_GOOGLE_TOKEN` | Google ID token yaroqsiz |
-| `EMAIL_TAKEN` | Bu email bilan ro'yxatdan o'tilgan (kirish yoki parolni tiklashni taklif qiling) |
-| `EMAIL_NOT_VERIFIED` | Login: parol to'g'ri, lekin email tasdiqlanmagan. Kod yuborildi → kod oynasini oching (`params.resendInSec`) |
-| `INVALID_OTP` | Kod noto'g'ri yoki muddati o'tgan |
+| `PHONE_TAKEN` | Bu telefon boshqa admin yoki foydalanuvchida (409) |
+| `INVALID_OTP` | Parolni tiklash kodi noto'g'ri yoki muddati o'tgan |
 | `OTP_ATTEMPTS_EXHAUSTED` | 5 marta xato kod kiritildi — yangi kod so'rash kerak |
 | `OTP_TOO_SOON` | Yangi kod 60 soniyadan keyin (`params.seconds`, 429) |
-| `MAIL_SEND_FAILED` | Xat yuborilmadi (503) — birozdan keyin qayta urinish |
-| `GOOGLE_AUTH_DISABLED` | Serverda Google sozlanmagan (503) |
+| `CODE_SEND_FAILED` | Kodni Telegram botga yuborib bo'lmadi (503) — birozdan keyin qayta urinish |
+| `TELEGRAM_AUTH_DISABLED` | Serverda bot sozlanmagan (503) |
+| `PHONE_NOT_REGISTERED` | Login: raqam ro'yxatdan o'tmagan (401) — Telegram orqali ro'yxatdan o'tish |
+| `PASSWORD_NOT_SET` | Login: akkaunt bor, parol yaratilmagan (401) — Telegram orqali kirish |
+| `PASSWORD_ALREADY_SET` | `set-password`: parol allaqachon bor (409) — `change-password` ishlating |
+| `LAST_LOGIN_METHOD` | Telegram'ni uzib bo'lmaydi: parol yoki telefon yo'q (403) |
 | `INVALID_REFRESH_TOKEN` | Refresh token yaroqsiz → qayta login |
-| `INVALID_CREDENTIALS` | Email yoki parol noto'g'ri (landing va admin) |
+| `INVALID_CREDENTIALS` | Parol noto'g'ri (landing), telefon yoki parol noto'g'ri (admin) |
 | `INVALID_CURRENT_PASSWORD` | Parol almashtirishda joriy parol xato |
 | `NOT_FOUND` | Topilmadi |
 | `NO_QUESTIONS` | Tanlangan bo'limda savol yo'q (masalan, xatolar ro'yxati bo'sh) |
@@ -91,7 +93,7 @@ Hamma xato bir xil shaklda keladi:
 | `VARIANT_INCOMPLETE` | Admin: savollar soni formatga teng emas (`params.count`, `params.size`) |
 | `VARIANT_NUMBER_TAKEN` | Admin: bu raqamli variant bor |
 | `UNKNOWN_QUESTIONS` | Ba'zi savol id'lari topilmadi (admin: variant savollari; mehmon: `guest/result`) |
-| `SLUG_TAKEN` / `EMAIL_TAKEN` | Admin: band |
+| `SLUG_TAKEN` | Admin: slug band |
 | `SUPERADMIN_PROTECTED` | Admin: o'zini bloklash yoki rolini tushirish mumkin emas |
 | `TOO_MANY_REQUESTS` | Juda ko'p so'rov (429) |
 
@@ -104,129 +106,104 @@ Hamma xato bir xil shaklda keladi:
 
 ### 2.1. Ro'yxatdan o'tish va kirish
 
-Ikki yo'l bor, ikkalasi ham bir xil tokenlar qaytaradi:
-- **Email + parol** (Gmail yoki istalgan email). Ro'yxatdan o'tishda emailga **6 xonali kod** boradi, kod tasdiqlangach foydalanuvchi tizimga kiradi.
-- **Google** — bitta tugma, alohida ro'yxatdan o'tish yo'q.
+Faqat **Telegram bot** orqali. Google va email bilan kirish olib tashlangan (2026-11-24): `register`, `verify-email`, `resend-code`, `google` endpointlari endi `404`.
+- **Ro'yxatdan o'tish:** "Telegram orqali kirish" → botda raqam yuboriladi → **parol yaratish majburiy** → kirdi. Parol yaratilmaguncha token berilmaydi.
+- **Keyingi safar:** yana Telegram orqali, yoki **telefon + parol** bilan.
+- **Ro'yxatdan o'tmagan raqam bilan login** → `401 PHONE_NOT_REGISTERED`: "Bu raqam ro'yxatdan o'tmagan" + "Telegram orqali ro'yxatdan o'tish" tugmasi.
 
-Bir xil email bilan ikkalasini ham ishlatsa bo'ladi: email bilan ro'yxatdan o'tgan foydalanuvchi keyin Google bilan kirsa, o'sha akkauntga ulanadi.
+Login oynasi: tepada katta "Telegram orqali kirish" tugmasi, pastda "Telefon va parol bilan kirish" (telefon, parol, "Parolni unutdim?").
 
-#### Ro'yxatdan o'tish oqimi
+#### Telegram orqali kirish va ro'yxatdan o'tish
+
+To'liq oqim va xavfsizlik: `docs/TZ-telegram-auth.md`. Alohida ro'yxatdan o'tish formasi yo'q: birinchi kirishda akkaunt o'zi yaratiladi.
+
 ```
-1. POST /auth/register      { email, password, firstName, lastName?, lang? }
-        ─► 201 { email, codeSent, resendInSec: 60, codeTtlMin: 10 }   → "Emailingizga kod yubordik" oynasi
-2. POST /auth/verify-email  { email, code }
-        ─► 200 { access_token, refresh_token, isNew: true, user }      → tizimga kirdi
-   (kod kelmasa, 60 soniyadan keyin: POST /auth/resend-code { email })
+1. Tugma bosildi → POST /api/landing/auth/telegram/start { lang }
+   ← { token, code: 47, botUrl, expiresAt }
+2. Ekranda: katta "47" va matn "Telegram'da shu raqamni tanlang"
+   - mobil: botUrl ni darhol oching (window.location = botUrl)
+   - kompyuter: botUrl ni QR kod qilib ko'rsating + "Telegram'ni ochish" havolasi
+3. Har 2 soniyada GET /api/landing/auth/telegram/status/:token
+4. status:
+   pending   → kutishda davom (expiresAt gacha teskari sanoq, 5 daqiqa)
+   password_required → { isNew, firstName, phone } — pollingni to'xtating, "Parol yarating" oynasi (6-qadam)
+   confirmed → { access_token, refresh_token, user, isNew } — kirdi (paroli bor foydalanuvchi)
+   rejected  → "Noto'g'ri raqam tanlandi yoki so'rov rad etildi" + "Qaytadan" tugmasi
+   expired   → "Vaqt tugadi" + "Qaytadan" tugmasi
+   used      → tokenlar allaqachon olingan (boshqa tabda) — pollingni to'xtating
+6. "Parol yarating" (majburiy, "Keyinroq" yo'q): parol + takrorlash maydoni →
+   POST /api/landing/auth/telegram/complete { token, password }
+   ← { status: "confirmed", access_token, refresh_token, user, isNew } — ro'yxatdan o'tish tugadi
+   Xatolar: 400 (parol talabga javob bermaydi), 404 (so'rov eskirgan — Telegram orqali qaytadan), 409 PASSWORD_ALREADY_SET
 ```
 
-#### `POST /api/landing/auth/register` — tokensiz
+- Tokenlar **faqat bir marta** qaytadi: `confirmed` dan keyingi so'rov `used` beradi. Pollingni `confirmed` / `password_required` / `rejected` / `expired` / `used` da to'xtating.
+- `password_required` holati tasdiqlangandan keyin yana **5 daqiqa** amal qiladi: shu vaqtda parol yaratilmasa, Telegram orqali qaytadan kirish kerak (akkaunt saqlanadi, yana parol so'raladi).
+- Parol: kamida 8 belgi, harf va raqam (`Parol1234`).
+- `token` 43 belgi; noto'g'ri formatda `400`, topilmasa `404`.
+- `503 TELEGRAM_AUTH_DISABLED` — serverda bot sozlanmagan: "Hozircha kirish ishlamayapti" xabarini ko'rsating.
+- `start` — IP bo'yicha daqiqasiga 10 ta (`429 TOO_MANY_REQUESTS`).
+- Bot raqamni faqat birinchi marta so'raydi va faqat foydalanuvchining **o'z** kontaktini qabul qiladi.
+
+#### `POST /api/landing/auth/set-password` — token kerak
+Zaxira: kirgan, lekin paroli yo'q foydalanuvchi uchun (`user.hasPassword === false`, masalan eski akkaunt). `{ "password": "Parol1234" }` → `{ ok: true, user }`. Parol bor bo'lsa `409 PASSWORD_ALREADY_SET`. Yangi ro'yxatdan o'tishda bu emas, `telegram/complete` ishlatiladi.
+
+#### `POST /api/landing/auth/login` — telefon + parol
+
 ```json
-{ "email": "ali@gmail.com", "password": "parol1234", "firstName": "Ali", "lastName": "Valiyev", "lang": "uzb" }
+{ "phone": "+998 90 123-45-67", "password": "Parol1234" }
 ```
-| Maydon | Qoida |
+Raqam istalgan ko'rinishda yuborilishi mumkin (bo'shliq, tire) — server `+998901234567` ga keltiradi. Xatolar (hammasi `401`):
+
+| `code` | Ekranda |
 |---|---|
-| `email` | Istalgan to'g'ri email (bo'sh joylar va katta harflar avtomatik tozalanadi) |
-| `password` | Kamida 8 belgi, kamida bitta harf va bitta raqam |
-| `firstName` | 1–50 belgi, majburiy |
-| `lastName` | ixtiyoriy |
-| `lang` | Xat va testlar tili (`uzb` / `uzc` / `ru` / `kk`) |
+| `PHONE_NOT_REGISTERED` | "Bu raqam ro'yxatdan o'tmagan" + **"Telegram orqali ro'yxatdan o'tish"** tugmasi |
+| `PASSWORD_NOT_SET` | "Parol hali yaratilmagan" + "Telegram orqali kirish" tugmasi (u yerda parol so'raladi) |
+| `INVALID_CREDENTIALS` | "Parol noto'g'ri" + "Parolni unutdim?" havolasi |
 
-Javob `201`:
-```json
-{ "email": "ali@gmail.com", "codeSent": true, "resendInSec": 60, "codeTtlMin": 10 }
-```
-Xatolar: `409 EMAIL_TAKEN` (allaqachon tasdiqlangan email), `503 MAIL_SEND_FAILED`.
+Login IP bo'yicha daqiqasiga 10 ta (`429`).
 
-Email tasdiqlanmagan bo'lsa, qayta `register` qilish mumkin (masalan, foydalanuvchi parolni o'zgartirmoqchi yoki kod yo'qolgan) — ma'lumotlar yangilanadi va yangi kod boradi.
-
-#### `POST /api/landing/auth/verify-email` — tokensiz
-```json
-{ "email": "ali@gmail.com", "code": "373670" }
+#### Parolni tiklash (kod Telegram botga keladi)
 ```
-Javob `200`: `{ access_token, refresh_token, isNew: true, user }`.
-Xatolar: `400 INVALID_OTP`, `400 OTP_ATTEMPTS_EXHAUSTED` (5 ta xato urinishdan keyin — "Kodni qayta yuborish" tugmasini ko'rsating).
-
-#### `POST /api/landing/auth/resend-code` — tokensiz
-```json
-{ "email": "ali@gmail.com" }
+1. POST /auth/forgot-password  { phone, lang? }  ─► 200 { codeSent: true, codeTtlMin: 10, channel: "telegram" }
+2. POST /auth/reset-password   { phone, code, newPassword }  ─► 200 { access_token, refresh_token, user }
 ```
-Javob: `{ codeSent: true, resendInSec: 60, codeTtlMin: 10 }`. 60 soniya o'tmagan bo'lsa `429 OTP_TOO_SOON` (`params.seconds`) — tugmada teskari sanoq ko'rsating.
-
-#### `POST /api/landing/auth/login` — tokensiz
-```json
-{ "email": "ali@gmail.com", "password": "parol1234" }
-```
-Javob `200`: `{ access_token, refresh_token, user }`.
-Xatolar:
-- `401 INVALID_CREDENTIALS` — email yoki parol noto'g'ri (qaysi biri ekani aytilmaydi).
-- `403 EMAIL_NOT_VERIFIED` — parol to'g'ri, lekin email tasdiqlanmagan. Server kodni o'zi qayta yuboradi → `verify-email` oynasini oching (`params.resendInSec` — qayta yuborishgacha soniya).
-
-#### Parolni tiklash
-```
-1. POST /auth/forgot-password  { email, lang? }  ─► 200 { codeSent: true, codeTtlMin: 10 }
-2. POST /auth/reset-password   { email, code, newPassword }  ─► 200 { access_token, refresh_token, user }
-```
-- `forgot-password` har doim bir xil javob beradi (email ro'yxatda bor-yo'qligini oshkor qilmaslik uchun). "Agar bu email ro'yxatdan o'tgan bo'lsa, kod yubordik" deb yozing.
+- `forgot-password` har doim bir xil javob beradi (raqam borligini oshkor qilmaslik uchun): "Agar bu raqam ro'yxatdan o'tgan bo'lsa, kod Telegram'ga yuborildi".
+- `503 CODE_SEND_FAILED` — botga yuborib bo'lmadi, birozdan keyin qayta urinish.
 - `reset-password` dan keyin foydalanuvchi tizimga kiradi, boshqa qurilmalardan chiqariladi.
-- Faqat Google bilan kirgan foydalanuvchi ham shu yo'l bilan parol o'rnatishi mumkin.
+
+#### Profil: Telegram'ni ulash / uzish
+- `POST /api/landing/me/telegram/link` (token kerak) → `start` bilan bir xil javob; keyin xuddi shu `status` polling, natija `status: "linked"` (tokenlar qaytmaydi, `user` yangilangan).
+- Bu Telegram boshqa akkauntga ulangan bo'lsa yoki raqami boshqa akkauntda bo'lsa — `rejected` (bot sababini aytadi).
+- `DELETE /api/landing/me/telegram` → `204`. Parol yoki telefon bo'lmasa `403 LAST_LOGIN_METHOD` ("Avval parol o'rnating").
+
+#### `user` obyekti
+| Maydon | Tavsif |
+|---|---|
+| `email` | odatda `null` (faqat eski akkauntlarda bor). Profil va headerda telefon va ismni ko'rsating |
+| `phone` | `"+998901234567"` yoki `null` |
+| `telegramUsername` | `@` siz, yoki `null` |
+| `hasTelegram` | Telegram ulangan |
+| `hasPassword` | parol bormi: `false` bo'lsa profilda "Parol yaratish" (`set-password`), `true` bo'lsa "Parolni almashtirish" |
+
+```ts
+export interface TelegramStart { token: string; code: number; botUrl: string; expiresAt: string }
+export type TelegramStatus =
+  | { status: 'pending'; expiresAt: string }
+  | { status: 'expired' | 'rejected' | 'used' }
+  | { status: 'password_required'; isNew: boolean; firstName: string; phone: string | null }
+  | { status: 'confirmed'; access_token: string; refresh_token: string; user: User; isNew: boolean }
+  | { status: 'linked'; user: User };
+```
+
+Tarjima kalitlari: `auth.telegram.button` (Telegram orqali kirish), `auth.telegram.pickCode` (Telegram'da shu raqamni tanlang), `auth.telegram.openApp` (Telegram'ni ochish), `auth.telegram.scanQr` (Telefoningiz kamerasi bilan skanerlang), `auth.telegram.waiting` (Tasdiqlash kutilmoqda…), `auth.telegram.rejected`, `auth.telegram.expired`, `auth.telegram.retry`, `auth.setPassword.title` (Parol yarating), `auth.setPassword.hint` (Keyin telefon raqam va parol bilan ham kira olasiz), `auth.setPassword.repeat` (Parolni takrorlang), `auth.phoneNotRegistered` (Bu raqam ro'yxatdan o'tmagan), `auth.registerWithTelegram` (Telegram orqali ro'yxatdan o'tish), `auth.phone` (Telefon raqami), `auth.password` (Parol), `auth.forgot` (Parolni unutdim?), `profile.telegram.link` / `unlink`.
 
 #### `POST /api/landing/auth/change-password` — token kerak
 ```json
 { "currentPassword": "parol1234", "newPassword": "yangi12345" }
 ```
 Javob: yangi `{ access_token, refresh_token }` — ularni saqlang (eski tokenlar va boshqa qurilmalar bekor bo'ladi).
-`user.hasPassword === false` bo'lsa (faqat Google), bu formani emas, "Parol o'rnatish" → `forgot-password` oqimini ko'rsating.
-
-#### Google bilan kirish
-
-Frontend [Google Identity Services](https://developers.google.com/identity/gsi/web) orqali `credential` (ID token) oladi va backend'ga yuboradi.
-
-> **Client ID** backend `.env` dagi `GOOGLE_CLIENT_ID` bilan bir xil bo'lishi kerak. Uni backend jamoasidan oling.
-
-```js
-google.accounts.id.initialize({
-  client_id: GOOGLE_CLIENT_ID,
-  callback: async ({ credential }) => {
-    const res = await fetch(`${API}/api/landing/auth/google`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idToken: credential }),
-    });
-    const data = await res.json(); // { access_token, refresh_token, isNew, user }
-  },
-});
-```
-
-#### `POST /api/landing/auth/google` — tokensiz
-Body: `{ "idToken": "eyJhbGciOi..." }`
-
-Javob `200`:
-```json
-{
-  "access_token": "...",
-  "refresh_token": "...",
-  "isNew": true,
-  "user": {
-    "id": "uuid",
-    "email": "ali@gmail.com",
-    "emailVerified": true,
-    "firstName": "Ali",
-    "lastName": "Valiyev",
-    "avatarUrl": "https://lh3.googleusercontent.com/...",
-    "lang": "uzb",
-    "isBlocked": false,
-    "hasPassword": false,
-    "hasGoogle": true,
-    "lastLoginAt": "2026-11-18T09:00:00.000Z",
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-}
-```
-`isNew: true` bo'lsa salomlashish yoki onboarding ko'rsatish mumkin. `user` obyekti barcha kirish usullarida bir xil:
-- `hasPassword` — parol o'rnatilganmi ("Parolni o'zgartirish" yoki "Parol o'rnatish").
-- `hasGoogle` — Google ulanganmi.
-- `avatarUrl` — faqat Google'dan keladi, email bilan ro'yxatdan o'tganda `null` (bosh harflardan avatar chizing).
+`user.hasPassword === false` bo'lsa bu formani emas, "Parol yaratish" (`set-password`) ni ko'rsating.
 
 #### `POST /api/landing/auth/refresh` — tokensiz
 Body: `{ "refreshToken": "..." }` → javob: `{ "access_token", "refresh_token" }`
@@ -342,7 +319,7 @@ Variantni tanlanganda yon panelda "Oxirgi natija: 90%" uchun `result.lastPercent
 
 Test ishlash uchun login **shart emas**. Lekin kirmagan foydalanuvchining hech narsasi saqlanmaydi.
 
-| Imkoniyat | Mehmon (tokensiz) | Kirgan (Google) |
+| Imkoniyat | Mehmon (tokensiz) | Kirgan |
 |---|---|---|
 | Variantlar | ✅ faqat **birinchi 3 tasi** (har bir formatda: 20 va 10 savollik) | ✅ hammasi |
 | Tasodifiy (aralash) test | ✅ faqat **20 savollik** | ✅ |
@@ -377,7 +354,7 @@ Bosh sahifadagi tugmalar (body ikkala API uchun bir xil):
 | "Xatolar ustida ishlash" | `{ source: "mistakes", mode: "practice" }` | ❌ login oynasi | `POST /attempts` |
 | Saqlangan savollar | `{ source: "bookmarks", mode: "practice" }` | ❌ login oynasi | `POST /attempts` |
 
-Mehmonga ❌ bo'lgan tugmalarni ("Saqlash", "Xatolar ustida ishlash", "Xato haqida xabar", kabinet) ko'rsatish mumkin, lekin bosilganda Google login oynasini oching. Natija sahifasida "Natijangizni saqlash uchun tizimga kiring" bannerini ko'rsatish tavsiya etiladi.
+Mehmonga ❌ bo'lgan tugmalarni ("Saqlash", "Xatolar ustida ishlash", "Xato haqida xabar", kabinet) ko'rsatish mumkin, lekin bosilganda login oynasini (Telegram) oching. Natija sahifasida "Natijangizni saqlash uchun tizimga kiring" bannerini ko'rsatish tavsiya etiladi.
 
 Mehmon kirish talab qilinadigan endpoint'ga tokensiz murojaat qilsa `401` oladi.
 
@@ -529,7 +506,7 @@ Mehmon rejimidagi xatolar:
 - `QUESTION_NOT_IN_ATTEMPT` — `answers` da `questionIds` da yo'q savol bor.
 - `UNKNOWN_QUESTIONS` — savol topilmadi yoki o'chirilgan.
 
-> Mehmon test o'rtasida Google bilan kirsa, joriy test davom etadi, lekin saqlanmaydi. Keyingi test `/attempts` orqali boshlanadi va saqlanadi.
+> Mehmon test o'rtasida kirsa, joriy test davom etadi, lekin saqlanmaydi. Keyingi test `/attempts` orqali boshlanadi va saqlanadi.
 
 > Mehmon test o'rtasida tilni almashtirsa, savollar matni o'zgarmaydi (ular `tests` javobida kelgan). Yangi til `check` va `result` ga `lang` bilan yuboriladi, ya'ni izoh va tahlil yangi tilda chiqadi. Hammasini yangi tilda ko'rsatish kerak bo'lsa, testni qaytadan boshlang.
 
@@ -1750,7 +1727,7 @@ Hamma endpoint `/api/admin/*`, admin tokeni bilan.
 ### 3.1. Kirish
 | Metod | Yo'l | Body | Javob |
 |---|---|---|---|
-| POST | `/admin/auth/login` | `{ email, password }` | `{ access_token, refresh_token, admin }` |
+| POST | `/admin/auth/login` | `{ phone, password }` | `{ access_token, refresh_token, admin }` |
 | POST | `/admin/auth/refresh` | `{ refreshToken }` | `{ access_token, refresh_token }` |
 | GET | `/admin/auth/me` | — | `admin` |
 | POST | `/admin/auth/logout` | — | `204` |
@@ -1760,7 +1737,7 @@ Hamma endpoint `/api/admin/*`, admin tokeni bilan.
 ```json
 {
   "id": "uuid",
-  "email": "admin@avtotest.uz",
+  "phone": "+998901234567",
   "fullName": "Super Admin",
   "role": "superadmin",
   "isActive": true,
@@ -1770,6 +1747,8 @@ Hamma endpoint `/api/admin/*`, admin tokeni bilan.
 }
 ```
 `role`: `superadmin` yoki `admin`. "Adminlar" bo'limini faqat `superadmin` ga ko'rsating.
+
+**O'zgardi (2026-11-24):** email bilan kirish olib tashlandi. Login formasida email o'rniga **telefon** maydoni (`+998 __ ___ __ __` maskasi). Raqam istalgan ko'rinishda yuborilishi mumkin — server `+998901234567` ga keltiradi. Xato: `401 INVALID_CREDENTIALS` ("Telefon yoki parol noto'g'ri").
 
 ### 3.2. Dashboard — `GET /admin/dashboard`
 ```json
@@ -1906,11 +1885,11 @@ Javob: `{ "updated": 3 }`. `topicId: null` — mavzudan chiqarish.
 ### 3.6. Foydalanuvchilar
 | Metod | Yo'l | Tavsif |
 |---|---|---|
-| GET | `/admin/users?search&isBlocked&premium&page&limit` | Har birida `finishedTests`, `avgPercent`, **`planCode`** (`standard` / `pro` / `max` yoki `null`), **`planExpiresAt`**. `premium=true` — faqat tarifi faollar, `premium=false` — bepullar |
+| GET | `/admin/users?search&isBlocked&premium&page&limit` | `search` — email, ism, **telefon** yoki Telegram username. Har birida `phone`, `telegramUsername`, `hasTelegram`, `finishedTests`, `avgPercent`, **`planCode`** (`standard` / `pro` / `max` yoki `null`), **`planExpiresAt`**. `premium=true` — faqat tarifi faollar, `premium=false` — bepullar |
 | GET | `/admin/users/:id` | Foydalanuvchi + **`access`** (shakli `/landing/me/access` bilan bir xil: `isPremium`, `current`, `accessUntil`, `active`, `upcoming`), `mistakesCount`, `bookmarksCount`, `recentAttempts` (oxirgi 30 ta) |
 | GET | `/admin/users/:id/access` | Tarif davrlari tarixi (3.10) |
 | POST | `/admin/users/:id/access` | **Premium berish** `{ planId, amount?, note? }` (3.10) |
-| PATCH | `/admin/users/:id` | `{ isBlocked: true }` — bloklansa barcha sessiyalari yopiladi |
+| PATCH | `/admin/users/:id` | `{ isBlocked?, phone? }` — bloklansa barcha sessiyalari yopiladi. `phone` — telefon biriktirish (`null` — olib tashlash, band bo'lsa `409 PHONE_TAKEN`): shu raqamli Telegram bilan kirganda foydalanuvchi **shu akkauntga** kiradi |
 
 ### 3.7. Xabarlar ("savolda xato")
 | Metod | Yo'l | Body |
@@ -1924,8 +1903,8 @@ Element: `{ id, message, status, adminNote, createdAt, resolvedAt, question: { i
 | Metod | Yo'l | Body |
 |---|---|---|
 | GET | `/admin/admins` | — |
-| POST | `/admin/admins` | `{ email, fullName, password, role? }` |
-| PATCH | `/admin/admins/:id` | `{ fullName?, role?, isActive?, password? }` |
+| POST | `/admin/admins` | `{ phone, fullName, password, role? }` — band telefon: `409 PHONE_TAKEN` |
+| PATCH | `/admin/admins/:id` | `{ phone?, fullName?, role?, isActive?, password? }` |
 
 Oddiy `admin` bu endpoint'larga kirsa `403` oladi.
 
@@ -2054,7 +2033,7 @@ Boshlang'ich 9 ta kartochka seed bilan yoziladi (`npm run seed:cheat-sheets`, fa
 - **Mehmon testi:** holatni (`questions`, javoblar, taymer) `sessionStorage` da saqlang, aks holda sahifa yangilanganda test yo'qoladi.
 - **Test davom ettirish (kirgan foydalanuvchi):** joriy `attemptId` ni `localStorage` da saqlang. Sahifa ochilganda `GET /attempts/:id` chaqiring: `status: "finished"` bo'lsa natijaga o'ting.
 - **Til:** kirgan foydalanuvchi tilni o'zgartirganda `PATCH /me { lang }` yuboring va ochiq test uchun `GET /attempts/:id?lang=...` ni qayta chaqiring. Mehmonda tilni `localStorage` da saqlang va har so'rovga `lang` qilib qo'shing.
-- **Natija sahifasi:** `guest: true` bo'lsa "Natijangizni saqlash uchun Google bilan kiring" tugmasini ko'rsating. Mehmon natijasida `id` yo'q, shuning uchun uni ulashish yoki qayta ochish havolasi bo'lmaydi.
+- **Natija sahifasi:** `guest: true` bo'lsa "Natijangizni saqlash uchun Telegram orqali kiring" tugmasini ko'rsating. Mehmon natijasida `id` yo'q, shuning uchun uni ulashish yoki qayta ochish havolasi bo'lmaydi.
 - **Rasmlar:** URL'lar o'zgarmaydi va bir yil keshlanadi (yangi rasm har doim yangi nom oladi).
 
 ## 5. Tekshirish ro'yxati (tariflar va mehmon cheklovlari)

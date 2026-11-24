@@ -211,7 +211,7 @@ export const ActiveTest = ({
   }, []);
 
   const saved = !!bookmarks?.has(question.id);
-  // "Saqlash" va "Xato haqida xabar" faqat kirganlarga — mehmonga Google oynasi
+  // "Saqlash" va "Xato haqida xabar" faqat kirganlarga — mehmonga kirish oynasi
   const requireLogin = (action: () => void) => () => {
     const { hasSession, openLogin } = useAuthStore.getState();
     if (hasSession) action();

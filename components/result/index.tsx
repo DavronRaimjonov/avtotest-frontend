@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 import type { ResultData } from "@/@types";
 import { attemptTitle } from "@/components/test/test-header";
+import { TelegramIcon } from "@/components/ui/icons";
 import { useAccess } from "@/hooks/useAccess";
 import { useAttemptResultQuery, useExplanationsQuery } from "@/hooks/useQuery";
 import { GUEST_ID } from "@/lib/constants";
@@ -125,11 +126,12 @@ const ResultView = ({
   );
 };
 
-// Mehmon natijasi saqlanmaydi — kirishga taklif
+// Mehmon natijasi saqlanmaydi — Telegram orqali kirishga taklif (bot o'chiq bo'lsa oddiy login oynasi)
 const GuestBanner = () => {
   const { t } = useTranslation();
   const hasSession = useAuthStore((s) => s.hasSession);
   const openLogin = useAuthStore((s) => s.openLogin);
+  const telegramOff = useAuthStore((s) => s.telegramOff);
   if (hasSession) return null;
 
   return (
@@ -142,17 +144,11 @@ const GuestBanner = () => {
       </div>
       <button
         type="button"
-        onClick={() => openLogin()}
-        className="btn-hover h-12 rounded-xl bg-navy px-5 text-sm font-bold text-white"
+        onClick={() => openLogin(undefined, telegramOff ? "login" : "telegram")}
+        className="btn-hover flex h-12 items-center gap-2 rounded-xl bg-[#229ED9] px-5 text-sm font-bold text-white"
       >
-        {t("result.guestLogin")}
-      </button>
-      <button
-        type="button"
-        onClick={() => openLogin(undefined, "register")}
-        className="btn-hover h-12 rounded-xl border-[1.5px] border-navy bg-white px-5 text-sm font-bold text-navy"
-      >
-        {t("result.guestRegister")}
+        <TelegramIcon size={18} />
+        {t(telegramOff ? "result.guestLogin" : "auth.telegram.button")}
       </button>
     </div>
   );

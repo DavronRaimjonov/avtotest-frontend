@@ -8,7 +8,7 @@ import { Link } from "@/components/ui/link";
 import { useAccess } from "@/hooks/useAccess";
 import { useMeQuery } from "@/hooks/useQuery";
 import { GROUP_TESTS_ENABLED } from "@/lib/constants";
-import { formatDate } from "@/lib/helpers";
+import { formatDate, userContact } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
 import { useLogoutMutation } from "@/request/mutation";
 import { useAuthStore } from "@/store/auth.store";
@@ -35,16 +35,16 @@ export const AccountLink = () => {
   return (
     <AccountMenu
       name={[me?.firstName, me?.lastName].filter(Boolean).join(" ")}
-      email={me?.email}
+      contact={userContact(me)}
       avatar={me?.avatarUrl}
       hasPassword={me?.hasPassword ?? true}
     />
   );
 };
 
-type MenuProps = { name: string; email?: string; avatar?: string | null; hasPassword: boolean };
+type MenuProps = { name: string; contact: string; avatar?: string | null; hasPassword: boolean };
 
-const AccountMenu = ({ name, email, avatar, hasPassword }: MenuProps) => {
+const AccountMenu = ({ name, contact, avatar, hasPassword }: MenuProps) => {
   const openLogin = useAuthStore((s) => s.openLogin);
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -90,7 +90,7 @@ const AccountMenu = ({ name, email, avatar, hasPassword }: MenuProps) => {
             className="flex flex-col gap-0.5 rounded-[10px] px-3 py-2 text-ink no-underline hover:bg-bg"
           >
             <b className="truncate text-sm">{name || t("common.user")}</b>
-            {email && <span className="truncate text-[13px] text-muted">{email}</span>}
+            {contact && <span className="truncate text-[13px] text-muted">{contact}</span>}
           </Link>
           <Link
             href={ROUTES.profile}
@@ -140,12 +140,12 @@ const AccountMenu = ({ name, email, avatar, hasPassword }: MenuProps) => {
             <RetryIcon size={18} />
             {t("more.mistakes")}
           </Link>
-          {/* Faqat Google bilan kirgan — parol "Parolni tiklash" oqimi orqali o'rnatiladi */}
+          {/* Parolsiz (Telegram orqali kelgan) — "Parol yarating" (POST /auth/set-password) */}
           <button
             type="button"
             onClick={() => {
               setOpen(false);
-              openLogin(undefined, hasPassword ? "change" : "forgot", email);
+              openLogin(undefined, hasPassword ? "change" : "setPassword");
             }}
             className="flex h-10 items-center gap-2.5 rounded-[10px] px-3 text-left text-sm font-bold text-slate hover:bg-bg"
           >

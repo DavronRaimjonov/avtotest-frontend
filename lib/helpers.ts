@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { ApiError, ApiErrorCode } from "@/@types";
+import type { ApiError, ApiErrorCode, User } from "@/@types";
 import i18next from "@/i18n";
 import uzb from "@/i18n/locales/uzb.json";
 
@@ -63,3 +63,42 @@ export const formatClock = (iso: string) => {
   const d = new Date(iso);
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
+
+export const UZ_PREFIX = "+998 ";
+
+// Telefon maydoni yozilayotganda: faqat raqamlar, O'zbekiston raqami "+998 90 123 45 67" (12 raqamgacha),
+// boshqa davlat — "+" va 15 raqamgacha. Bo'sh qolsa "" (placeholder ko'rinadi)
+export const formatPhoneInput = (raw: string) => {
+  let digits = raw.replace(/\D/g, "");
+  if (!digits) return "";
+  // "90 123 45 67" kabi 9 xonali mahalliy raqam qo'yilsa — +998 qo'shiladi
+  if (!raw.trim().startsWith("+") && digits.length === 9) digits = `998${digits}`;
+  if (!digits.startsWith("998")) return `+${digits.slice(0, 15)}`;
+  const d = digits.slice(3, 12);
+  return [UZ_PREFIX.trim(), d.slice(0, 2), d.slice(2, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(" ");
+};
+
+// Serverga: "+998901234567" (9 xonali raqamga +998 qo'shiladi)
+export const toPhone = (value: string) => {
+  const v = value.trim();
+  const digits = v.replace(/\D/g, "");
+  return `+${!v.startsWith("+") && digits.length === 9 ? `998${digits}` : digits}`;
+};
+
+// O'zbekiston: +998 va 9 raqam (operator kodi 2 xonali); boshqa davlat: + va 10–15 raqam (E.164)
+export const PHONE_UZ_REGEX = /^\+998\d{9}$/;
+export const PHONE_INTL_REGEX = /^\+(?!998)\d{10,15}$/;
+export const isValidPhone = (value: string) => {
+  const p = toPhone(value);
+  return PHONE_UZ_REGEX.test(p) || PHONE_INTL_REGEX.test(p);
+};
+
+// +998901234567 → "+998 90 123 45 67" (boshqa davlat raqamlari o'zgarishsiz)
+export const formatPhone = (phone: string) => {
+  const m = /^\+998(\d{2})(\d{3})(\d{2})(\d{2})$/.exec(phone);
+  return m ? `+998 ${m[1]} ${m[2]} ${m[3]} ${m[4]}` : phone;
+};
+
+// Profil va menyuda ism ostidagi qator: telefon, bo'lmasa @username yoki (eski akkauntlarda) email
+export const userContact = (me?: Pick<User, "email" | "phone" | "telegramUsername"> | null) =>
+  me?.phone ? formatPhone(me.phone) : me?.telegramUsername ? `@${me.telegramUsername}` : (me?.email ?? "");

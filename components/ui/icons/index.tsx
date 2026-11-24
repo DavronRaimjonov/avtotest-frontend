@@ -296,3 +296,10 @@ export const BulbIcon = (p: IconProps) => (
     <path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1.1 2v.2h5v-.2c.1-.8.5-1.5 1.1-2A6 6 0 0 0 12 3Z" />
   </Svg>
 );
+
+// Telegram qog'oz samolyoti (to'ldirilgan)
+export const TelegramIcon = ({ size = 20, ...p }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
+    <path d="M21.94 4.3a1.2 1.2 0 0 0-1.62-1.2L2.8 9.86c-1.1.43-1.08 1.99.03 2.38l4.4 1.55 1.7 5.33c.27.85 1.34 1.12 1.98.5l2.48-2.4 4.5 3.3c.78.57 1.88.15 2.08-.8zM9.6 14.1l7.9-6.9-6.1 7.6-.3 3z" />
+  </svg>
+);

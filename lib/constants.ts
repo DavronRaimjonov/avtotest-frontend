@@ -13,9 +13,6 @@ export const SOCKET_URL = (() => {
   }
 })();
 
-// Google Identity Services — backend .env dagi GOOGLE_CLIENT_ID bilan bir xil bo'lishi shart
-export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
-
 export const ACCESS_TOKEN_KEY = "access_token";
 export const REFRESH_TOKEN_KEY = "refresh_token";
 

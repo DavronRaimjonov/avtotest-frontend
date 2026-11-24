@@ -10,6 +10,7 @@ import type {
   ReportBody,
   ReportResponse,
   ReviewSummary,
+  TelegramStart,
   TopicMnemonics,
   TestLang,
   UpdateMeBody,
@@ -26,6 +27,19 @@ export const changePassword = (body: ChangePasswordBody) =>
   request
     .post<AuthTokens>("/landing/auth/change-password", body)
     .then((r) => r.data);
+
+// Parolsiz foydalanuvchi (Telegram yoki Google) parol yaratadi. Bor bo'lsa 409 PASSWORD_ALREADY_SET
+export const setPassword = (password: string) =>
+  request
+    .post<{ ok: true; user: User }>("/landing/auth/set-password", { password })
+    .then((r) => r.data);
+
+// Profilga Telegram ulash: javob start bilan bir xil, keyin status polling → linked
+export const linkTelegram = () =>
+  request.post<TelegramStart>("/landing/me/telegram/link").then((r) => r.data);
+
+// 403 LAST_LOGIN_METHOD — Telegram yagona kirish usuli
+export const unlinkTelegram = () => request.delete<void>("/landing/me/telegram");
 
 export const getMe = () => request.get<User>("/landing/me").then((r) => r.data);
 

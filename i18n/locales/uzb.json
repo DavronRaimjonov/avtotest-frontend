@@ -47,17 +47,13 @@
     "loggedIn": "Tizimga kirdingiz",
     "titles": {
       "login": "Tizimga kirish",
-      "register": "Ro‘yxatdan o‘tish",
-      "verify": "Emailni tasdiqlang",
       "forgot": "Parolni tiklash",
       "reset": "Yangi parol",
-      "change": "Parolni o‘zgartirish"
+      "change": "Parolni o‘zgartirish",
+      "telegram": "Telegram orqali kirish",
+      "telegramLink": "Telegram’ni ulash",
+      "setPassword": "Parol yarating"
     },
-    "tabs": {
-      "login": "Kirish",
-      "register": "Ro‘yxatdan o‘tish"
-    },
-    "email": "Email",
     "password": "Parol",
     "newPassword": "Yangi parol",
     "currentPassword": "Joriy parol",
@@ -66,33 +62,46 @@
     "passwordHint": "Kamida 8 belgi, harf va raqam bo‘lsin",
     "forgotLink": "Parolni unutdingizmi?",
     "submitLogin": "Kirish",
-    "submitRegister": "Ro‘yxatdan o‘tish",
-    "or": "yoki",
     "showPassword": "Parolni ko‘rsatish",
     "hidePassword": "Parolni yashirish",
-    "verifyText": "{{email}} manziliga 6 xonali kod yubordik. Kod 10 daqiqa amal qiladi.",
     "code": "Tasdiqlash kodi",
-    "submitVerify": "Tasdiqlash",
     "resend": "Kodni qayta yuborish",
     "resendIn": "Qayta yuborish: {{sec}} s",
-    "codeSent": "Kod qayta yuborildi",
-    "notVerified": "Email tasdiqlanmagan — emailingizga kod yubordik",
-    "forgotText": "Emailingizni kiriting — parolni tiklash uchun kod yuboramiz.",
+    "forgotText": "Telefon raqamingizni kiriting — parolni tiklash kodi Telegram botga keladi.",
     "submitForgot": "Kod yuborish",
-    "forgotSent": "Agar bu email ro‘yxatdan o‘tgan bo‘lsa, unga kod yubordik",
-    "resetText": "{{email}} manziliga yuborilgan kodni va yangi parolni kiriting.",
+    "forgotSent": "Agar bu raqam ro‘yxatdan o‘tgan bo‘lsa, kod Telegram’ga yuborildi",
+    "resetText": "{{phone}} raqamiga ulangan Telegram botga kelgan kodni va yangi parolni kiriting.",
     "submitReset": "Parolni saqlash",
     "submitChange": "Saqlash",
     "passwordChanged": "Parol o‘zgartirildi",
     "setPassword": "Parol o‘rnatish",
-    "googleSignin": "Google bilan kirish",
-    "googleSignup": "Google bilan ro‘yxatdan o‘tish",
-    "googleSoon": "Google orqali kirish tez orada ishga tushadi. Hozircha email bilan kiring",
     "registered": "Ro‘yxatdan o‘tdingiz, {{name}}! Xush kelibsiz",
     "registeredNoName": "Ro‘yxatdan o‘tdingiz! Xush kelibsiz",
     "welcomeBack": "Xush kelibsiz, {{name}}!",
-    "codeSentTo": "Tasdiqlash kodi {{email}} manziliga yuborildi",
-    "loggedOut": "Tizimdan chiqdingiz"
+    "loggedOut": "Tizimdan chiqdingiz",
+    "telegram": {
+      "button": "Telegram orqali kirish",
+      "pickCode": "Telegram botda shu raqamni tanlang",
+      "openApp": "Telegram’ni ochish",
+      "scanQr": "Telefoningiz kamerasi bilan skanerlang",
+      "waiting": "Tasdiqlash kutilmoqda…",
+      "rejected": "Noto‘g‘ri raqam tanlandi yoki so‘rov rad etildi",
+      "expired": "Vaqt tugadi",
+      "retry": "Qaytadan",
+      "off": "Telegram orqali kirish hozircha ishlamayapti. Parolingiz bo‘lsa, telefon raqami bilan kiring."
+    },
+    "createPassword": {
+      "hint": "Parol yarating — keyin telefon raqamingiz va parol bilan ham kira olasiz.",
+      "later": "Keyinroq",
+      "saved": "Parol saqlandi",
+      "hello": "Salom, {{name}}!",
+      "repeat": "Parolni takrorlang"
+    },
+    "phone": "Telefon raqami",
+    "phoneDivider": "yoki telefon va parol bilan",
+    "phoneNotRegistered": "Bu raqam ro‘yxatdan o‘tmagan. Ro‘yxatdan o‘tish Telegram orqali.",
+    "passwordNotSet": "Bu akkauntda parol hali yaratilmagan. Telegram orqali kiring — u yerda parol yaratasiz.",
+    "registerWithTelegram": "Telegram orqali ro‘yxatdan o‘tish"
   },
   "hero": {
     "badge": "2026-yil YHQ asosida yangilangan",
@@ -442,14 +451,13 @@
     "unfinishedText": "Testni oxirigacha yeching va “Yakunlash” tugmasini bosing.",
     "continue": "Testni davom ettirish",
     "backToVariants": "Variantlarga qaytish",
-    "guestTitle": "Izohlar va natijalar — ro‘yxatdan o‘tganlar uchun",
-    "guestText": "Har bir savolning izohini ko‘rish uchun tizimga kiring va tarif oling. Kirgach natijalar, xatolar va progress saqlanib boradi.",
+    "guestTitle": "Natijalar va izohlar — kirganlar uchun",
+    "guestText": "Natijangizni saqlash uchun Telegram orqali kiring. Kirgach natijalar, xatolar va progress saqlanib boradi, izohlar esa tarif bilan ochiladi.",
     "guestLogin": "Kirish",
     "reason": {
       "time_up": "Vaqt tugadi",
       "mistakes_limit": "Ruxsat etilgan {{count}} ta xatodan oshdingiz"
-    },
-    "guestRegister": "Ro‘yxatdan o‘tish"
+    }
   },
   "notify": {
     "bookmarkAdded": "Savol saqlandi",
@@ -462,8 +470,6 @@
     "UNAUTHORIZED": "Avval tizimga kiring",
     "LOGIN_REQUIRED": "Bu bo‘lim uchun tizimga kiring",
     "ACCOUNT_BLOCKED": "Akkauntingiz bloklangan",
-    "INVALID_GOOGLE_TOKEN": "Google orqali kirib bo‘lmadi, qayta urinib ko‘ring",
-    "GOOGLE_AUTH_DISABLED": "Google orqali kirish vaqtincha ishlamayapti",
     "INVALID_REFRESH_TOKEN": "Sessiya tugadi, qaytadan kiring",
     "NOT_FOUND": "Ma’lumot topilmadi",
     "NO_QUESTIONS": "Bu bo‘limda hozircha savol yo‘q",
@@ -476,13 +482,10 @@
     "TOO_MANY_REQUESTS": "Juda ko‘p urinish. Birozdan keyin qayta urinib ko‘ring",
     "network": "Server bilan aloqa yo‘q. Internetni tekshiring",
     "unexpected": "Kutilmagan xatolik yuz berdi",
-    "EMAIL_TAKEN": "Bu email bilan ro‘yxatdan o‘tilgan. Kiring yoki parolni tiklang",
-    "EMAIL_NOT_VERIFIED": "Email tasdiqlanmagan",
     "INVALID_OTP": "Kod noto‘g‘ri yoki muddati o‘tgan",
     "OTP_ATTEMPTS_EXHAUSTED": "Juda ko‘p xato urinish. Yangi kod so‘rang",
     "OTP_TOO_SOON": "Yangi kodni {{seconds}} soniyadan keyin so‘rash mumkin",
-    "MAIL_SEND_FAILED": "Xat yuborilmadi. Birozdan keyin qayta urinib ko‘ring",
-    "INVALID_CREDENTIALS": "Email yoki parol noto‘g‘ri",
+    "INVALID_CREDENTIALS": "Telefon yoki parol noto‘g‘ri",
     "INVALID_CURRENT_PASSWORD": "Joriy parol noto‘g‘ri",
     "FORBIDDEN": "Bu amal uchun ruxsat yo‘q",
     "CONFLICT": "Amalni bajarib bo‘lmadi, qayta urinib ko‘ring",
@@ -494,16 +497,24 @@
     "PREMIUM_REQUIRED": "Bu bo‘lim tarif bilan ochiladi",
     "PLAN_NOT_AVAILABLE": "Bu tarif hozircha sotuvda emas",
     "PAYMENT_PROVIDER_DISABLED": "Bu to‘lov tizimi vaqtincha ishlamayapti, boshqasini tanlang",
-    "ORDER_INVALID_STATE": "Buyurtma holati o‘zgargan, sahifani yangilang"
+    "ORDER_INVALID_STATE": "Buyurtma holati o‘zgargan, sahifani yangilang",
+    "TELEGRAM_AUTH_DISABLED": "Telegram orqali kirish vaqtincha ishlamayapti",
+    "PASSWORD_ALREADY_SET": "Parol allaqachon o‘rnatilgan — “Parolni o‘zgartirish” bo‘limidan foydalaning",
+    "LAST_LOGIN_METHOD": "Telegram’ni uzish uchun avval parol o‘rnating",
+    "PHONE_TAKEN": "Bu telefon raqami boshqa akkauntga ulangan",
+    "CODE_SEND_FAILED": "Kodni Telegram botga yuborib bo‘lmadi. Birozdan keyin qayta urinib ko‘ring",
+    "PHONE_NOT_REGISTERED": "Bu raqam ro‘yxatdan o‘tmagan",
+    "PASSWORD_NOT_SET": "Parol hali yaratilmagan — Telegram orqali kiring"
   },
   "validation": {
-    "email": "Email manzilini to‘g‘ri kiriting",
     "required": "Maydonni to‘ldiring",
     "passwordMin": "Parol kamida 8 belgidan iborat bo‘lsin",
     "passwordMax": "Parol 72 belgidan oshmasin",
     "passwordRule": "Parolda kamida bitta harf va bitta raqam bo‘lsin",
     "nameMax": "50 belgidan oshmasin",
-    "code": "{{length}} xonali kodni kiriting"
+    "code": "{{length}} xonali kodni kiriting",
+    "phone": "Telefon raqamini to‘liq kiriting, masalan +998 90 123 45 67",
+    "passwordMismatch": "Parollar mos kelmadi"
   },
   "signs": {
     "eyebrow": "YO‘L BELGILARI",
@@ -687,12 +698,12 @@
     "explanations": "Har bir savolning batafsil izohi.",
     "videos": "Videodarslar tez kunda.",
     "mnemonics": "Eslab qolish uchun — qiyin savollarni oson yodlash uchun qisqa qoidalar va qofiyalar.",
-    "from": "{{price}}dan",
     "cta": "Tariflarni ko‘rish",
     "loginCta": "Kirish va tarif tanlash",
     "lockedExplanation": "Izohni ko‘rish uchun tarif oling —",
     "lockedExplanationGuest": "Izohni ko‘rish uchun kiring va tarif oling —",
-    "smart_review": "Aqlli takrorlash — xatolaringiz 1, 3, 7 kundan keyin qayta so‘raladi va yodda qoladi."
+    "smart_review": "Aqlli takrorlash — xatolaringiz 1, 3, 7 kundan keyin qayta so‘raladi va yodda qoladi.",
+    "availableIn": "Qaysi tariflarda bor"
   },
   "account": {
     "noPlan": "Sizda tarif yo‘q",
@@ -713,8 +724,7 @@
   },
   "profile": {
     "since": "{{date}} dan beri a’zo",
-    "methodPassword": "Email va parol",
-    "notVerified": "Email tasdiqlanmagan",
+    "methodPassword": "Parol",
     "edit": "Ismni tahrirlash",
     "save": "Saqlash",
     "saving": "Saqlanmoqda…",
@@ -735,7 +745,13 @@
     "coverage": "Ko‘rilgan savollar",
     "weakTopics": "E’tibor berish kerak bo‘lgan mavzular",
     "historyTitle": "Testlar tarixi",
-    "historyEmpty": "Hali test ishlamadingiz. Birinchi variantdan boshlang!"
+    "historyEmpty": "Hali test ishlamadingiz. Birinchi variantdan boshlang!",
+    "telegram": {
+      "link": "Telegram’ni ulash",
+      "unlink": "Telegram’ni uzish",
+      "linked": "Telegram ulandi",
+      "unlinked": "Telegram uzildi"
+    }
   },
   "lessons": {
     "title": "Darslik",

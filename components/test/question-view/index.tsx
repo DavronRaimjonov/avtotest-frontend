@@ -16,7 +16,7 @@ type Props = {
   saved: boolean;
   onPick: (answerId: number) => void;
   onBookmark: () => void;
-  // Mehmonga avval Google oynasi, kirgach amal bajariladi
+  // Mehmonga avval kirish oynasi, kirgach amal bajariladi
   requireLogin: (action: () => void) => () => void;
 };
 

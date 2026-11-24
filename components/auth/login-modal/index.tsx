@@ -1,42 +1,44 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronLeftIcon, XIcon } from "@/components/ui/icons";
-import { cn } from "@/lib/helpers";
-import { useGoogleLoginMutation } from "@/request/mutation";
+import { ChevronLeftIcon, TelegramIcon, WarningIcon, XIcon } from "@/components/ui/icons";
 import { type AuthView, useAuthStore } from "@/store/auth.store";
 import { ChangePasswordForm } from "../change-password-form";
 import { ForgotForm } from "../forgot-form";
-import { GoogleButton } from "../google-button";
 import { LoginForm } from "../login-form";
-import { RegisterForm } from "../register-form";
 import { ResetForm } from "../reset-form";
-import { VerifyForm } from "../verify-form";
+import { SetPasswordForm } from "../set-password-form";
+import { TelegramView } from "../telegram-view";
 
 const FORMS: Record<AuthView, () => React.ReactNode> = {
   login: LoginForm,
-  register: RegisterForm,
-  verify: VerifyForm,
   forgot: ForgotForm,
   reset: ResetForm,
   change: ChangePasswordForm,
+  telegram: () => <TelegramView purpose="login" />,
+  telegramLink: () => <TelegramView purpose="link" />,
+  setPassword: SetPasswordForm,
 };
 
-// Orqaga tugmasi qayerga qaytaradi (login/register/change da tugma yo'q)
-const BACK: Partial<Record<AuthView, AuthView>> = { verify: "register", forgot: "login", reset: "forgot" };
+// Orqaga tugmasi qayerga qaytaradi (login/change da tugma yo'q)
+const BACK: Partial<Record<AuthView, AuthView>> = { forgot: "login", reset: "forgot", telegram: "login" };
 
 // Alohida login sahifasi yo'q: "Kirish", "Saqlash", "Xatolar ustida ishlash" va h.k. bosilganda shu oyna ochiladi.
-// Email + parol (ro'yxatdan o'tishda emailga kod) yoki Google
+// Tepada "Telegram orqali kirish" (birinchi kirishda akkaunt o'zi yaratiladi), pastda telefon + parol
 export const LoginModal = () => {
   const { t } = useTranslation();
   const open = useAuthStore((s) => s.loginOpen);
   const view = useAuthStore((s) => s.view);
   const setView = useAuthStore((s) => s.setView);
-  const close = useAuthStore((s) => s.closeLogin);
-  const google = useGoogleLoginMutation();
-  const { mutate } = google;
-  const onGoogle = useCallback((idToken: string) => mutate({ idToken }), [mutate]);
+  const closeLogin = useAuthStore((s) => s.closeLogin);
+  const finishLogin = useAuthStore((s) => s.finishLogin);
+  const telegramOff = useAuthStore((s) => s.telegramOff);
+  const telegramPending = useAuthStore((s) => s.telegramPending);
+
+  // Zaxira set-password'da foydalanuvchi allaqachon kirgan: yopilsa ham kirishdan oldingi amal bajariladi.
+  // Ro'yxatdan o'tishdagi "Parol yarating" (telegramPending) yopilsa — kirmagan bo'lib qoladi (akkaunt saqlanadi)
+  const close = view === "setPassword" && !telegramPending ? finishLogin : closeLogin;
 
   useEffect(() => {
     if (!open) return;
@@ -48,7 +50,7 @@ export const LoginModal = () => {
   if (!open) return null;
 
   const Form = FORMS[view];
-  const tabs = view === "login" || view === "register";
+  const isLogin = view === "login";
   const back = BACK[view];
 
   return (
@@ -84,46 +86,36 @@ export const LoginModal = () => {
           <XIcon size={18} />
         </button>
 
-        {tabs && (
-          <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-bg p-1" role="tablist">
-            {(["login", "register"] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                role="tab"
-                aria-selected={view === v}
-                onClick={() => setView(v)}
-                className={cn(
-                  "h-10 rounded-[9px] text-sm font-bold",
-                  view === v ? "bg-white text-navy shadow-sm" : "text-slate",
-                )}
-              >
-                {t(`auth.tabs.${v}`)}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Telegram — asosiy usul: kirish ham, ro'yxatdan o'tish ham (akkaunt bo'lmasa yaratiladi).
+            Bot sozlanmagan bo'lsa — ogohlantirish (telefon + parol baribir ishlaydi) */}
+        {isLogin &&
+          (telegramOff ? (
+            <p className="m-0 flex items-start gap-2 rounded-xl bg-warn-bg px-3.5 py-3 text-sm font-semibold text-warn-text">
+              <WarningIcon size={18} className="mt-px flex-none" />
+              {t("auth.telegram.off")}
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setView("telegram")}
+              className="btn-hover flex h-12 items-center justify-center gap-2.5 rounded-xl bg-[#229ED9] text-[15px] font-extrabold text-white"
+            >
+              <TelegramIcon size={20} />
+              {t("auth.telegram.button")}
+            </button>
+          ))}
+        {isLogin && <Divider text={t("auth.phoneDivider")} />}
 
         <Form key={view} />
-
-        {/* Google — qo'shimcha usul: kirish ham, ro'yxatdan o'tish ham (akkaunt bo'lmasa yaratiladi) */}
-        {tabs && (
-          <>
-            <div className="flex items-center gap-3 text-[13px] font-semibold text-muted">
-              <span className="h-px flex-1 bg-line" />
-              {t("auth.or")}
-              <span className="h-px flex-1 bg-line" />
-            </div>
-            <div className="flex justify-center">
-              {google.isPending ? (
-                <span className="flex h-11 items-center text-sm font-bold text-muted">{t("auth.loggingIn")}</span>
-              ) : (
-                <GoogleButton onSuccess={onGoogle} intent={view === "register" ? "signup" : "signin"} width={340} />
-              )}
-            </div>
-          </>
-        )}
       </div>
     </div>
   );
 };
+
+const Divider = ({ text }: { text: string }) => (
+  <div className="flex items-center gap-3 text-[13px] font-semibold text-muted">
+    <span className="h-px flex-1 bg-line" />
+    {text}
+    <span className="h-px flex-1 bg-line" />
+  </div>
+);

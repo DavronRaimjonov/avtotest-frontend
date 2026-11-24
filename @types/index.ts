@@ -35,43 +35,26 @@ export interface AuthTokens {
   refresh_token: string;
 }
 
-export interface GoogleLoginBody {
-  idToken: string;
-}
-
-export interface RegisterBody {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName?: string;
-  lang?: TestLang;
-}
-
-// register / resend-code / forgot-password javobi
+// forgot-password javobi: kod Telegram botga yuborildi
 export interface CodeSentResponse {
-  email?: string;
   codeSent: true;
-  resendInSec?: number;
+  channel?: "telegram";
   codeTtlMin: number;
 }
 
-export interface VerifyEmailBody {
-  email: string;
-  code: string;
-}
-
+// Telefon istalgan ko'rinishda ("+998 90 123-45-67") — server "+998901234567" ga keltiradi
 export interface LoginBody {
-  email: string;
+  phone: string;
   password: string;
 }
 
 export interface ForgotPasswordBody {
-  email: string;
+  phone: string;
   lang?: TestLang;
 }
 
 export interface ResetPasswordBody {
-  email: string;
+  phone: string;
   code: string;
   newPassword: string;
 }
@@ -83,23 +66,51 @@ export interface ChangePasswordBody {
 
 export interface User {
   id: string;
-  email: string;
-  emailVerified: boolean;
+  // Odatda null (faqat eski akkauntlarda bor) — ekranda telefon va ism ko'rsatiladi
+  email: string | null;
+  // "+998901234567"; Telegram username "@" siz
+  phone: string | null;
+  telegramUsername: string | null;
+  hasTelegram: boolean;
   firstName: string | null;
   lastName: string | null;
   avatarUrl: string | null;
   lang: TestLang;
   isBlocked: boolean;
-  // Parol o'rnatilganmi ("Parolni o'zgartirish" yoki "Parol o'rnatish"), Google ulanganmi
+  // Parol bormi: "Parolni o'zgartirish" yoki "Parol yaratish" (set-password)
   hasPassword: boolean;
-  hasGoogle: boolean;
   lastLoginAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-// Barcha kirish usullari (login, verify-email, reset-password, google) shu shaklda.
-// isNew — akkaunt shu so'rovda yaratildi (login va reset-password da kelmaydi)
+// ---------- Telegram orqali kirish ----------
+export interface TelegramStart {
+  token: string;
+  // Saytda ko'rsatiladigan 2 xonali raqam — botda shuni tanlaydi
+  code: number;
+  botUrl: string;
+  expiresAt: string;
+}
+
+// password_required — parolsiz foydalanuvchi (yangi ro'yxatdan o'tgan): token berilmaydi, "Parol yarating" →
+// POST /auth/telegram/complete. confirmed — tokenlar faqat bir marta; linked — profilga ulandi (tokensiz)
+export type TelegramStatus =
+  | { status: "pending"; expiresAt: string }
+  | { status: "expired" | "rejected" | "used" }
+  | { status: "password_required"; isNew: boolean; firstName: string | null; phone: string | null }
+  | ({ status: "confirmed" } & AuthResponse)
+  | { status: "linked"; user: User };
+
+// Telegram tasdiqlagan, parol kutilayotgan so'rov (telegram/complete uchun)
+export interface TelegramPending {
+  token: string;
+  isNew: boolean;
+  firstName: string | null;
+}
+
+// Kirish usullari (telegram status, login, reset-password) shu shaklda.
+// isNew — akkaunt shu so'rovda yaratildi (faqat Telegram orqali birinchi kirishda)
 export interface AuthResponse extends AuthTokens {
   isNew?: boolean;
   user: User;
@@ -721,14 +732,9 @@ export type ApiErrorCode =
   | "VALIDATION_ERROR"
   | "UNAUTHORIZED"
   | "ACCOUNT_BLOCKED"
-  | "INVALID_GOOGLE_TOKEN"
-  | "GOOGLE_AUTH_DISABLED"
-  | "EMAIL_TAKEN"
-  | "EMAIL_NOT_VERIFIED"
   | "INVALID_OTP"
   | "OTP_ATTEMPTS_EXHAUSTED"
   | "OTP_TOO_SOON"
-  | "MAIL_SEND_FAILED"
   | "INVALID_CREDENTIALS"
   | "INVALID_CURRENT_PASSWORD"
   | "INVALID_REFRESH_TOKEN"
@@ -752,7 +758,14 @@ export type ApiErrorCode =
   | "PREMIUM_REQUIRED"
   | "PLAN_NOT_AVAILABLE"
   | "PAYMENT_PROVIDER_DISABLED"
-  | "ORDER_INVALID_STATE";
+  | "ORDER_INVALID_STATE"
+  | "TELEGRAM_AUTH_DISABLED"
+  | "PASSWORD_ALREADY_SET"
+  | "PHONE_NOT_REGISTERED"
+  | "PASSWORD_NOT_SET"
+  | "LAST_LOGIN_METHOD"
+  | "PHONE_TAKEN"
+  | "CODE_SEND_FAILED";
 
 export interface ApiError {
   statusCode: number;

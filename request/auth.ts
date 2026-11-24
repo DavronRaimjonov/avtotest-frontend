@@ -4,15 +4,16 @@ import type {
   AuthTokens,
   CodeSentResponse,
   ForgotPasswordBody,
-  GoogleLoginBody,
   LoginBody,
-  RegisterBody,
   ResetPasswordBody,
-  VerifyEmailBody,
+  TelegramStart,
+  TelegramStatus,
+  TestLang,
 } from "@/@types";
 import { API_URL } from "@/lib/constants";
 
-// Token kerak bo'lmagan auth endpointlari (interceptor'siz — refresh aylanib qolmasin)
+// Token kerak bo'lmagan auth endpointlari (interceptor'siz — refresh aylanib qolmasin).
+// Kirish faqat Telegram bot orqali yoki telefon + parol (email va Google olib tashlangan)
 export const authRequest = axios.create({
   baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
@@ -20,25 +21,25 @@ export const authRequest = axios.create({
 
 const post = <T>(url: string, body: unknown) => authRequest.post<T>(`/landing/auth${url}`, body).then((r) => r.data);
 
-// Ro'yxatdan o'tish: emailga 6 xonali kod boradi (tasdiqlanmagan email bilan qayta chaqirsa bo'ladi)
-export const register = (body: RegisterBody) => post<CodeSentResponse>("/register", body);
+// Telegram orqali kirish: { token, code, botUrl }. 503 TELEGRAM_AUTH_DISABLED — bot sozlanmagan
+export const telegramStart = (lang: TestLang) => post<TelegramStart>("/telegram/start", { lang });
 
-// Kod tasdiqlangach tizimga kiradi
-export const verifyEmail = (body: VerifyEmailBody) => post<AuthResponse>("/verify-email", body);
+// Har 2 soniyada. confirmed — tokenlar faqat bir marta, keyingi so'rov "used" beradi
+export const telegramStatus = (token: string) =>
+  authRequest.get<TelegramStatus>(`/landing/auth/telegram/status/${token}`).then((r) => r.data);
 
-// 60 soniyadan keyin (aks holda 429 OTP_TOO_SOON, params.seconds)
-export const resendCode = (email: string) => post<CodeSentResponse>("/resend-code", { email });
+// Ro'yxatdan o'tishni yakunlash: status=password_required bo'lganda parol yaratiladi → tokenlar.
+// 404 — so'rov eskirgan (Telegram orqali qaytadan), 409 PASSWORD_ALREADY_SET
+export const telegramComplete = (token: string, password: string) =>
+  post<AuthResponse>("/telegram/complete", { token, password });
 
-// 403 EMAIL_NOT_VERIFIED — server kodni o'zi qayta yuboradi, kod oynasini ochish kerak
+// Telefon + parol. 401 PHONE_NOT_REGISTERED / PASSWORD_NOT_SET / INVALID_CREDENTIALS
 export const login = (body: LoginBody) => post<AuthResponse>("/login", body);
 
-// Email ro'yxatda bor-yo'qligidan qat'i nazar bir xil javob
+// Kod Telegram botga keladi. Raqam bor-yo'qligidan qat'i nazar bir xil javob
 export const forgotPassword = (body: ForgotPasswordBody) => post<CodeSentResponse>("/forgot-password", body);
 
 // Yangi parol o'rnatiladi va tizimga kiradi (boshqa qurilmalar chiqariladi)
 export const resetPassword = (body: ResetPasswordBody) => post<AuthResponse>("/reset-password", body);
-
-// Google Identity Services bergan credential (ID token). Shu email bilan akkaunt bo'lsa unga ulanadi
-export const googleLogin = (body: GoogleLoginBody) => post<AuthResponse>("/google", body);
 
 export const refreshTokens = (refreshToken: string) => post<AuthTokens>("/refresh", { refreshToken });
