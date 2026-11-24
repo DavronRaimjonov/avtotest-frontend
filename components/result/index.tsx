@@ -86,7 +86,9 @@ const GuestResultView = ({ result }: { result: ResultData }) => {
             ...result,
             review: result.review.map((i) => ({
               ...i,
-              explanation: explanations.get(i.id) ?? null,
+              explanation: explanations.get(i.id)?.explanation ?? null,
+              mnemonic: explanations.get(i.id)?.mnemonic ?? null,
+              mnemonicLocked: explanations.get(i.id)?.mnemonicLocked ?? false,
             })),
           }
         : result,

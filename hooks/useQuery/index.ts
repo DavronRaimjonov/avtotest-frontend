@@ -37,6 +37,9 @@ import {
   getExplanations,
   getMe,
   getMistakes,
+  getReadiness,
+  getTopicMnemonics,
+  getReview,
   getStats,
 } from "@/request/user";
 import { useAuthStore } from "@/store/auth.store";
@@ -204,6 +207,24 @@ export const useStatsQuery = () =>
     enabled: useHasSession(),
   });
 
+// Aqlli takrorlash kartasi (profil, xatolarim)
+export const useReviewQuery = () =>
+  useQuery({
+    queryKey: QUERY_KEYS.review,
+    queryFn: getReview,
+    enabled: useHasSession(),
+  });
+
+// Imtihonga tayyorlik (profil). Zaif mavzu nomlari joriy tilda
+export const useReadinessQuery = () => {
+  const lang = useCurrentLang();
+  return useQuery({
+    queryKey: QUERY_KEYS.readiness(lang),
+    queryFn: () => getReadiness(lang),
+    enabled: useHasSession(),
+  });
+};
+
 // Test sahifasida "Saqlash" belgisi uchun bir marta olinadi
 export const useBookmarkIdsQuery = () =>
   useQuery({
@@ -254,7 +275,18 @@ export const useExplanationsQuery = (questionIds: number[], enabled = true) => {
     queryFn: () => getExplanations(questionIds, lang),
     enabled: useHasSession() && enabled && questionIds.length > 0,
     staleTime: Infinity,
-    select: (rows) => new Map(rows.map((r) => [r.id, r.explanation])),
+    // Izoh bilan birga "Eslab qolish uchun" (mnemonic / mnemonicLocked) ham keladi
+    select: (rows) => new Map(rows.map((r) => [r.id, r])),
+  });
+};
+
+// Mavzu kartochkalari — faqat kirganlarga (mehmonga Topic.mnemonicCount bilan qulf karta)
+export const useTopicMnemonicsQuery = (topicId: number | undefined, enabled = true) => {
+  const lang = useCurrentLang();
+  return useQuery({
+    queryKey: QUERY_KEYS.topicMnemonics(topicId ?? 0, lang),
+    queryFn: () => getTopicMnemonics(topicId!, lang),
+    enabled: useHasSession() && enabled && !!topicId,
   });
 };
 

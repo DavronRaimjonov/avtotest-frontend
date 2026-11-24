@@ -22,6 +22,8 @@ type Props<T extends SavedQuestion> = {
   // Faqat "Xatolarim": karta foydalanuvchi tanlagan javobni qizil bilan ko'rsatadi
   myAnswerId?: (item: T) => number | null;
   onRemove: (questionId: number) => void;
+  // Sarlavha ostidagi qo'shimcha blok (Xatolarim: aqlli takrorlash kartasi)
+  header?: React.ReactNode;
 };
 
 const SOURCE = { saved: "bookmarks", mistakes: "mistakes" } as const;
@@ -29,7 +31,7 @@ const SOURCE = { saved: "bookmarks", mistakes: "mistakes" } as const;
 // "Saqlangan savollar" (/saved) va "Xatolarim" (/mistakes): sarlavha, tepada qotib turadigan test paneli
 // (20 / 50 / hammasi), ixcham accordion kartalar, oxiriga yetganda keyingi 20 tasi o'zi yuklanadi.
 // Faqat kirganlarga (proxy tokensizni /variants ga qaytaradi)
-export const QuestionList = <T extends SavedQuestion>({ kind, query, meta, myAnswerId, onRemove }: Props<T>) => {
+export const QuestionList = <T extends SavedQuestion>({ kind, query, meta, myAnswerId, onRemove, header }: Props<T>) => {
   const { t } = useTranslation();
   const hasSession = useAuthStore((s) => s.hasSession);
   const openLogin = useAuthStore((s) => s.openLogin);
@@ -86,6 +88,8 @@ export const QuestionList = <T extends SavedQuestion>({ kind, query, meta, myAns
           {isPending ? t("questions.loading") : `${t("questions.count", { count: total })} · ${t(`${kind}.subtitle`)}`}
         </span>
       </div>
+
+      {header}
 
       {/* Header ostida qotib turadi: ro'yxat qancha uzun bo'lsa ham test bir bosishda */}
       {total > 0 && (

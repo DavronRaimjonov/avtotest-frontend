@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import type { UserStats } from "@/@types";
 import { BookmarkIcon, ChevronRightIcon, RetryIcon } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
 import { useStatsQuery } from "@/hooks/useQuery";
@@ -11,7 +10,8 @@ import { ROUTES } from "@/lib/routes";
 // 10450 → { h: 2, m: 54 }
 const splitTime = (sec: number) => ({ h: Math.floor(sec / 3600), m: Math.floor((sec % 3600) / 60) });
 
-// GET /me/stats: umumiy ko'rsatkichlar, bazaning qancha qismi ko'rilgan, xatolar/saqlanganlar, zaif mavzular
+// GET /me/stats: umumiy ko'rsatkichlar, bazaning qancha qismi ko'rilgan, xatolar/saqlanganlar.
+// Zaif mavzular — tayyorlik blokida ("Mashq qilish" tugmasi bilan)
 export const ProfileStats = () => {
   const { t } = useTranslation();
   const { data: stats, isPending, isError, refetch } = useStatsQuery();
@@ -61,7 +61,6 @@ export const ProfileStats = () => {
         <QuickLink href={ROUTES.saved} icon={<BookmarkIcon size={18} />} tone="bg-tint-yellow text-tint-yellow-fg" title={t("more.saved")} count={stats.bookmarksCount} />
       </div>
 
-      <WeakTopics topics={stats.topics} />
     </section>
   );
 };
@@ -83,34 +82,3 @@ const QuickLink = ({ href, icon, tone, title, count }: QuickLinkProps) => (
     <ChevronRightIcon size={16} className="text-subtle" />
   </Link>
 );
-
-// Eng zaif mavzular (backend zaifidan boshlab tartiblaydi). Bo'sh bo'lsa blok ko'rsatilmaydi
-const WeakTopics = ({ topics }: { topics: UserStats["topics"] }) => {
-  const { t } = useTranslation();
-  const list = topics.filter((x) => x.answered > 0).slice(0, 5);
-  if (!list.length) return null;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <b className="text-sm">{t("profile.weakTopics")}</b>
-      <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-        {list.map((x) => (
-          <li key={x.id} className="flex flex-col gap-1.5">
-            <div className="flex items-baseline justify-between gap-3 text-sm">
-              <span className="truncate">{x.name}</span>
-              <span className={cn("font-bold", x.correctRate < 70 ? "text-bad-text" : x.correctRate < 90 ? "text-warn-text" : "text-ok-text")}>
-                {x.correctRate}%
-              </span>
-            </div>
-            <span className="block h-1.5 overflow-hidden rounded-full bg-soft">
-              <span
-                className={cn("block h-full rounded-full", x.correctRate < 70 ? "bg-bad" : x.correctRate < 90 ? "bg-warn" : "bg-ok")}
-                style={{ width: `${x.correctRate}%` }}
-              />
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};

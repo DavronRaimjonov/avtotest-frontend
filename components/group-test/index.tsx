@@ -7,7 +7,7 @@ import type { Attempt, GroupTestState, GroupTestStatus } from "@/@types";
 import { ActiveTest } from "@/components/test";
 import { useGroupTestSocket } from "@/hooks/useGroupTestSocket";
 import { useGroupTestQuery } from "@/hooks/useQuery";
-import { AUTO_NEXT_MS, GROUP_AUTO_NEXT_MS, GROUP_TIME_UP_REFETCH_MS } from "@/lib/constants";
+import { GROUP_TIME_UP_REFETCH_MS } from "@/lib/constants";
 import { getErrorCode, getErrorMessage } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
 import { useGroupAnswerMutation, useGroupFinishMutation } from "@/request/mutation";
@@ -174,8 +174,6 @@ const GroupActiveTest = ({ state, onView, onTimeUp }: ActiveProps) => {
       title={state.title}
       backHref={ROUTES.groupTests}
       blind={!state.instantFeedback}
-      // Natija ko'rsatilsa, o'quvchi uni ko'rib ulgurishi uchun keyingi savolga sekinroq o'tiladi
-      autoNextMs={state.instantFeedback ? AUTO_NEXT_MS : GROUP_AUTO_NEXT_MS}
       onView={onView}
       onAnswer={answer.mutate}
       onFinish={onFinish}

@@ -1,4 +1,5 @@
 
+
 # AvtoTest API — frontend uchun qo'llanma
 
 Backend: NestJS + PostgreSQL. Ikki alohida qism:
@@ -14,6 +15,7 @@ Backend: NestJS + PostgreSQL. Ikki alohida qism:
 - **Mehmon (login qilmagan)** `/api/landing/guest/*` orqali faqat birinchi 3 ta variant va 20 savollik tasodifiy testni ishlaydi, hech narsasi saqlanmaydi (2.3, 2.4).
 - **Tariflar va to'lov** (Click, Payme), paywall, ekranlar, tiplar va tarjimalar: 2.8. Admin tomoni: 3.10. Tekshirish ro'yxati: 5.
 - **Shpargalka** (imtihonda ko'p uchraydigan raqamlar: tezlik, masofa, gabarit...): 2.9. Admin tomoni: 3.11.
+- **Aqlli takrorlash** (xatolar 1, 3, 7 kundan keyin qayta so'raladi, Pro) va **imtihonga tayyorlik foizi**: 2.6.1, 2.6.2.
 
 ---
 
@@ -330,9 +332,9 @@ Variantni tanlanganda yon panelda "Oxirgi natija: 90%" uchun `result.lastPercent
 
 #### `GET /api/landing/topics?lang=uzb` — tokensiz
 ```json
-[{ "id": 3, "slug": "yol-belgilari", "name": "Yo'l belgilari", "questionCount": 120 }]
+[{ "id": 3, "slug": "yol-belgilari", "name": "Yo'l belgilari", "questionCount": 281, "mnemonicCount": 4 }]
 ```
-`questionCount === 0` bo'lgan mavzuni nofaol ko'rsating (hozircha savollar mavzularga biriktirilmagan).
+`questionCount === 0` bo'lgan mavzuni nofaol ko'rsating. `mnemonicCount` — mavzu sahifasidagi "Eslab qolish uchun" kartochkalari soni (2.6.3); `0` bo'lsa blokni chiqarmang.
 
 ---
 
@@ -585,7 +587,7 @@ Body:
 
 | Maydon | Majburiy | Tavsif |
 |---|---|---|
-| `source` | ha | `variant` · `topic` · `mistakes` (xatolarim) · `bookmarks` (saqlanganlar) · `random` (aralash) · `hard` (qiyin savollar) · `exam` (real imtihon: backend har doim 20 ta tasodifiy savol va `mode: "exam"` qo'yadi — 25 daqiqa, 2 xatogacha; `count`/`mode` e'tiborga olinmaydi) |
+| `source` | ha | `variant` · `topic` · `mistakes` (xatolarim) · `bookmarks` (saqlanganlar) · `random` (aralash) · `hard` (qiyin savollar) · `exam` (real imtihon: backend har doim 20 ta tasodifiy savol va `mode: "exam"` qo'yadi — 25 daqiqa, 2 xatogacha; `count`/`mode` e'tiborga olinmaydi; tarif `final_exam`) · `review` (aqlli takrorlash: vaqti kelgan xatolar, eng eskisi birinchi; tarif `smart_review`, aks holda `403 PREMIUM_REQUIRED`; 2.6.1) |
 | `mode` | ha | `practice` yoki `exam` |
 | `variantId` | `source=variant` bo'lsa | Variant **id** si |
 | `topicId` | `source=topic` bo'lsa | Mavzu id si |
@@ -594,7 +596,7 @@ Body:
 
 Bosh sahifa tugmalari qaysi body yuborishi — 2.3 bo'limdagi jadvalda.
 
-Ro'yxat bo'sh bo'lsa (masalan, xato yo'q) `400 NO_QUESTIONS` keladi: "Hozircha xato qilgan savollaringiz yo'q" deb ko'rsating.
+Ro'yxat bo'sh bo'lsa (masalan, xato yo'q) `400 NO_QUESTIONS` keladi: "Hozircha xato qilgan savollaringiz yo'q" deb ko'rsating. `review` da: "Bugun takrorlash yo'q" (tugmani `GET /me/review` dagi `dueNow > 0` bo'lganda faol qiling).
 
 Javob — test holati (pastdagi `GET /attempts/:id` bilan bir xil).
 
@@ -685,7 +687,9 @@ Javob `200` (ikkala rejimda bir xil shakl):
   "saved": true,
   "isCorrect": false,
   "correctAnswerId": 302,
-  "explanation": "...",
+  "explanation": null,
+  "mnemonic": null,
+  "mnemonicLocked": false,
   "correctCount": 15,
   "wrongCount": 3,
   "mistakesLeft": 0,
@@ -696,7 +700,7 @@ Javob `200` (ikkala rejimda bir xil shakl):
 
 | Maydon | Tavsif |
 |---|---|
-| `isCorrect`, `correctAnswerId` | Javob to'g'ri yoki noto'g'riligi — darhol ko'rsating (yashil / qizil). `explanation` bu yerda doim `null` — izoh natija sahifasida |
+| `isCorrect`, `correctAnswerId` | Javob to'g'ri yoki noto'g'riligi — darhol ko'rsating (yashil / qizil). `explanation`, `mnemonic` bu yerda doim `null` — izoh va mnemonika natija sahifasida |
 | `correctCount`, `wrongCount` | Pastki paneldagi "To'g'ri: N, Xato: M" |
 | `mistakesLeft` | Imtihonda yana nechta xato mumkin (mashqda `null`) |
 | `finished` | `true` — imtihon 3-xato bilan tugadi. Javob natijasini 1–2 soniya ko'rsatib, `GET /attempts/:id/result` ga o'ting |
@@ -809,16 +813,284 @@ Hamma maydon ixtiyoriy. `lang` — keyingi testlar uchun default til.
   ]
 }
 ```
-`topics` eng zaifidan boshlab tartiblangan ("qaysi mavzu sust"). Hozircha bo'sh, chunki savollar mavzularga biriktirilmagan.
+`topics` eng zaifidan boshlab tartiblangan ("qaysi mavzu sust"). `mistakesCount` — hali o'rganilmagan xatolar (2.6.1).
 
 #### Xatolarim
-- `POST /api/landing/me/explanations` — `{ "questionIds": [12, 45], "lang": "uzb" }` (1–200 ta) → `[{ "id": 12, "explanation": "..." }]`. Mehmon sifatida ishlangan test natijasida izohlar yopiq ("Izohni ko'rish uchun kiring yoki ro'yxatdan o'ting"); foydalanuvchi kirgach frontend shu endpoint bilan natijadagi savollar izohlarini oladi. Davom etayotgan testidagi savollar (oxirgi 6 soat) qaytmaydi.
-- `GET /api/landing/me/mistakes?page=1&limit=20&lang=uzb` — sahifalangan ro'yxat. Har bir element: savol + `correctAnswerId` + `explanation` + `wrongCount` + `lastWrongAt` + `myAnswerId`.
+- `POST /api/landing/me/explanations` — `{ "questionIds": [12, 45], "lang": "uzb" }` (1–200 ta) → `[{ "id": 12, "explanation": "...", "mnemonic": "..." | null, "mnemonicLocked": false }]` (mnemonika 2.6.3). Mehmon sifatida ishlangan test natijasida izohlar yopiq ("Izohni ko'rish uchun kiring yoki ro'yxatdan o'ting"); foydalanuvchi kirgach frontend shu endpoint bilan natijadagi savollar izohlarini oladi. Davom etayotgan testidagi savollar (oxirgi 6 soat) qaytmaydi.
+- `GET /api/landing/me/mistakes?page=1&limit=20&lang=uzb` — sahifalangan ro'yxat. Har bir element: savol + `correctAnswerId` + `explanation` + `mnemonic` + `mnemonicLocked` (2.6.3) + `wrongCount` + `lastWrongAt` + `myAnswerId` + `reviewStep` + `reviewSteps` + `dueAt`.
+  - `reviewStep` / `reviewSteps` — aqlli takrorlash bosqichi: `0/3`, `1/3`, `2/3` (3 da o'rganiladi va ro'yxatdan chiqadi). Kartada 3 ta nuqta yoki "1/3" ko'rinishida. `dueAt` — keyingi takrorlash vaqti ("Ertaga", "3 kundan keyin").
   - `myAnswerId` — foydalanuvchi oxirgi xatoda tanlagan javob. Kartada qizil rangda "Sizning javobingiz" deb ko'rsating, to'g'ri javob esa yashil. Javob keyinroq o'chirilgan bo'lsa `null` keladi — belgi ko'rsatilmaydi.
   - Admin nofaol qilgan savollar ro'yxatga ham, `total` ga ham kirmaydi (saqlanganlarda ham shunday).
 - `DELETE /api/landing/me/mistakes/:questionId` → `204`
 
-Savol ro'yxatga xato qilinganda tushadi, keyin to'g'ri javob berilsa o'zi chiqadi.
+Savol ro'yxatga xato qilinganda tushadi. **O'zgardi:** endi bitta to'g'ri javob bilan chiqib ketmaydi — aqlli takrorlash qoidasi bo'yicha 3 marta, vaqtida to'g'ri javob berilsa chiqadi (2.6.1). Qo'lda olib tashlash (`DELETE`) avvalgidek ishlaydi.
+
+#### 2.6.1. Aqlli takrorlash (spaced repetition)
+
+Xato qilingan savol bir martada emas, vaqt o'tib qayta so'raladi — shunda u haqiqatan yodda qoladi.
+
+```
+xato ──1 kun──► takrorlash ✓ ──3 kun──► takrorlash ✓ ──7 kun──► takrorlash ✓ ──► O'RGANILDI
+          ✗ (istalgan bosqichda, istalgan testda) ──► bosqich 0, yana 1 kundan keyin
+```
+
+Qoidalar (server o'zi yuritadi, frontend faqat ko'rsatadi):
+- Xato javob (istalgan test: variant, random, imtihon, jamoaviy...) → savol ro'yxatga tushadi yoki bosqichi 0 ga qaytadi, **1 kundan keyin** takrorlanadi. O'rganilgan savolda xato qilinsa ham qaytadi.
+- **Vaqti kelgan** (`dueAt` o'tgan) savolga to'g'ri javob → keyingi bosqich: 3 kundan, keyin 7 kundan keyin. 3-to'g'ri javobda — **o'rganildi**, ro'yxat, `mistakesCount` va "Xatolarim" testidan chiqadi.
+- Vaqti kelmasdan berilgan to'g'ri javob **hisobga olinmaydi** (bugun xato qilib, bugun to'g'ri topish — hali o'rganganlik emas).
+- Ro'yxat va bosqichlar **hammaga** yuritiladi. **Takrorlash testi** (`source: "review"`) — faqat `smart_review` imkoniyatli tarifda (hozir **Pro** va **Max**). Oddiy "Xatolarim" testi (`source: "mistakes"`) bepul foydalanuvchiga ham ochiq qoladi.
+
+##### `GET /api/landing/me/review`
+```json
+{
+  "locked": false,
+  "dueNow": 14,
+  "dueNext24h": 5,
+  "learning": 37,
+  "learned": 12,
+  "nextDueAt": "2026-11-24T10:06:19.303Z",
+  "byStep": [20, 11, 6],
+  "intervalsDays": [1, 3, 7],
+  "stepsToLearn": 3
+}
+```
+| Maydon | Tavsif |
+|---|---|
+| `locked` | `true` — tarifda `smart_review` yo'q: takrorlash testini boshlash `403 PREMIUM_REQUIRED` (`feature: "smart_review"`). Raqamlar baribir keladi — ularni ko'rsatib, tugmani qulf bilan bering |
+| `dueNow` | Hozir takrorlash kerak bo'lgan savollar soni |
+| `dueNext24h` | Keyingi 24 soatda vaqti keladiganlar ("Ertaga: 5 ta") |
+| `learning` | O'rganilayotgan (ro'yxatdagi) xatolar |
+| `learned` | O'rganib bo'lingan savollar (motivatsiya: "12 ta savolni o'zlashtirdingiz") |
+| `nextDueAt` | `dueNow = 0` bo'lsa — keyingi takrorlash qachon. Xato bo'lmasa `null` |
+| `byStep` | Bosqichlar bo'yicha: `[0-bosqich, 1-bosqich, 2-bosqich]` (progress-bar uchun) |
+
+**Ekran — bosh sahifa / kabinetdagi "Takrorlash" kartasi:**
+```
+🔁 Bugun takrorlash: 14 ta savol            ← dueNow
+   O'rganilmoqda 37 · O'rganildi 12          ← learning · learned
+   [██████░░░░] 0-bosqich 20 · 1-bosqich 11 · 2-bosqich 6
+   [ Takrorlashni boshlash ]                 ← POST /attempts { source: "review", mode: "practice" }
+```
+- `dueNow = 0` → "Bugun takrorlash yo'q. Keyingisi: ertaga 10:06" (`nextDueAt`), tugma disabled.
+- `learning = 0 && learned = 0` → kartani ko'rsatmang (yoki "Xato qilgan savollaringiz shu yerda takrorlanadi").
+- `locked: true` → tugma o'rniga `🔒 Takrorlashni boshlash` → paywall (`smart_review`).
+- Takrorlash testi tugagach (`POST /attempts/:id/finish`) kartani yangilash uchun `GET /me/review` ni qayta chaqiring.
+- Testga `count` berilmasa 20 ta savol olinadi; ko'proq bo'lsa `count: dueNow` (200 gacha) yuboring.
+
+#### 2.6.2. Imtihonga tayyorlik foizi
+
+##### `GET /api/landing/me/readiness?lang=uzb`
+Kirgan har bir foydalanuvchiga (tarifsiz ham) ochiq. Har chaqirilganda bugungi qiymat tarixga yoziladi.
+```json
+{
+  "score": 64,
+  "level": "medium",
+  "enoughData": true,
+  "change7d": 9,
+  "components": {
+    "exam":     { "score": 80, "weight": 0.4,  "count": 3, "passed": 1, "lastAt": "2026-11-22T14:10:00.000Z" },
+    "accuracy": { "score": 83, "weight": 0.35, "answered": 300 },
+    "coverage": { "score": 22, "weight": 0.25, "seen": 297, "total": 1353 }
+  },
+  "weakTopics": [
+    { "id": 1, "name": "Umumiy qoidalar", "answered": 27, "correctRate": 57 }
+  ],
+  "review": { "dueNow": 14, "learning": 37, "learned": 12 },
+  "tips": [
+    { "code": "review_due", "params": { "count": 14 } },
+    { "code": "weak_topic", "params": { "topicId": 1, "name": "Umumiy qoidalar", "correctRate": 57 } }
+  ],
+  "history": [ { "day": "2026-11-20", "score": 55 }, { "day": "2026-11-23", "score": 64 } ]
+}
+```
+
+**Hisoblash** (0–100): `score = exam × 0.4 + accuracy × 0.35 + coverage × 0.25`
+| Qism | Nima |
+|---|---|
+| `exam` | Oxirgi 5 ta imtihon rejimidagi testning (`mode: "exam"`, yakuniy test ham) o'rtacha foizi. Imtihon ishlanmagan bo'lsa 0 — shuning uchun imtihonsiz foiz 60 dan oshmaydi |
+| `accuracy` | Oxirgi 300 ta javobdagi to'g'ri javoblar foizi |
+| `coverage` | Kamida bir marta to'g'ri javob berilgan savollar / bazadagi barcha faol savollar |
+
+| Maydon | Tavsif |
+|---|---|
+| `level` | `low` (<50) · `medium` (50–69) · `good` (70–84) · `ready` (85+). Rang: qizil · sariq · ko'k · yashil |
+| `enoughData` | `false` — 50 tadan kam javob: foiz yonida "Taxminiy — ko'proq test ishlang" deb yozing |
+| `change7d` | 7 kun oldingi qiymatga nisbatan o'zgarish (`+9` yashil, `-4` qizil). Tarix yo'q bo'lsa `null` |
+| `weakTopics` | Eng zaif 3 ta mavzu (kamida 5 ta javob, aniqlik 80% dan past). Har biriga "Mashq qilish" → `POST /attempts { source: "topic", topicId }` |
+| `tips` | Maslahatlar, muhimlik tartibida. Matn frontendda `code` bo'yicha (pastdagi kalitlar). Odatda 1–2 tasini ko'rsatish yetarli |
+| `history` | Oxirgi 30 kun, faqat foydalanuvchi sahifani ochgan kunlar (har kuni nuqta bo'lmasligi mumkin). Chiziqli grafik |
+
+`tips[].code`:
+| code | params | Matn (uzb) | Tugma |
+|---|---|---|---|
+| `take_exam` | — | So'nggi 7 kunda yakuniy test ishlamadingiz | "Yakuniy test" → `source: "exam"` (tarifsiz — paywall) |
+| `review_due` | `count` | Bugun {count} ta savolni takrorlash kerak | "Takrorlash" → `source: "review"` (tarifsiz — paywall) |
+| `weak_topic` | `topicId`, `name`, `correctRate` | «{name}» mavzusida natija {correctRate}% | "Mashq qilish" → `source: "topic"` |
+| `low_coverage` | `seen`, `total` | Bazaning {seen}/{total} savolini o'zlashtirgansiz | "Tasodifiy test" → `source: "random"` |
+| `keep_going` | — | Zo'r! Shu tempda davom eting | — |
+
+**Ekran — kabinet tepasida (va bosh sahifada kirgan foydalanuvchiga):**
+```
+Imtihonga tayyorlik
+   ◔ 64%   ▲ +9 (7 kun)            ← score (aylana progress), change7d
+   O'rtacha — yana biroz mashq      ← level
+   Imtihonlar 80% · Aniqlik 83% · Qamrov 22%   ← components.*.score
+   💡 Bugun 14 ta savolni takrorlash kerak  [Takrorlash]   ← tips[0]
+   Zaif mavzular: Umumiy qoidalar 57% [Mashq]  ...
+   [grafik: history]
+```
+"Imtihondan o'tish ehtimoli" deb **yozmang** — bu kafolat emas, tayyorlik ko'rsatkichi.
+
+##### TypeScript
+```ts
+export interface ReviewSummary {
+  locked: boolean;
+  dueNow: number;
+  dueNext24h: number;
+  learning: number;
+  learned: number;
+  nextDueAt: string | null;
+  byStep: [number, number, number];
+  intervalsDays: number[];
+  stepsToLearn: number;
+}
+
+export type ReadinessLevel = 'low' | 'medium' | 'good' | 'ready';
+export type ReadinessTip =
+  | { code: 'take_exam' }
+  | { code: 'review_due'; params: { count: number } }
+  | { code: 'weak_topic'; params: { topicId: number; name: string; correctRate: number } }
+  | { code: 'low_coverage'; params: { seen: number; total: number } }
+  | { code: 'keep_going' };
+
+export interface Readiness {
+  score: number;
+  level: ReadinessLevel;
+  enoughData: boolean;
+  change7d: number | null;
+  components: {
+    exam: { score: number; weight: number; count: number; passed: number; lastAt: string | null };
+    accuracy: { score: number; weight: number; answered: number };
+    coverage: { score: number; weight: number; seen: number; total: number };
+  };
+  weakTopics: { id: number; name: string; answered: number; correctRate: number }[];
+  review: { dueNow: number; learning: number; learned: number };
+  tips: ReadinessTip[];
+  history: { day: string; score: number }[];
+}
+
+// MistakeItem'ga qo'shilgan maydonlar
+// reviewStep: number; reviewSteps: number; dueAt: string;
+```
+`AttemptSource` turiga `'review'`, `PlanFeature` ga `'smart_review'` qo'shing; `lib/constants.ts` dagi `PLAN_FEATURES` ro'yxatiga `{ key: "smart_review" }` (`explanations` dan keyin).
+
+##### Tarjima kalitlari
+
+| Kalit | uzb | uzc | ru | kk |
+|---|---|---|---|---|
+| `review.title` | Takrorlash | Такрорлаш | Повторение | Қайталау |
+| `review.dueNow` | Bugun takrorlash: {count} ta savol | Бугун такрорлаш: {count} та савол | Повторить сегодня: {count} вопр. | Бүгін қайталау: {count} сұрақ |
+| `review.nothingToday` | Bugun takrorlash yo'q. Keyingisi: {date} | Бугун такрорлаш йўқ. Кейингиси: {date} | Сегодня повторять нечего. Следующее: {date} | Бүгін қайталау жоқ. Келесісі: {date} |
+| `review.learning` | O'rganilmoqda | Ўрганилмоқда | Изучается | Үйренілуде |
+| `review.learned` | O'rganildi | Ўрганилди | Выучено | Үйренілді |
+| `review.start` | Takrorlashni boshlash | Такрорлашни бошлаш | Начать повторение | Қайталауды бастау |
+| `review.step` | {step}/{total} bosqich | {step}/{total} босқич | Этап {step}/{total} | {step}/{total} кезең |
+| `review.hint` | Xatolaringiz 1, 3 va 7 kundan keyin qayta so'raladi. 3 marta to'g'ri topsangiz — o'rganildi | Хатоларингиз 1, 3 ва 7 кундан кейин қайта сўралади. 3 марта тўғри топсангиз — ўрганилди | Ошибки повторяются через 1, 3 и 7 дней. Ответили верно 3 раза — выучено | Қателеріңіз 1, 3 және 7 күннен кейін қайта сұралады. 3 рет дұрыс тапсаңыз — үйренілді |
+| `readiness.title` | Imtihonga tayyorlik | Имтиҳонга тайёрлик | Готовность к экзамену | Емтиханға дайындық |
+| `readiness.level.low` | Hali erta — ko'proq mashq qiling | Ҳали эрта — кўпроқ машқ қилинг | Пока рано — больше практики | Әлі ерте — көбірек жаттығыңыз |
+| `readiness.level.medium` | O'rtacha — yana biroz mashq | Ўртача — яна бироз машқ | Средне — ещё немного практики | Орташа — тағы аздап жаттығу |
+| `readiness.level.good` | Yaxshi — imtihonga yaqinsiz | Яхши — имтиҳонга яқинсиз | Хорошо — вы близки к цели | Жақсы — емтиханға жақынсыз |
+| `readiness.level.ready` | Tayyorsiz! | Тайёрсиз! | Вы готовы! | Дайынсыз! |
+| `readiness.estimate` | Taxminiy — ko'proq test ishlang | Тахминий — кўпроқ тест ишланг | Приблизительно — решите больше тестов | Шамамен — көбірек тест шешіңіз |
+| `readiness.exam` | Imtihonlar | Имтиҳонлар | Экзамены | Емтихандар |
+| `readiness.accuracy` | Aniqlik | Аниқлик | Точность | Дәлдік |
+| `readiness.coverage` | Qamrov | Қамров | Охват | Қамту |
+| `readiness.weakTopics` | Zaif mavzular | Заиф мавзулар | Слабые темы | Әлсіз тақырыптар |
+| `readiness.tip.take_exam` | So'nggi 7 kunda yakuniy test ishlamadingiz | Сўнгги 7 кунда якуний тест ишламадингиз | Вы не сдавали итоговый тест 7 дней | Соңғы 7 күнде қорытынды тест тапсырмадыңыз |
+| `readiness.tip.review_due` | Bugun {count} ta savolni takrorlash kerak | Бугун {count} та саволни такрорлаш керак | Сегодня нужно повторить {count} вопр. | Бүгін {count} сұрақты қайталау керек |
+| `readiness.tip.weak_topic` | «{name}» mavzusida natija {correctRate}% | «{name}» мавзусида натижа {correctRate}% | Тема «{name}»: {correctRate}% | «{name}» тақырыбы: {correctRate}% |
+| `readiness.tip.low_coverage` | Bazaning {seen}/{total} savolini o'zlashtirgansiz | Базанинг {seen}/{total} саволини ўзлаштиргансиз | Освоено {seen} из {total} вопросов | Базаның {seen}/{total} сұрағын меңгердіңіз |
+| `readiness.tip.keep_going` | Zo'r! Shu tempda davom eting | Зўр! Шу темпда давом этинг | Отлично! Продолжайте в том же темпе | Тамаша! Осы қарқынмен жалғастырыңыз |
+| `pricing.feature.smart_review` | Aqlli takrorlash | Ақлли такрорлаш | Умное повторение | Ақылды қайталау |
+| `paywall.smart_review` | Aqlli takrorlash — xatolaringiz vaqt o'tib qayta so'raladi va yodda qoladi | Ақлли такрорлаш — хатоларингиз вақт ўтиб қайта сўралади ва ёдда қолади | Умное повторение — ошибки возвращаются через время и запоминаются | Ақылды қайталау — қателер уақыт өте қайта сұралады және есте қалады |
+
+#### 2.6.3. Mnemonika — "Eslab qolish uchun" (Max tarifi)
+
+Savolga 1–2 qatorlik eslab qolish usuli: qofiya, assotsiatsiya, raqam qoidasi. Masalan: *"Uchburchak ogohlantiradi, qizil doira taqiqlaydi, ko'k doira buyuradi: shakl = vazifa."* Hamma savolda bo'lmaydi, faqat qiyin yoki chalkash savollarda. Mavzular uchun ham umumiy kartochkalar bor.
+
+**Savoldagi maydonlar** (izoh bor joyning hammasida: `GET /attempts/:id` yakunlangan test, `GET /attempts/:id/result`, `GET /me/mistakes`, `GET /me/bookmarks`, `POST /me/explanations`, jamoaviy test tahlili):
+
+| Maydon | Qiymat |
+|---|---|
+| `mnemonic` | Matn (tanlangan tilda) — faqat **Max** (`mnemonics` imkoniyati) bo'lsa; aks holda `null` |
+| `mnemonicLocked` | `true` — savolda mnemonika **bor**, lekin tarif yo'q. `false` — mnemonika yo'q yoki ochiq |
+
+Davom etayotgan testda va javob berish paytida ikkalasi ham `null` / `false` (izoh kabi, test tugagach chiqadi). Mehmonda ham `null` / `false`.
+
+Uchta holat:
+```
+mnemonic: "..."        → ochiq blok
+mnemonic: null, mnemonicLocked: true   → xira blok + "Max bilan ochish"
+mnemonic: null, mnemonicLocked: false  → blok umuman chiqmaydi
+```
+
+Ko'rinishi (izoh blokining tagida):
+```
+┌──────────────────────────────────────────────┐
+│ 📖 Izoh                                      │
+│ ...                                          │
+├──────────────────────────────────────────────┤
+│ 💡 Eslab qolish uchun                        │
+│ "Uchburchak — ogohlantiradi, doira — taqiq"  │
+└──────────────────────────────────────────────┘
+
+Qulf (mnemonicLocked: true):
+├──────────────────────────────────────────────┤
+│ 💡 Eslab qolish uchun              🔒 Max    │
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░ (xira, blur)      │
+│        [ Max bilan ochish → ]                │
+└──────────────────────────────────────────────┘
+```
+Xira blokda haqiqiy matn yo'q (kelmaydi) — tasodifiy "skelet" chiziqlar chizing. Tugma paywall modalini `feature: "mnemonics"` bilan ochadi. Max hozir **"Tez kunda"** (`comingSoon`) bo'lsa ham qulf ko'rsatilaveradi: paywall Max kartasini "Tez kunda" holatida ko'rsatadi.
+
+##### `GET /api/landing/me/topics/:topicId/mnemonics?lang=uzb` — token kerak
+
+Mavzu sahifasidagi kartochkalar:
+```json
+{
+  "topic": { "id": 6, "name": "Harakatlanish tezligi" },
+  "locked": false,
+  "count": 4,
+  "items": ["...", "...", "...", "..."]
+}
+```
+- `locked: true` (Max yo'q) → `items: []`, lekin `count` keladi: "💡 4 ta eslab qolish usuli — 🔒 Max" kartasi, ichida `count` ta xira kartochka.
+- Mehmonda (tokensiz) chaqirmang: `GET /topics` dagi `mnemonicCount` bilan bir xil qulf kartani ko'rsating, tugma login oynasini ochadi.
+- `404 NOT_FOUND` — mavzu yo'q yoki nofaol.
+
+##### TypeScript
+```ts
+export interface MnemonicFields {
+  mnemonic: string | null;
+  mnemonicLocked: boolean;
+}
+// RevealedQuestion (natija, xatolarim, saqlanganlar) = ... & MnemonicFields
+
+export interface TopicMnemonics {
+  topic: { id: number; name: string | null };
+  locked: boolean;
+  count: number;
+  items: string[];
+}
+```
+
+##### Tarjima kalitlari
+
+| Kalit | uzb | uzc | ru | kk |
+|---|---|---|---|---|
+| `mnemonic.title` | Eslab qolish uchun | Эслаб қолиш учун | Как запомнить | Есте сақтау үшін |
+| `mnemonic.unlock` | Max bilan ochish | Max билан очиш | Открыть с Max | Max арқылы ашу |
+| `mnemonic.topicCount` | {n} ta eslab qolish usuli | {n} та эслаб қолиш усули | {n} способов запомнить | {n} есте сақтау тәсілі |
 
 #### Saqlangan savollar ("Saqlash" tugmasi)
 - `GET /api/landing/me/bookmarks/ids` → `[46, 120, ...]`. Test sahifasida belgini ko'rsatish uchun bir marta oling.
@@ -935,7 +1207,10 @@ Loyiha umumiy sayt: foydalanuvchi tarif sotib oladi. Swagger'da `billing` tegi.
 | Xatolarim, saqlanganlar, tarix, statistika | ❌ (login kerak) | ✅ | ✅ | ✅ |
 | **Yakuniy test** (real imtihon, `source: "exam"`) | ❌ (login) | ❌ (tarif) | ✅ | ✅ |
 | **Izohlar** (`explanation`) | ❌ | ❌ | ✅ | ✅ |
-| Videodarslar, mnemonika | ❌ | ❌ | ❌ | ✅ (hozircha "Tez kunda") |
+| **Aqlli takrorlash testi** (`source: "review"`, 2.6.1) | ❌ | ❌ (ro'yxat va raqamlar ko'rinadi) | ❌ Standart / ✅ **Pro** | ✅ |
+| Tayyorlik foizi (2.6.2) | ❌ | ✅ | ✅ | ✅ |
+| **Mnemonika** ("Eslab qolish uchun", 2.6.3) | ❌ | ❌ (🔒 xira blok ko'rinadi) | ❌ | ✅ |
+| Videodarslar | ❌ | ❌ | ❌ | ✅ (hozircha "Tez kunda", API yo'q) |
 
 Tariflar (narxi va muddatini admin o'zgartira oladi, shuning uchun **frontendga qattiq yozmang** — `GET /plans` dan oling):
 
@@ -972,7 +1247,7 @@ To'lov: **Click**, **Payme** (onlayn), naqd yoki karta orqali (admin qo'lda bera
       "description": "Faqat testlar (videosiz)",
       "priceUzs": 65000,
       "durationDays": 30,
-      "features": ["all_tests", "final_exam", "explanations"],
+      "features": ["all_tests", "final_exam", "explanations", "smart_review"],
       "isPopular": true,
       "comingSoon": false
     },
@@ -983,7 +1258,7 @@ To'lov: **Click**, **Payme** (onlayn), naqd yoki karta orqali (admin qo'lda bera
       "description": "Testlar + videodarslar",
       "priceUzs": 399000,
       "durationDays": 30,
-      "features": ["all_tests", "final_exam", "explanations", "videos", "mnemonics"],
+      "features": ["all_tests", "final_exam", "explanations", "smart_review", "videos", "mnemonics"],
       "isPopular": false,
       "comingSoon": true
     }
@@ -1008,7 +1283,7 @@ To'lov: **Click**, **Payme** (onlayn), naqd yoki karta orqali (admin qo'lda bera
   },
   "accessUntil": "2027-01-06T06:59:08.146Z",
   "active": [
-    { "id": 1, "planCode": "pro", "planTitle": "Pro", "features": ["all_tests", "final_exam", "explanations"],
+    { "id": 1, "planCode": "pro", "planTitle": "Pro", "features": ["all_tests", "final_exam", "explanations", "smart_review"],
       "startsAt": "2026-11-23T06:59:08.146Z", "expiresAt": "2026-12-23T06:59:08.146Z" }
   ],
   "upcoming": [
@@ -1153,7 +1428,7 @@ if (error.code === 'PREMIUM_REQUIRED') {
 }
 ```
 
-`feature` qiymatlari: `final_exam`, `explanations`, `videos`, `mnemonics`.
+`feature` qiymatlari: `final_exam`, `explanations`, `smart_review`, `videos`, `mnemonics`.
 
 #### 2.8.4. Ekranlar
 
@@ -1171,8 +1446,9 @@ Faqat testlar (videosiz)   ← description
 ✓ Barcha testlar (1300+ savol)   ← features: all_tests
 ✓ Yakuniy test                   ← final_exam
 ✓ Izohlar                        ← explanations
+✓ Aqlli takrorlash               ← smart_review (Standartda ✗ — Pro'ning farqi shu)
 ✗ Videodarslar                   ← videos (yo'q bo'lsa kulrang ✗)
-✓ Mnemonika usuli                ← mnemonics (faqat bor bo'lsa ko'rsating)
+✗ Mnemonika usuli                ← mnemonics (Max'da ✓; boshqalarda kulrang ✗ — Max'ning farqi)
 [ Tanlash ]
 ```
 
@@ -1220,6 +1496,7 @@ Muvaffaqiyat ekrani: ✅ "To'lov qabul qilindi", "Pro tarifi 23-dekabrgacha faol
 [feature ga qarab matn]
   final_exam   → "Yakuniy test — haqiqiy imtihon sharoitida 20 savol, 25 daqiqa"
   explanations → "Har bir savolning batafsil izohi"
+  smart_review → "Aqlli takrorlash — xatolaringiz 1, 3, 7 kundan keyin qayta so'raladi va yodda qoladi"
   videos       → "Videodarslar tez kunda"
 [ Tariflarni ko'rish ]  [ Yopish ]
 ```
@@ -1239,7 +1516,7 @@ Ixtiyoriy: modal ichida eng arzon sotuvdagi tarif narxini ko'rsating ("45 000 so
 #### 2.8.5. TypeScript tiplari
 
 ```ts
-export type PlanFeature = 'all_tests' | 'final_exam' | 'explanations' | 'videos' | 'mnemonics';
+export type PlanFeature = 'all_tests' | 'final_exam' | 'explanations' | 'smart_review' | 'videos' | 'mnemonics';
 export type PaymentProvider = 'click' | 'payme';
 export type OrderProvider = PaymentProvider | 'manual';
 export type OrderStatus = 'pending' | 'paid' | 'cancelled' | 'refunded';
@@ -1299,6 +1576,7 @@ export interface CreatedOrder extends Order {
 export interface AttemptResultExtra {
   explanationsLocked: boolean;
 }
+// Har bir ochilgan savolda: mnemonic, mnemonicLocked (2.6.3, MnemonicFields)
 ```
 
 Yordamchi hook (React Query misoli):
@@ -1330,6 +1608,7 @@ Narx formati: `new Intl.NumberFormat('ru-RU').format(65000) + " so'm"` → `65 0
 | `pricing.feature.all_tests` | Barcha testlar (1300+ savol) |
 | `pricing.feature.final_exam` | Yakuniy test |
 | `pricing.feature.explanations` | Savollar izohi |
+| `pricing.feature.smart_review` | Aqlli takrorlash |
 | `pricing.feature.videos` | Videodarslar |
 | `pricing.feature.mnemonics` | Mnemonika usuli |
 | `pricing.footer` | To'lov: Click, Payme, naqd yoki karta orqali. Dostup to'lovdan so'ng darhol ochiladi. |
@@ -1343,6 +1622,7 @@ Narx formati: `new Intl.NumberFormat('ru-RU').format(65000) + " so'm"` → `65 0
 | `paywall.title` | Bu bo'lim tarif bilan ochiladi |
 | `paywall.final_exam` | Yakuniy test — haqiqiy imtihon sharoitida 20 savol, 25 daqiqa |
 | `paywall.explanations` | Har bir savolning batafsil izohi |
+| `paywall.smart_review` | Aqlli takrorlash — xatolaringiz 1, 3, 7 kundan keyin qayta so'raladi va yodda qoladi |
 | `paywall.cta` | Tariflarni ko'rish |
 | `paywall.lockedExplanation` | Izohni ko'rish uchun tarif oling |
 | `account.myPlan` | Mening tarifim |
@@ -1499,6 +1779,7 @@ Hamma endpoint `/api/admin/*`, admin tokeni bilan.
   "questions": 1353,
   "questionsWithoutTopic": 1353,
   "questionsWithoutExplanation": 1353,
+  "questionsWithMnemonic": 218,
   "activeVariants": 200,
   "finishedAttempts": 540,
   "attempts24h": 37,
@@ -1525,13 +1806,13 @@ Hamma endpoint `/api/admin/*`, admin tokeni bilan.
 | DELETE | `/admin/questions/:id/image` | Rasmni olib tashlash |
 | POST | `/admin/questions/bulk/topic` | Ko'p savolni mavzuga biriktirish |
 
-Ro'yxat filtrlari: `?page&limit&search&topicId&variantId&hasImage&hasExplanation&isActive`
+Ro'yxat filtrlari: `?page&limit&search&topicId&variantId&hasImage&hasExplanation&hasMnemonic&isActive`
 
 | Filtr | Tavsif |
 |---|---|
 | `search` | 4 tildagi matn bo'yicha yoki aniq savol id si |
 | `topicId=0` | Mavzusiz savollar |
-| `hasImage`, `hasExplanation`, `isActive` | `true` / `false` |
+| `hasImage`, `hasExplanation`, `hasMnemonic`, `isActive` | `true` / `false` |
 
 Savol obyekti:
 ```json
@@ -1539,6 +1820,7 @@ Savol obyekti:
   "id": 46,
   "text": { "uzb": "...", "uzc": "...", "ru": "..." },
   "explanation": null,
+  "mnemonic": null,
   "imageUrl": "http://.../uploads/questions/src-....jpg",
   "sourceImageUrl": "https://e-avtomaktab.uz/storage/tests/e-avtomaktab1.jpg",
   "topic": { "id": 3, "name": { "uzb": "...", "uzc": "...", "ru": "..." } },
@@ -1563,6 +1845,7 @@ Yaratish yoki tahrirlash body'si:
 {
   "text": { "uzb": "...", "uzc": "...", "ru": "..." },
   "explanation": { "uzb": "...", "uzc": "...", "ru": "..." },
+  "mnemonic": { "uzb": "...", "uzc": "...", "ru": "..." },
   "topicId": 3,
   "isActive": true,
   "answers": [
@@ -1575,7 +1858,7 @@ Yaratish yoki tahrirlash body'si:
 - Mavzu: savollar mavzuga avtomatik biriktirilgan. Ishonch past bo'lganlarida `topicReview: true` — filtr `topicReview=true` bilan chiqadi. PATCH da `topicId` yuborilsa (yoki bulk mavzu qo'yilsa) `topicReview` avtomatik `false` bo'ladi.
 - `answers`: 2–6 ta, **faqat bittasi** `isCorrect: true`. Massiv tartibi = `F1`, `F2`, ...
 - PATCH da `answers` berilsa ro'yxat to'liq almashtiriladi. Mavjud javoblarga `id` ni qo'shib yuboring (o'tgan test tarixi saqlanadi). `id` siz javob yangi deb qo'shiladi, ro'yxatda yo'qlari o'chiriladi.
-- `explanation: null` — izohni olib tashlash. `topicId: null` — mavzudan chiqarish.
+- `explanation: null` — izohni olib tashlash. `mnemonic: null` — mnemonikani olib tashlash ("Eslab qolish uchun", faqat Max'da ko'rinadi, 2.6.3). `topicId: null` — mavzudan chiqarish.
 
 Rasm yuklash: JPG, PNG, WEBP yoki GIF, 5 MB gacha. Javob — yangilangan savol.
 ```js
@@ -1611,12 +1894,14 @@ Javob: `{ "updated": 3 }`. `topicId: null` — mavzudan chiqarish.
 ### 3.5. Mavzular
 | Metod | Yo'l | Body |
 |---|---|---|
-| GET | `/admin/topics` | — → `[{ id, slug, name, position, isActive, questionCount }]` |
-| POST | `/admin/topics` | `{ slug, name: {uzb,uzc,ru}, position?, isActive? }` |
+| GET | `/admin/topics` | — → `[{ id, slug, name, position, isActive, mnemonics, questionCount }]` |
+| POST | `/admin/topics` | `{ slug, name: {uzb,uzc,ru}, mnemonics?, position?, isActive? }` |
 | PATCH | `/admin/topics/:id` | qisman |
 | DELETE | `/admin/topics/:id` | `204`, savollari mavzusiz qoladi |
 
 `slug` — kichik lotin harflar, raqam va `-` (`yol-belgilari`).
+
+`mnemonics` — mavzu kartochkalari: `[{ uzb, uzc, ru, kk? }]`, 20 tagacha. PATCH da berilsa ro'yxat butunlay almashtiriladi (tartib = saytdagi tartib).
 
 ### 3.6. Foydalanuvchilar
 | Metod | Yo'l | Tavsif |
@@ -1696,6 +1981,7 @@ Import qilingan belgilarda `ru` bo'sh (`""`). Tahrirlash formasida uchala til ma
 
 ### 3.10. Tariflar, buyurtmalar, qo'lda tarif berish
 - `GET /admin/plans`: barcha tariflar (yashirinlari bilan).
+- Imkoniyatlar (`features`): `all_tests`, `final_exam`, `explanations`, `smart_review` (aqlli takrorlash, hozir Pro va Max'da), `videos`, `mnemonics`. Standartga ham berish uchun uning `features` iga `smart_review` qo'shing.
 - `PATCH /admin/plans/:id`: `{ priceUzs?, durationDays?, features?, status?: "active"|"coming_soon"|"hidden", isPopular?, position?, title?, description? }`. Eski buyurtmalarga ta'sir qilmaydi (buyurtma tarif nusxasini saqlaydi). Max'ni videolar tayyor bo'lganda `status: "active"` qiling.
 - `GET /admin/orders?status=paid&provider=click&search=ali&from=2026-11-01&to=2026-12-01&page=1`: buyurtmalar ro'yxati (foydalanuvchi, summa, kim berdi, izoh).
 - `GET /admin/orders/stats`: `{ revenueToday, revenueMonth, revenueTotal, paidCount, activeSubscribers, byPlan[], byProvider[] }`.
@@ -1790,3 +2076,12 @@ Boshlang'ich 9 ta kartochka seed bilan yoziladi (`npm run seed:cheat-sheets`, fa
 - [ ] Group test sahifalari yashirilgan
 - [ ] 4 til tarjimalari
 - [ ] Admin: Tariflar, To'lovlar, Foydalanuvchiga tarif berish
+- [ ] Tarif kartasida "Aqlli takrorlash" qatori (`smart_review`, Standartda ✗)
+- [ ] Kabinet/bosh sahifa: "Takrorlash" kartasi (`GET /me/review`), tarifsizda 🔒 → paywall `smart_review`
+- [ ] Xatolarim kartasida bosqich (`reviewStep/reviewSteps`) va keyingi takrorlash (`dueAt`)
+- [ ] Natija / Xatolarim / Saqlanganlarda izoh tagida "💡 Eslab qolish uchun" (`mnemonic`), `mnemonicLocked` → xira blok + paywall `mnemonics`
+- [ ] Mavzu sahifasida mnemonika kartochkalari (`GET /me/topics/:id/mnemonics`, mehmonda `mnemonicCount` bilan qulf)
+- [ ] Tarif kartasida "Mnemonika usuli" (`mnemonics`) — endi haqiqiy imkoniyat: `lib/constants.ts` dagi `optional: true` ni olib tashlang, hamma kartada ✓/✗ ko'rinsin
+- [ ] `@types`: ochilgan savolga `mnemonic: string | null`, `mnemonicLocked: boolean`; `Topic` ga `mnemonicCount`
+- [ ] Mehmon natijasidan login → `POST /me/explanations` javobidagi `mnemonic` / `mnemonicLocked` ni ham ishlating
+- [ ] Kabinet: tayyorlik foizi bloki (`GET /me/readiness`): foiz, daraja, 3 qism, maslahatlar, zaif mavzular, grafik

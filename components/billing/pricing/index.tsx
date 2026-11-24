@@ -120,7 +120,6 @@ type CardProps = { plan: Plan; active: boolean; canBuy: boolean; onChoose: () =>
 // Skrinshotdagi karta: POPULAR, nomi, tavsifi, narx, ✓/✗ imkoniyatlar, "Tanlash" (comingSoon — "Tez kunda")
 const PlanCard = ({ plan, active, canBuy, onChoose }: CardProps) => {
   const { t } = useTranslation();
-  const features = PLAN_FEATURES.filter((f) => !f.optional || plan.features.includes(f.key));
 
   return (
     <article
@@ -149,8 +148,8 @@ const PlanCard = ({ plan, active, canBuy, onChoose }: CardProps) => {
       <b className="text-[32px] leading-none font-extrabold tracking-tight">{formatPrice(plan.priceUzs)}</b>
       <ul className="m-0 flex flex-1 list-none flex-col gap-2.5 p-0 text-sm">
         <FeatureRow ok text={t("pricing.days", { count: plan.durationDays })} />
-        {features.map((f) => (
-          <FeatureRow key={f.key} ok={plan.features.includes(f.key)} text={t(`pricing.feature.${f.key}`)} />
+        {PLAN_FEATURES.map((f) => (
+          <FeatureRow key={f} ok={plan.features.includes(f)} text={t(`pricing.feature.${f}`)} />
         ))}
       </ul>
       <button

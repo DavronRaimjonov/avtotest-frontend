@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { ArrowRightIcon, ChevronLeftIcon, LockIcon, PlayIcon } from "@/components/ui/icons";
 import { Link } from "@/components/ui/link";
+import { TopicMnemonics } from "@/components/mnemonic";
 import { cn } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
 import { useStartAttempt } from "@/request/mutation";
@@ -128,6 +129,9 @@ export const LessonView = () => {
         </button>
         <span className="text-[13px] text-muted">{t("lessons.questions", { count: topic.questionCount })}</span>
       </div>
+
+      {/* "Eslab qolish uchun" kartochkalari (Max) */}
+      <TopicMnemonics topic={topic} />
 
       {next && (
         <Link

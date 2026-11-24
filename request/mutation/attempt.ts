@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@/hooks/useRouter";
 import { isAxiosError } from "axios";
-import type { AnswerBody, ApiError, Attempt, GuestSource, StartAttemptBody } from "@/@types";
+import type { AnswerBody, ApiError, Attempt, AttemptSource, GuestSource, PlanFeature, StartAttemptBody } from "@/@types";
 import { notify, notifyApiError } from "@/generics/notification";
 import i18next, { currentLang } from "@/i18n";
 import { FINISH_DELAY_MS, GUEST_ID, LAST_ATTEMPT_KEY } from "@/lib/constants";
@@ -17,6 +17,12 @@ import { useGuestStore } from "@/store/guest.store";
 import { usePaywallStore } from "@/store/paywall.store";
 import { answerAttempt, finishAttempt, startAttempt } from "../attempt";
 import { checkGuestAnswer, getGuestResult, startGuestTest } from "../guest";
+
+// Tarif bilan ochiladigan test manbalari: boshlashdan oldin imkoniyat tekshiriladi (yo'q bo'lsa paywall)
+const PAID_SOURCES: Partial<Record<AttemptSource, PlanFeature>> = {
+  exam: "final_exam",
+  review: "smart_review",
+};
 
 const storage = {
   set: (id: string) => {
@@ -34,7 +40,7 @@ const storage = {
 // Testni boshlash. Kirgan — /attempts (saqlanadi), mehmon — /guest/tests (saqlanmaydi).
 // Mehmon faqat 1–3-variant va 20 savolgacha tasodifiy test ishlaydi (hooks/useGuestLimits): qolganida kirish
 // oynasi ochiladi, kirgach test o'zi boshlanadi. Server baribir 401 LOGIN_REQUIRED qaytarsa ham shunday.
-// Yakuniy test (source: "exam") — faqat tarif bilan: mehmonga avval kirish, tarifsizga paywall oynasi.
+// Yakuniy test (exam) va aqlli takrorlash (review) — faqat tarif bilan: mehmonga avval kirish, tarifsizga paywall.
 // Kesh eskirgan bo'lsa server 403 PREMIUM_REQUIRED qaytaradi — paywall request/index.ts da ochiladi
 export const useStartAttempt = () => {
   const router = useRouter();
@@ -76,17 +82,18 @@ export const useStartAttempt = () => {
     // Test tili — joriy ilova tili (berilmagan bo'lsa)
     const withLang = { ...body, lang: body.lang ?? currentLang() };
     const { hasSession, openLogin } = useAuthStore.getState();
-    if (body.source === "exam") {
-      const startExam = async () => {
+    const feature = PAID_SOURCES[body.source];
+    if (feature) {
+      const startPaid = async () => {
         const access = await fetchAccess().catch(() => null);
-        if (access && !access.features.includes("final_exam")) {
-          usePaywallStore.getState().openPaywall("final_exam");
+        if (access && !access.features.includes(feature)) {
+          usePaywallStore.getState().openPaywall(feature);
           return;
         }
         server.mutate(withLang);
       };
-      if (hasSession) startExam();
-      else openLogin(startExam);
+      if (hasSession) startPaid();
+      else openLogin(startPaid);
       return;
     }
     if (hasSession) server.mutate(withLang);
@@ -147,6 +154,8 @@ export const useAnswerMutation = (attemptId: string) => {
         storage.clear();
         setTimeout(() => {
           queryClient.invalidateQueries({ queryKey: QUERY_KEYS.variants });
+          queryClient.invalidateQueries({ queryKey: QUERY_KEYS.review });
+          queryClient.invalidateQueries({ queryKey: QUERY_KEYS.readinessAll });
           router.replace(ROUTES.result(attemptId));
         }, FINISH_DELAY_MS);
       }
@@ -175,6 +184,9 @@ export const useFinishAttemptMutation = (attemptId: string) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.variants });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stats });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.mistakeLists });
+      // Takrorlash bosqichlari va tayyorlik foizi o'zgardi
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.review });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.readinessAll });
       // Profildagi testlar tarixi
       queryClient.invalidateQueries({ queryKey: ["attempts", "list"] });
       storage.clear();

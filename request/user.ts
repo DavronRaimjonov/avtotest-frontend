@@ -3,10 +3,14 @@ import type {
   BookmarkItem,
   ChangePasswordBody,
   MistakeItem,
+  MnemonicFields,
   PageParams,
   Paginated,
+  Readiness,
   ReportBody,
   ReportResponse,
+  ReviewSummary,
+  TopicMnemonics,
   TestLang,
   UpdateMeBody,
   User,
@@ -34,7 +38,17 @@ export const getStats = (lang?: TestLang) =>
     .get<UserStats>("/landing/me/stats", { params: { lang } })
     .then((r) => r.data);
 
-// Xatolarim: savol to'g'ri yechilsa ro'yxatdan o'zi chiqadi
+// Aqlli takrorlash: vaqti kelgan xatolar soni, bosqichlar (locked — tarifda smart_review yo'q)
+export const getReview = () =>
+  request.get<ReviewSummary>("/landing/me/review").then((r) => r.data);
+
+// Imtihonga tayyorlik foizi (tarifsiz ham ochiq). Har chaqirilganda bugungi qiymat tarixga yoziladi
+export const getReadiness = (lang?: TestLang) =>
+  request
+    .get<Readiness>("/landing/me/readiness", { params: { lang } })
+    .then((r) => r.data);
+
+// Xatolarim: savol 1, 3, 7 kundan keyin vaqtida 3 marta to'g'ri topilsa ro'yxatdan chiqadi
 export const getMistakes = (params: PageParams & { lang?: TestLang }) =>
   request
     .get<Paginated<MistakeItem>>("/landing/me/mistakes", { params })
@@ -68,8 +82,14 @@ export const reportQuestion = (questionId: number, body: ReportBody) =>
 // Davom etayotgan testdagi savollarga izoh kelmaydi
 export const getExplanations = (questionIds: number[], lang?: TestLang) =>
   request
-    .post<{ id: number; explanation: string | null }[]>(
+    .post<({ id: number; explanation: string | null } & MnemonicFields)[]>(
       "/landing/me/explanations",
       { questionIds, lang },
     )
+    .then((r) => r.data);
+
+// Mavzu sahifasidagi "Eslab qolish uchun" kartochkalari (token kerak). locked — Max yo'q: items bo'sh, count keladi
+export const getTopicMnemonics = (topicId: number, lang?: TestLang) =>
+  request
+    .get<TopicMnemonics>(`/landing/me/topics/${topicId}/mnemonics`, { params: { lang } })
     .then((r) => r.data);

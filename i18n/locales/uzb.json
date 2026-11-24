@@ -529,7 +529,7 @@
     "mistakes": "Xatolarim",
     "mistakesText": "Xato qilgan savollaringiz",
     "groupTestText": "O‘qituvchi bergan kod bilan qo‘shilish",
-    "planText": "Yakuniy test va izohlar",
+    "planText": "Yakuniy test, izohlar va video darsliklar",
     "lessonsText": "Mavzular bo‘yicha video darslar",
     "cheatSheetsText": "Yodlash qiyin raqamlar: tezlik, masofa, gabarit"
   },
@@ -557,7 +557,7 @@
   },
   "mistakes": {
     "title": "Xatolarim",
-    "subtitle": "to‘g‘ri yechilgan savol ro‘yxatdan o‘zi chiqadi",
+    "subtitle": "3 marta vaqtida to‘g‘ri topilgan savol o‘rganiladi va ro‘yxatdan chiqadi",
     "wrongCount": "{{count}} marta xato",
     "lastWrongAt": "oxirgisi {{date}}",
     "emptyTitle": "Xatolar yo‘q",
@@ -642,6 +642,7 @@
       "all_tests": "Barcha testlar (1300+ savol)",
       "final_exam": "Yakuniy test",
       "explanations": "Savollar izohi",
+      "smart_review": "Aqlli takrorlash",
       "videos": "Videodarslar",
       "mnemonics": "Mnemonika usuli"
     },
@@ -685,12 +686,13 @@
     "final_exam": "Yakuniy test — haqiqiy imtihon sharoitida 20 savol, 25 daqiqa.",
     "explanations": "Har bir savolning batafsil izohi.",
     "videos": "Videodarslar tez kunda.",
-    "mnemonics": "Mnemonika usuli tez kunda.",
+    "mnemonics": "Eslab qolish uchun — qiyin savollarni oson yodlash uchun qisqa qoidalar va qofiyalar.",
     "from": "{{price}}dan",
     "cta": "Tariflarni ko‘rish",
     "loginCta": "Kirish va tarif tanlash",
     "lockedExplanation": "Izohni ko‘rish uchun tarif oling —",
-    "lockedExplanationGuest": "Izohni ko‘rish uchun kiring va tarif oling —"
+    "lockedExplanationGuest": "Izohni ko‘rish uchun kiring va tarif oling —",
+    "smart_review": "Aqlli takrorlash — xatolaringiz 1, 3, 7 kundan keyin qayta so‘raladi va yodda qoladi."
   },
   "account": {
     "noPlan": "Sizda tarif yo‘q",
@@ -765,5 +767,60 @@
     "notFound": "Kartochka topilmadi",
     "prev": "Oldingi",
     "next": "Keyingi"
+  },
+  "review": {
+    "title": "Takrorlash",
+    "dueNow": "Bugun takrorlash: {{count}} ta savol",
+    "nothingToday": "Bugun takrorlash yo‘q. Keyingisi: {{date}}",
+    "learning": "O‘rganilmoqda",
+    "learned": "O‘rganildi",
+    "start": "Takrorlashni boshlash",
+    "step": "{{step}}/{{total}} bosqich",
+    "hint": "Xatolaringiz 1, 3 va 7 kundan keyin qayta so‘raladi. 3 marta to‘g‘ri topsangiz — o‘rganildi",
+    "empty": "Xato qilgan savollaringiz shu yerda takrorlanadi",
+    "next24h": "Keyingi 24 soatda: {{count}} ta",
+    "stepN": "{{step}}-bosqich",
+    "dueReady": "takrorlash vaqti keldi",
+    "dueToday": "bugun {{time}}",
+    "dueTomorrow": "ertaga {{time}}",
+    "dueInDays": "{{count}} kundan keyin",
+    "nextAt": "keyingisi {{when}}",
+    "loadError": "Takrorlash ma’lumotini yuklab bo‘lmadi"
+  },
+  "readiness": {
+    "title": "Imtihonga tayyorlik",
+    "level": {
+      "low": "Hali erta — ko‘proq mashq qiling",
+      "medium": "O‘rtacha — yana biroz mashq",
+      "good": "Yaxshi — imtihonga yaqinsiz",
+      "ready": "Tayyorsiz!"
+    },
+    "estimate": "Taxminiy — ko‘proq test ishlang",
+    "exam": "Imtihonlar",
+    "accuracy": "Aniqlik",
+    "coverage": "Qamrov",
+    "weakTopics": "Zaif mavzular",
+    "change": "7 kunda",
+    "practice": "Mashq qilish",
+    "history": "Oxirgi 30 kun",
+    "loadError": "Tayyorlik ma’lumotini yuklab bo‘lmadi",
+    "tip": {
+      "take_exam": "So‘nggi 7 kunda yakuniy test ishlamadingiz",
+      "review_due": "Bugun {{count}} ta savolni takrorlash kerak",
+      "weak_topic": "«{{name}}» mavzusida natija {{correctRate}}%",
+      "low_coverage": "Bazaning {{seen}}/{{total}} savolini o‘zlashtirgansiz",
+      "keep_going": "Zo‘r! Shu tempda davom eting"
+    },
+    "action": {
+      "take_exam": "Yakuniy test",
+      "review_due": "Takrorlash",
+      "weak_topic": "Mashq qilish",
+      "low_coverage": "Tasodifiy test"
+    }
+  },
+  "mnemonic": {
+    "title": "Eslab qolish uchun",
+    "unlock": "Max bilan ochish",
+    "topicCount": "{{n}} ta eslab qolish usuli"
   }
 }

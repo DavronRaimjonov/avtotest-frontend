@@ -96,7 +96,11 @@ export const useRemoveMistakeMutation = () => {
       restore(queryClient, ctx?.lists);
       notifyApiError(error);
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stats }),
+    // Takrorlash kartasidagi raqamlar ham o'zgaradi
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.stats });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.review });
+    },
   });
 };
 

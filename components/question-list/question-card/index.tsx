@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { SavedQuestion } from "@/@types";
 import { LockedExplanation } from "@/components/billing/locked-explanation";
+import { MnemonicBlock } from "@/components/mnemonic";
 import { CheckIcon, ChevronRightIcon, ImageIcon, XIcon } from "@/components/ui/icons";
 import { useAccess } from "@/hooks/useAccess";
 import { cn } from "@/lib/helpers";
@@ -119,6 +120,7 @@ export const QuestionCard = ({ item, meta, myAnswerId, onRemove }: Props) => {
               {item.explanation}
             </p>
           )}
+          <MnemonicBlock mnemonic={item.mnemonic} mnemonicLocked={item.mnemonicLocked} />
 
           <div className="flex items-center justify-between gap-3">
             {item.topic ? <span className="text-[13px] font-semibold text-muted">{item.topic.name}</span> : <span />}

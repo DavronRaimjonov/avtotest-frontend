@@ -48,3 +48,18 @@ export const formatPrice = (amount: number) =>
 
 // Muddatgacha qolgan to'liq kunlar (o'tib ketgan bo'lsa 0)
 export const daysLeft = (iso: string) => Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000));
+
+// Kalendar kunlari farqi: bugun — 0, ertaga — 1, kecha — -1
+export const dayDiff = (iso: string) => {
+  const d = new Date(iso);
+  const now = new Date();
+  const a = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  const b = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((a - b) / 86_400_000);
+};
+
+// "10:06"
+export const formatClock = (iso: string) => {
+  const d = new Date(iso);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};

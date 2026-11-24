@@ -3,12 +3,12 @@
 import { Link } from "@/components/ui/link";
 import { useParams } from "next/navigation";
 import { useRouter } from "@/hooks/useRouter";
-import { useEffect, useEffectEvent, useMemo, useRef } from "react";
+import { useEffect, useEffectEvent, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { AnswerBody, Attempt } from "@/@types";
 import { useCountdown } from "@/hooks/useCountdown";
 import { useAttemptQuery, useBookmarkIdsQuery } from "@/hooks/useQuery";
-import { AUTO_NEXT_MS, GUEST_ID } from "@/lib/constants";
+import { GUEST_ID } from "@/lib/constants";
 import { getErrorCode, getErrorMessage } from "@/lib/helpers";
 import { ROUTES } from "@/lib/routes";
 import {
@@ -127,12 +127,11 @@ type ActiveProps = {
   // timeUp — taymer tugadi (mehmonda natijaga yuboriladi; kirganda server o'zi aniqlaydi)
   onFinish: (timeUp?: boolean) => void;
   finishing: boolean;
-  // Jamoaviy test: sarlavha (test nomi), orqaga havola, to'g'ri/xato ko'rsatilmaydi (blind),
-  // javobdan keyin o'tish kechikishi va ochilgan savol haqida xabar (admin jonli ko'radi)
+  // Jamoaviy test: sarlavha (test nomi), orqaga havola, to'g'ri/xato ko'rsatilmaydi (blind)
+  // va ochilgan savol haqida xabar (admin jonli ko'radi)
   title?: string;
   backHref?: string;
   blind?: boolean;
-  autoNextMs?: number;
   onView?: (questionId: number) => void;
 };
 
@@ -145,7 +144,6 @@ export const ActiveTest = ({
   title,
   backHref,
   blind,
-  autoNextMs = AUTO_NEXT_MS,
   onView,
 }: ActiveProps) => {
   const { t } = useTranslation();
@@ -166,42 +164,11 @@ export const ActiveTest = ({
   });
   useEffect(() => openFirst(), []);
 
-  // Javobdan keyin natija bir oz ko'rsatilib, keyingi javobsiz savolga o'tiladi.
-  // Foydalanuvchi o'zi boshqa savolga o'tsa yoki javob saqlanmasa (xato) — o'tilmaydi
-  const autoNext = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latest = useRef(attempt);
-  useEffect(() => {
-    latest.current = attempt;
-  });
-  const cancelAutoNext = () => {
-    if (autoNext.current) clearTimeout(autoNext.current);
-    autoNext.current = null;
-  };
-  useEffect(() => cancelAutoNext, []);
-
-  const goToManual = (i: number) => {
-    cancelAutoNext();
-    goTo(i);
-  };
-
-  const scheduleNext = (questionId: number) => {
-    cancelAutoNext();
-    autoNext.current = setTimeout(() => {
-      const qs = latest.current.questions;
-      const from = qs.findIndex((q) => q.id === questionId);
-      if (from === -1 || qs[from].myAnswerId === null) return;
-      // Avval keyingilaridan, keyin boshidan birinchi javobsiz savol
-      const order = [...qs.slice(from + 1), ...qs.slice(0, from)];
-      const next = order.find((q) => q.myAnswerId === null);
-      if (next) goTo(qs.indexOf(next));
-    }, autoNextMs);
-  };
-
+  // Javobdan keyin avtomatik o'tilmaydi: keyingi savolga faqat "Keyingi" tugmasi, Enter yoki → bilan
   const pick = (answerId: number) => {
     // Javob ikkala rejimda qotadi: natija darhol ko'rsatiladi, o'zgartirib bo'lmaydi
     if (question.myAnswerId !== null || finishing) return;
     onAnswer({ questionId: question.id, answerId });
-    scheduleNext(question.id);
   };
 
   // Ochilgan savol tashqariga xabar qilinadi (jamoaviy testda socket orqali adminga)
@@ -218,7 +185,7 @@ export const ActiveTest = ({
   }, [secondsLeft]);
 
   // Imtihon markazidagi kabi F1–F9 bilan javob tanlash (Mac'da F-tugmalar Fn talab qilishi mumkin —
-  // shuning uchun 1–9 raqamlari ham ishlaydi), ← → bilan savollar orasida yurish
+  // shuning uchun 1–9 raqamlari ham ishlaydi), Enter — keyingi savol, ← → bilan savollar orasida yurish
   const onKey = useEffectEvent((e: KeyboardEvent) => {
     const target = e.target as HTMLElement | null;
     if (target?.closest("input, textarea, select, [contenteditable='true']")) return;
@@ -229,8 +196,14 @@ export const ActiveTest = ({
       e.preventDefault();
       const opt = question.answers.find((a) => a.position === Number(m[1]));
       if (opt) pick(opt.id);
-    } else if (e.key === "ArrowRight") goToManual(current + 1);
-    else if (e.key === "ArrowLeft") goToManual(current - 1);
+    } else if (e.key === "Enter") {
+      // Ochiq oyna (masalan, "Yakunlash" tasdig'i) o'z Enter'ini ishlatadi
+      if (target?.closest("[role='dialog']")) return;
+      // Fokusdagi tugma (masalan, hozir bosilgan javob) qayta bosilmasin
+      e.preventDefault();
+      if (current < total - 1) goTo(current + 1);
+    } else if (e.key === "ArrowRight") goTo(current + 1);
+    else if (e.key === "ArrowLeft") goTo(current - 1);
   });
   useEffect(() => {
     window.addEventListener("keydown", onKey);
@@ -255,7 +228,7 @@ export const ActiveTest = ({
         current={current}
         secondsLeft={secondsLeft}
         finishing={finishing}
-        onGo={goToManual}
+        onGo={goTo}
         onFinish={() => onFinish(false)}
       />
       <QuestionView
@@ -277,8 +250,8 @@ export const ActiveTest = ({
         }
         isFirst={current === 0}
         isLast={current === total - 1}
-        onPrev={() => goToManual(current - 1)}
-        onNext={() => goToManual(current + 1)}
+        onPrev={() => goTo(current - 1)}
+        onNext={() => goTo(current + 1)}
       />
     </div>
   );

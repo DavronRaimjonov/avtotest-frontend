@@ -9,7 +9,8 @@ export type ExamMode = "practice" | "exam";
 
 // exam — real imtihon: har doim 20 ta tasodifiy savol, imtihon rejimida (backend majburlaydi).
 // group — jamoaviy test (faqat tarixda keladi; /landing/group-tests orqali ishlanadi)
-export type AttemptSource = "variant" | "topic" | "mistakes" | "bookmarks" | "random" | "hard" | "exam" | "group";
+// review — aqlli takrorlash: vaqti kelgan xatolar (tarif smart_review)
+export type AttemptSource = "variant" | "topic" | "mistakes" | "bookmarks" | "random" | "hard" | "exam" | "review" | "group";
 
 export type AttemptStatus = "in_progress" | "finished";
 
@@ -195,6 +196,22 @@ export interface Topic {
   slug: string;
   name: string;
   questionCount: number;
+  // Mavzu sahifasidagi "Eslab qolish uchun" kartochkalari soni (0 — blok chiqmaydi)
+  mnemonicCount?: number;
+}
+
+// "Eslab qolish uchun" (Max, feature mnemonics): mnemonic — matn (ochiq bo'lsa);
+// mnemonicLocked — savolda bor, lekin tarif yo'q (xira blok). Ikkalasi ham bo'sh — blok chiqmaydi
+export interface MnemonicFields {
+  mnemonic?: string | null;
+  mnemonicLocked?: boolean;
+}
+
+export interface TopicMnemonics {
+  topic: { id: number; name: string | null };
+  locked: boolean;
+  count: number;
+  items: string[];
 }
 
 // ---------- Test (attempt) ----------
@@ -288,7 +305,7 @@ export interface AnswerResponse {
   finishReason: FinishReason | null;
 }
 
-export interface ReviewItem extends AttemptQuestion {
+export interface ReviewItem extends AttemptQuestion, MnemonicFields {
   correctAnswerId: number;
   explanation: string | null;
 }
@@ -321,7 +338,7 @@ export type ResultData = Omit<
 
 // ---------- Mehmon (tokensiz, hech narsa saqlanmaydi) ----------
 // /guest/tests da mistakes va bookmarks yo'q
-export type GuestSource = Exclude<AttemptSource, "mistakes" | "bookmarks" | "group">;
+export type GuestSource = Exclude<AttemptSource, "mistakes" | "bookmarks" | "review" | "group">;
 
 export type GuestQuestion = Pick<AttemptQuestion, "number" | "id" | "text" | "imageUrl" | "topic" | "answers">;
 
@@ -424,7 +441,7 @@ export interface UserStats {
   topics: { id: number; name: string; answered: number; correctRate: number }[];
 }
 
-export interface SavedQuestion extends Omit<DemoQuestion, "correctAnswerId"> {
+export interface SavedQuestion extends Omit<DemoQuestion, "correctAnswerId">, MnemonicFields {
   correctAnswerId: number;
 }
 
@@ -433,6 +450,50 @@ export interface MistakeItem extends SavedQuestion {
   lastWrongAt: string;
   // Oxirgi xatoda tanlangan javob; noma'lum yoki javob o'chirilgan bo'lsa null
   myAnswerId: number | null;
+  // Aqlli takrorlash: bosqich (0..reviewSteps-1; reviewSteps da o'rganiladi) va keyingi takrorlash vaqti
+  reviewStep: number;
+  reviewSteps: number;
+  dueAt: string;
+}
+
+// ---------- Aqlli takrorlash va tayyorlik (2.6.1, 2.6.2) ----------
+export interface ReviewSummary {
+  // true — tarifda smart_review yo'q: raqamlar keladi, takrorlash testi paywall
+  locked: boolean;
+  dueNow: number;
+  dueNext24h: number;
+  learning: number;
+  learned: number;
+  nextDueAt: string | null;
+  byStep: number[];
+  intervalsDays: number[];
+  stepsToLearn: number;
+}
+
+export type ReadinessLevel = "low" | "medium" | "good" | "ready";
+
+export type ReadinessTip =
+  | { code: "take_exam" }
+  | { code: "review_due"; params: { count: number } }
+  | { code: "weak_topic"; params: { topicId: number; name: string; correctRate: number } }
+  | { code: "low_coverage"; params: { seen: number; total: number } }
+  | { code: "keep_going" };
+
+export interface Readiness {
+  score: number;
+  level: ReadinessLevel;
+  // false — 50 tadan kam javob: foiz taxminiy
+  enoughData: boolean;
+  change7d: number | null;
+  components: {
+    exam: { score: number; weight: number; count: number; passed: number; lastAt: string | null };
+    accuracy: { score: number; weight: number; answered: number };
+    coverage: { score: number; weight: number; seen: number; total: number };
+  };
+  weakTopics: { id: number; name: string; answered: number; correctRate: number }[];
+  review: { dueNow: number; learning: number; learned: number };
+  tips: ReadinessTip[];
+  history: { day: string; score: number }[];
 }
 
 export interface BookmarkItem extends SavedQuestion {
@@ -491,7 +552,7 @@ export interface GroupQuestion {
   correctAnswerId?: number;
 }
 
-export interface GroupReviewItem extends GroupQuestion {
+export interface GroupReviewItem extends GroupQuestion, MnemonicFields {
   correctAnswerId: number;
   explanation: string | null;
   isCorrect: boolean;
@@ -556,7 +617,7 @@ export interface GroupStatusEvent {
 }
 
 // ---------- Tariflar va to'lov (FRONTEND-API.md 2.8, docs/FRONTEND-TARIFLAR.md) ----------
-export type PlanFeature = "all_tests" | "final_exam" | "explanations" | "videos" | "mnemonics";
+export type PlanFeature = "all_tests" | "final_exam" | "explanations" | "smart_review" | "videos" | "mnemonics";
 export type PaymentProvider = "click" | "payme";
 // manual — admin qo'lda bergan (naqd / karta o'tkazma / sovg'a)
 export type OrderProvider = PaymentProvider | "manual";

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { ResultData, ReviewItem } from "@/@types";
 import { LockedExplanation } from "@/components/billing/locked-explanation";
+import { MnemonicBlock } from "@/components/mnemonic";
 import { cn } from "@/lib/helpers";
 
 const answerText = (item: ReviewItem, id: number | null) =>
@@ -124,6 +125,7 @@ export const ResultReview = ({
                 </p>
               )
             )}
+            <MnemonicBlock mnemonic={i.mnemonic} mnemonicLocked={i.mnemonicLocked} />
           </div>
         ))}
       </div>

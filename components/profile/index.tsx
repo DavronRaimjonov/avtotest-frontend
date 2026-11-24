@@ -2,13 +2,16 @@
 
 import { useTranslation } from "react-i18next";
 import { PaymentHistory } from "@/components/billing/payment-history";
+import { ReviewCard } from "@/components/review";
 import { useMeQuery } from "@/hooks/useQuery";
 import { ProfileHistory } from "./history";
 import { PlanCard } from "./plan-card";
 import { ProfileCard } from "./profile-card";
+import { ReadinessCard } from "./readiness";
 import { ProfileStats } from "./stats";
 
-// /profile — kabinet (faqat kirganlarga, proxy). Chapda profil va tarif, o'ngda statistika, tarix va to'lovlar.
+// /profile — kabinet (faqat kirganlarga, proxy). Chapda profil va tarif, o'ngda tayyorlik foizi, aqlli takrorlash,
+// statistika, tarix va to'lovlar.
 // Keng ekranda chap ustun aylantirganda qotib turadi
 export const Profile = () => {
   const { t } = useTranslation();
@@ -32,6 +35,8 @@ export const Profile = () => {
         <PlanCard />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col gap-6">
+        <ReadinessCard />
+        <ReviewCard />
         <ProfileStats />
         <ProfileHistory />
         <PaymentHistory />

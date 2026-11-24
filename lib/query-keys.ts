@@ -31,6 +31,11 @@ export const QUERY_KEYS = {
   bookmarkList: (lang: TestLang) => ["me", "bookmarks", "list", lang] as const,
   mistakeLists: ["me", "mistakes"] as const,
   mistakeList: (lang: TestLang) => ["me", "mistakes", lang] as const,
+  // Aqlli takrorlash va tayyorlik — test tugaganda yangilanadi
+  review: ["me", "review"] as const,
+  readinessAll: ["me", "readiness"] as const,
+  readiness: (lang: TestLang) => ["me", "readiness", lang] as const,
+  topicMnemonics: (topicId: number, lang: TestLang) => ["me", "topic-mnemonics", topicId, lang] as const,
   explanations: (ids: number[], lang: TestLang) =>
     ["me", "explanations", lang, ids.join(",")] as const,
 

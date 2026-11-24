@@ -289,3 +289,10 @@ export const CardIcon = (p: IconProps) => (
     <path d="M2.5 10h19M6.5 15h4" />
   </Svg>
 );
+
+export const BulbIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9 18h6M10 21h4" />
+    <path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1.1 2v.2h5v-.2c.1-.8.5-1.5 1.1-2A6 6 0 0 0 12 3Z" />
+  </Svg>
+);

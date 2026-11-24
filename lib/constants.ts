@@ -36,8 +36,7 @@ export const EXAM_QUESTION_COUNT = 20;
 export const EXAM_DURATION_MIN = 25;
 export const PASS_PERCENT = 90;
 
-// Javobdan keyin keyingi savolga o'tishgacha / imtihon xatolar bilan tugaganda natijaga o'tishgacha (ms)
-export const AUTO_NEXT_MS = 1200;
+// Imtihon xatolar bilan tugaganda natijaga o'tishgacha (ms)
 export const FINISH_DELAY_MS = 1800;
 
 // Katta testlar (aralash savollar, imtihon rejimi)
@@ -94,8 +93,6 @@ export const GROUP_LOBBY_POLL_MS = 15_000;
 // Vaqt tugagach server testni shuncha kechikish bilan yakunlaydi (GRACE + tekshiruv oralig'i), ms
 export const GROUP_TIME_UP_REFETCH_MS = 6_000;
 
-// Jamoaviy testda javobdan keyin keyingi savolga o'tish (natija ko'rsatilmaydi — kutish qisqa), ms
-export const GROUP_AUTO_NEXT_MS = 400;
 
 export const REPORT_MIN = 3;
 export const REPORT_MAX = 1000;
@@ -107,14 +104,14 @@ export const TELEGRAM_URL = "#";
 export const GROUP_TESTS_ENABLED = process.env.NEXT_PUBLIC_FEATURE_GROUP_TESTS === "true";
 
 // ---------- Tariflar va to'lov ----------
-// Narxlar kartasidagi imkoniyatlar tartibi: har biri plan.features bo'yicha ✓ yoki ✗.
-// optional — tarifda bo'lmasa umuman ko'rsatilmaydi (✗ emas)
-export const PLAN_FEATURES: { key: PlanFeature; optional?: boolean }[] = [
-  { key: "all_tests" },
-  { key: "final_exam" },
-  { key: "explanations" },
-  { key: "videos" },
-  { key: "mnemonics", optional: true },
+// Narxlar kartasidagi imkoniyatlar tartibi: har biri plan.features bo'yicha ✓ yoki ✗
+export const PLAN_FEATURES: PlanFeature[] = [
+  "all_tests",
+  "final_exam",
+  "explanations",
+  "smart_review",
+  "videos",
+  "mnemonics",
 ];
 
 // To'lovdan qaytgach buyurtma holati shu oraliqda so'raladi, ko'pi bilan shuncha vaqt (ms)
